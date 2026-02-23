@@ -1,0 +1,835 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Donero Cafe - Menu</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Epilogue:wght@300;400;500;600;700&family=Gloria+Hallelujah&display=swap"
+        rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+        rel="stylesheet" />
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#EDA747",
+                        "accent": "#965223",
+                        "background-light": "#f8f6f6",
+                        "background-dark": "#211114",
+                    },
+                    fontFamily: {
+                        "display": ["Epilogue"],
+                        "handwritten": ["Gloria Hallelujah", "cursive"]
+                    },
+                    borderRadius: { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" },
+                },
+            },
+        }
+    </script>
+    <style>
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        .line-art-bg {
+            background-image: radial-gradient(circle at 2px 2px, rgba(150, 82, 35, 0.05) 1px, transparent 0);
+            background-size: 24px 24px;
+        }
+
+        .active-nav {
+            background-color: #EDA747 !important;
+            color: white !important;
+            box-shadow: 0 4px 6px -1px rgb(237 167 71 / 0.2), 0 2px 4px -2px rgb(237 167 71 / 0.2) !important;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        .cart-item-animation {
+            animation: slideIn 0.3s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+
+<body
+    class="font-display bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 min-h-screen pb-24 line-art-bg">
+    <!-- Header Section -->
+    <header
+        class="sticky top-0 z-50 bg-white/90 dark:bg-background-dark/90 backdrop-blur-md border-b border-primary/10">
+        <div class="flex items-center justify-between px-4 py-4">
+            <div class="flex items-center gap-2">
+                <span class="material-symbols-outlined text-primary text-2xl"
+                    style="color: #965223;">restaurant_menu</span>
+                <h1 class="font-handwritten text-2xl text-primary tracking-tight" style="color: #965223;">Donero Cafe
+                </h1>
+            </div>
+            <div class="flex gap-3">
+                <button id="search-btn" class="p-2 hover:bg-primary/10 rounded-full transition-colors">
+                    <span class="material-symbols-outlined text-slate-700 dark:text-slate-300">search</span>
+                </button>
+                <button class="p-2 hover:bg-primary/10 rounded-full transition-colors">
+                    <span class="material-symbols-outlined text-slate-700 dark:text-slate-300">account_circle</span>
+                </button>
+            </div>
+        </div>
+        <!-- Horizontal Nav Bar -->
+        <nav id="category-nav" class="flex overflow-x-auto no-scrollbar gap-3 px-4 pb-4 scroll-smooth">
+            <a class="nav-link flex-none px-5 py-2 rounded-full bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 text-sm font-semibold border border-slate-200 dark:border-slate-700"
+                href="#pizza">Pizza</a>
+            <a class="nav-link flex-none px-5 py-2 rounded-full bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 text-sm font-semibold border border-slate-200 dark:border-slate-700"
+                href="#pasta">Pasta</a>
+            <a class="nav-link flex-none px-5 py-2 rounded-full bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 text-sm font-semibold border border-slate-200 dark:border-slate-700"
+                href="#fries">Fries</a>
+            <a class="nav-link flex-none px-5 py-2 rounded-full bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 text-sm font-semibold border border-slate-200 dark:border-slate-700"
+                href="#beverages">Beverages</a>
+            <a class="nav-link flex-none px-5 py-2 rounded-full bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 text-sm font-semibold border border-slate-200 dark:border-slate-700"
+                href="#snacks">Snacks</a>
+            <a class="nav-link flex-none px-5 py-2 rounded-full bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 text-sm font-semibold border border-slate-200 dark:border-slate-700"
+                href="#main-course">Main Course</a>
+            <a class="nav-link flex-none px-5 py-2 rounded-full bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 text-sm font-semibold border border-slate-200 dark:border-slate-700"
+                href="#desserts">Desserts</a>
+            <a class="nav-link flex-none px-5 py-2 rounded-full bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 text-sm font-semibold border border-slate-200 dark:border-slate-700"
+                href="#ice-cream">Ice Cream</a>
+            <a class="nav-link flex-none px-5 py-2 rounded-full bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 text-sm font-semibold border border-slate-200 dark:border-slate-700"
+                href="#coffee">Coffee</a>
+        </nav>
+    </header>
+
+    <main class="max-w-2xl mx-auto px-4 pt-6 space-y-12">
+        <!-- Pizza Section -->
+        <section id="pizza" class="scroll-mt-32">
+            <div class="flex items-center justify-between mb-6">
+                <h2 class="text-xl font-bold flex items-center gap-2" style="color: #965223;">
+                    Pizza <span class="material-symbols-outlined text-primary text-lg"
+                        style="color: #965223;">local_pizza</span>
+                </h2>
+                <div class="h-[1px] flex-1 ml-4 bg-primary/20" style="background-color: rgba(150, 82, 35, 0.2);"></div>
+            </div>
+            <div class="grid gap-4">
+                <!-- Margherita -->
+                <div
+                    class="menu-item bg-white dark:bg-slate-800 rounded-xl overflow-hidden shadow-sm border border-slate-100 dark:border-slate-700 flex">
+                    <div class="w-32 h-32 flex-shrink-0 bg-cover bg-center"
+                        style="background-image: url('https://images.unsplash.com/photo-1604068549290-dea0e4a305ca?auto=format&fit=crop&w=300&q=80')">
+                    </div>
+                    <div class="p-4 flex flex-col justify-between flex-1">
+                        <div>
+                            <h3 class="font-bold text-slate-900 dark:text-slate-100">Margherita Pizza</h3>
+                            <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Classic tomato sauce and
+                                mozzarella</p>
+                        </div>
+                        <div class="flex items-center justify-between mt-2">
+                            <span class="font-bold text-primary" style="color: #965223;">₹129</span>
+                            <button onclick="addToCart('Margherita Pizza', 129)"
+                                class="bg-primary text-white rounded-lg px-4 py-1.5 text-sm font-bold flex items-center gap-1 hover:scale-95 transition-transform active:bg-primary/90"
+                                style="background-color: #EDA747;">
+                                <span class="material-symbols-outlined text-base">add</span> Add
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <!-- Chicken Tikka -->
+                <div
+                    class="menu-item bg-white dark:bg-slate-800 rounded-xl overflow-hidden shadow-sm border border-slate-100 dark:border-slate-700 flex">
+                    <div class="w-32 h-32 flex-shrink-0 bg-cover bg-center"
+                        style="background-image: url('https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?auto=format&fit=crop&w=300&q=80')">
+                    </div>
+                    <div class="p-4 flex flex-col justify-between flex-1">
+                        <div>
+                            <h3 class="font-bold text-slate-900 dark:text-slate-100">Chicken Tikka Pizza</h3>
+                            <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Tandoori chicken pieces with
+                                spicy dip</p>
+                        </div>
+                        <div class="flex items-center justify-between mt-2">
+                            <span class="font-bold text-primary" style="color: #965223;">₹239</span>
+                            <button onclick="addToCart('Chicken Tikka Pizza', 239)"
+                                class="bg-primary text-white rounded-lg px-4 py-1.5 text-sm font-bold flex items-center gap-1 hover:scale-95 transition-transform active:bg-primary/90"
+                                style="background-color: #EDA747;">
+                                <span class="material-symbols-outlined text-base">add</span> Add
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div
+                    class="menu-item bg-white dark:bg-slate-800 rounded-xl overflow-hidden shadow-sm border border-slate-100 dark:border-slate-700 flex">
+                    <div class="w-32 h-32 flex-shrink-0 bg-cover bg-center"
+                        style="background-image: url('https://images.unsplash.com/photo-1513104890138-7c749659a591?auto=format&fit=crop&w=300&q=80')">
+                    </div>
+                    <div class="p-4 flex flex-col justify-between flex-1">
+                        <div>
+                            <h3 class="font-bold text-slate-900 dark:text-slate-100">Mexican Wave Pizza</h3>
+                            <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Spicy jalapeños, onions and corn
+                            </p>
+                        </div>
+                        <div class="flex items-center justify-between mt-2">
+                            <span class="font-bold text-primary" style="color: #965223;">₹219</span>
+                            <button onclick="addToCart('Mexican Wave Pizza', 219)"
+                                class="bg-primary text-white rounded-lg px-4 py-1.5 text-sm font-bold flex items-center gap-1 hover:scale-95 transition-transform active:bg-primary/90"
+                                style="background-color: #EDA747;">
+                                <span class="material-symbols-outlined text-base">add</span> Add
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Pasta Section -->
+        <section id="pasta" class="scroll-mt-32">
+            <div class="flex items-center justify-between mb-6">
+                <h2 class="text-xl font-bold flex items-center gap-2" style="color: #965223;">
+                    Pasta <span class="material-symbols-outlined text-primary text-lg"
+                        style="color: #965223;">dinner_dining</span>
+                </h2>
+                <div class="h-[1px] flex-1 ml-4 bg-primary/20" style="background-color: rgba(150, 82, 35, 0.2);"></div>
+            </div>
+            <div class="grid gap-4">
+                <div
+                    class="menu-item bg-white dark:bg-slate-800 rounded-xl overflow-hidden shadow-sm border border-slate-100 dark:border-slate-700 flex">
+                    <div class="w-32 h-32 flex-shrink-0 bg-cover bg-center"
+                        style="background-image: url('https://images.unsplash.com/photo-1563379926898-05f4575a45d8?auto=format&fit=crop&w=300&q=80')">
+                    </div>
+                    <div class="p-4 flex flex-col justify-between flex-1">
+                        <div>
+                            <h3 class="font-bold text-slate-900 dark:text-slate-100">Arrabbiata Pasta</h3>
+                            <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Spicy red sauce with garlic and
+                                herbs</p>
+                        </div>
+                        <div class="flex items-center justify-between mt-2">
+                            <span class="font-bold text-primary" style="color: #965223;">₹210</span>
+                            <button onclick="addToCart('Arrabbiata Pasta', 210)"
+                                class="bg-primary text-white rounded-lg px-4 py-1.5 text-sm font-bold flex items-center gap-1 hover:scale-95 transition-transform"
+                                style="background-color: #EDA747;">
+                                <span class="material-symbols-outlined text-base">add</span> Add
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div
+                    class="menu-item bg-white dark:bg-slate-800 rounded-xl overflow-hidden shadow-sm border border-slate-100 dark:border-slate-700 flex">
+                    <div class="w-32 h-32 flex-shrink-0 bg-cover bg-center"
+                        style="background-image: url('https://images.unsplash.com/photo-1645112411341-6c4fd023714a?auto=format&fit=crop&w=300&q=80')">
+                    </div>
+                    <div class="p-4 flex flex-col justify-between flex-1">
+                        <div>
+                            <h3 class="font-bold text-slate-900 dark:text-slate-100">Alfredo Pasta</h3>
+                            <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Rich creamy white sauce with
+                                Parmesan</p>
+                        </div>
+                        <div class="flex items-center justify-between mt-2">
+                            <span class="font-bold text-primary" style="color: #965223;">₹210</span>
+                            <button onclick="addToCart('Alfredo Pasta', 210)"
+                                class="bg-primary text-white rounded-lg px-4 py-1.5 text-sm font-bold flex items-center gap-1 hover:scale-95 transition-transform"
+                                style="background-color: #EDA747;">
+                                <span class="material-symbols-outlined text-base">add</span> Add
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div
+                    class="menu-item bg-white dark:bg-slate-800 rounded-xl overflow-hidden shadow-sm border border-slate-100 dark:border-slate-700 flex">
+                    <div class="w-32 h-32 flex-shrink-0 bg-cover bg-center"
+                        style="background-image: url('https://images.unsplash.com/photo-1551183053-bf91a1d81141?auto=format&fit=crop&w=300&q=80')">
+                    </div>
+                    <div class="p-4 flex flex-col justify-between flex-1">
+                        <div>
+                            <h3 class="font-bold text-slate-900 dark:text-slate-100">Penne Pink Sauce</h3>
+                            <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Delicious blend of red and white
+                                sauces</p>
+                        </div>
+                        <div class="flex items-center justify-between mt-2">
+                            <span class="font-bold text-primary" style="color: #965223;">₹229</span>
+                            <button onclick="addToCart('Penne Pink Sauce', 229)"
+                                class="bg-primary text-white rounded-lg px-4 py-1.5 text-sm font-bold flex items-center gap-1 hover:scale-95 transition-transform"
+                                style="background-color: #EDA747;">
+                                <span class="material-symbols-outlined text-base">add</span> Add
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Fries Section -->
+        <section id="fries" class="scroll-mt-32">
+            <div class="flex items-center justify-between mb-6">
+                <h2 class="text-xl font-bold flex items-center gap-2" style="color: #965223;">
+                    Fries <span class="material-symbols-outlined text-primary text-lg"
+                        style="color: #965223;">breakfast_dining</span>
+                </h2>
+                <div class="h-[1px] flex-1 ml-4 bg-primary/20" style="background-color: rgba(150, 82, 35, 0.2);"></div>
+            </div>
+            <div class="grid gap-4">
+                <div
+                    class="menu-item bg-white dark:bg-slate-800 rounded-xl overflow-hidden shadow-sm border border-slate-100 dark:border-slate-700 flex">
+                    <div class="w-32 h-32 flex-shrink-0 bg-cover bg-center"
+                        style="background-image: url('https://images.unsplash.com/photo-1573080496219-bb080dd4f877?auto=format&fit=crop&w=300&q=80')">
+                    </div>
+                    <div class="p-4 flex flex-col justify-between flex-1">
+                        <div>
+                            <h3 class="font-bold text-slate-900 dark:text-slate-100">Peri Peri Fries</h3>
+                            <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Spiced with African Peri Peri
+                                masala</p>
+                        </div>
+                        <div class="flex items-center justify-between mt-2">
+                            <span class="font-bold text-primary" style="color: #965223;">₹89</span>
+                            <button onclick="addToCart('Peri Peri Fries', 89)"
+                                class="bg-primary text-white rounded-lg px-4 py-1.5 text-sm font-bold flex items-center gap-1 hover:scale-95 transition-transform"
+                                style="background-color: #EDA747;">
+                                <span class="material-symbols-outlined text-base">add</span> Add
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div
+                    class="menu-item bg-white dark:bg-slate-800 rounded-xl overflow-hidden shadow-sm border border-slate-100 dark:border-slate-700 flex">
+                    <div class="w-32 h-32 flex-shrink-0 bg-cover bg-center"
+                        style="background-image: url('https://images.unsplash.com/photo-1630384060421-cb20d0e0649d?auto=format&fit=crop&w=300&q=80')">
+                    </div>
+                    <div class="p-4 flex flex-col justify-between flex-1">
+                        <div>
+                            <h3 class="font-bold text-slate-900 dark:text-slate-100">Cheese Garlic Fries</h3>
+                            <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Melted cheese with roasted garlic
+                            </p>
+                        </div>
+                        <div class="flex items-center justify-between mt-2">
+                            <span class="font-bold text-primary" style="color: #965223;">₹129</span>
+                            <button onclick="addToCart('Cheese Garlic Fries', 129)"
+                                class="bg-primary text-white rounded-lg px-4 py-1.5 text-sm font-bold flex items-center gap-1 hover:scale-95 transition-transform"
+                                style="background-color: #EDA747;">
+                                <span class="material-symbols-outlined text-base">add</span> Add
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Beverages Section -->
+        <section id="beverages" class="scroll-mt-32">
+            <div class="flex items-center justify-between mb-6">
+                <h2 class="text-xl font-bold flex items-center gap-2" style="color: #965223;">
+                    Beverages <span class="material-symbols-outlined text-primary text-lg"
+                        style="color: #965223;">local_cafe</span>
+                </h2>
+                <div class="h-[1px] flex-1 ml-4 bg-primary/20" style="background-color: rgba(150, 82, 35, 0.2);"></div>
+            </div>
+            <div class="grid gap-4">
+                <div
+                    class="menu-item bg-white dark:bg-slate-800 rounded-xl overflow-hidden shadow-sm border border-slate-100 dark:border-slate-700 flex">
+                    <div class="w-32 h-32 flex-shrink-0 bg-cover bg-center"
+                        style="background-image: url('https://images.unsplash.com/photo-1544145945-f904253d0c7b?auto=format&fit=crop&w=300&q=80')">
+                    </div>
+                    <div class="p-4 flex flex-col justify-between flex-1">
+                        <div>
+                            <h3 class="font-bold text-slate-900 dark:text-slate-100">Iced Lemon Tea</h3>
+                            <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Refreshing tea with a dash of
+                                lime</p>
+                        </div>
+                        <div class="flex items-center justify-between mt-2">
+                            <span class="font-bold text-primary" style="color: #965223;">₹99</span>
+                            <button onclick="addToCart('Iced Lemon Tea', 99)"
+                                class="bg-primary text-white rounded-lg px-4 py-1.5 text-sm font-bold flex items-center gap-1 hover:scale-95 transition-transform"
+                                style="background-color: #EDA747;">
+                                <span class="material-symbols-outlined text-base">add</span> Add
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div
+                    class="menu-item bg-white dark:bg-slate-800 rounded-xl overflow-hidden shadow-sm border border-slate-100 dark:border-slate-700 flex">
+                    <div class="w-32 h-32 flex-shrink-0 bg-cover bg-center"
+                        style="background-image: url('https://images.unsplash.com/photo-1599390805147-383566162383?auto=format&fit=crop&w=300&q=80')">
+                    </div>
+                    <div class="p-4 flex flex-col justify-between flex-1">
+                        <div>
+                            <h3 class="font-bold text-slate-900 dark:text-slate-100">Fresh Lime Soda</h3>
+                            <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Sparkling limeade with a hint of
+                                salt</p>
+                        </div>
+                        <div class="flex items-center justify-between mt-2">
+                            <span class="font-bold text-primary" style="color: #965223;">₹79</span>
+                            <button onclick="addToCart('Fresh Lime Soda', 79)"
+                                class="bg-primary text-white rounded-lg px-4 py-1.5 text-sm font-bold flex items-center gap-1 hover:scale-95 transition-transform"
+                                style="background-color: #EDA747;">
+                                <span class="material-symbols-outlined text-base">add</span> Add
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Snacks Section -->
+        <section id="snacks" class="scroll-mt-32">
+            <div class="flex items-center justify-between mb-6">
+                <h2 class="text-xl font-bold flex items-center gap-2" style="color: #965223;">
+                    Snacks <span class="material-symbols-outlined text-primary text-lg"
+                        style="color: #965223;">fastfood</span>
+                </h2>
+                <div class="h-[1px] flex-1 ml-4 bg-primary/20" style="background-color: rgba(150, 82, 35, 0.2);"></div>
+            </div>
+            <div class="grid gap-4">
+                <div
+                    class="menu-item bg-white dark:bg-slate-800 rounded-xl overflow-hidden shadow-sm border border-slate-100 dark:border-slate-700 flex">
+                    <div class="w-32 h-32 flex-shrink-0 bg-cover bg-center"
+                        style="background-image: url('https://images.unsplash.com/photo-1626074353765-517a681e40be?auto=format&fit=crop&w=300&q=80')">
+                    </div>
+                    <div class="p-4 flex flex-col justify-between flex-1">
+                        <div>
+                            <h3 class="font-bold text-slate-900 dark:text-slate-100">Paneer Tikka</h3>
+                            <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Grilled cottage cheese with mint
+                                chutney</p>
+                        </div>
+                        <div class="flex items-center justify-between mt-2">
+                            <span class="font-bold text-primary" style="color: #965223;">₹199</span>
+                            <button onclick="addToCart('Paneer Tikka', 199)"
+                                class="bg-primary text-white rounded-lg px-4 py-1.5 text-sm font-bold flex items-center gap-1 hover:scale-95 transition-transform"
+                                style="background-color: #EDA747;">
+                                <span class="material-symbols-outlined text-base">add</span> Add
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div
+                    class="menu-item bg-white dark:bg-slate-800 rounded-xl overflow-hidden shadow-sm border border-slate-100 dark:border-slate-700 flex">
+                    <div class="w-32 h-32 flex-shrink-0 bg-cover bg-center"
+                        style="background-image: url('https://images.unsplash.com/photo-1601050690597-df056fb272ad?auto=format&fit=crop&w=300&q=80')">
+                    </div>
+                    <div class="p-4 flex flex-col justify-between flex-1">
+                        <div>
+                            <h3 class="font-bold text-slate-900 dark:text-slate-100">Crispy Spring Rolls</h3>
+                            <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Vegetable filled rolls with
+                                chilly dip</p>
+                        </div>
+                        <div class="flex items-center justify-between mt-2">
+                            <span class="font-bold text-primary" style="color: #965223;">₹149</span>
+                            <button onclick="addToCart('Crispy Spring Rolls', 149)"
+                                class="bg-primary text-white rounded-lg px-4 py-1.5 text-sm font-bold flex items-center gap-1 hover:scale-95 transition-transform"
+                                style="background-color: #EDA747;">
+                                <span class="material-symbols-outlined text-base">add</span> Add
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Main Course Section -->
+        <section id="main-course" class="scroll-mt-32">
+            <div class="flex items-center justify-between mb-6">
+                <h2 class="text-xl font-bold flex items-center gap-2" style="color: #965223;">
+                    Main Course <span class="material-symbols-outlined text-primary text-lg"
+                        style="color: #965223;">lunch_dining</span>
+                </h2>
+                <div class="h-[1px] flex-1 ml-4 bg-primary/20" style="background-color: rgba(150, 82, 35, 0.2);"></div>
+            </div>
+            <div class="grid gap-4">
+                <div
+                    class="menu-item bg-white dark:bg-slate-800 rounded-xl overflow-hidden shadow-sm border border-slate-100 dark:border-slate-700 flex">
+                    <div class="w-32 h-32 flex-shrink-0 bg-cover bg-center"
+                        style="background-image: url('https://images.unsplash.com/photo-1588166524941-3bf61a9c41db?auto=format&fit=crop&w=300&q=80')">
+                    </div>
+                    <div class="p-4 flex flex-col justify-between flex-1">
+                        <div>
+                            <h3 class="font-bold text-slate-900 dark:text-slate-100">Veg Biryani</h3>
+                            <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Aromatic rice with seasonal
+                                vegetables</p>
+                        </div>
+                        <div class="flex items-center justify-between mt-2">
+                            <span class="font-bold text-primary" style="color: #965223;">₹279</span>
+                            <button onclick="addToCart('Veg Biryani', 279)"
+                                class="bg-primary text-white rounded-lg px-4 py-1.5 text-sm font-bold flex items-center gap-1 hover:scale-95 transition-transform"
+                                style="background-color: #EDA747;">
+                                <span class="material-symbols-outlined text-base">add</span> Add
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div
+                    class="menu-item bg-white dark:bg-slate-800 rounded-xl overflow-hidden shadow-sm border border-slate-100 dark:border-slate-700 flex">
+                    <div class="w-32 h-32 flex-shrink-0 bg-cover bg-center"
+                        style="background-image: url('https://images.unsplash.com/photo-1603894584202-9ca8fe995c96?auto=format&fit=crop&w=300&q=80')">
+                    </div>
+                    <div class="p-4 flex flex-col justify-between flex-1">
+                        <div>
+                            <h3 class="font-bold text-slate-900 dark:text-slate-100">Butter Chicken</h3>
+                            <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Creamy tomato gravy with tender
+                                chicken</p>
+                        </div>
+                        <div class="flex items-center justify-between mt-2">
+                            <span class="font-bold text-primary" style="color: #965223;">₹349</span>
+                            <button onclick="addToCart('Butter Chicken', 349)"
+                                class="bg-primary text-white rounded-lg px-4 py-1.5 text-sm font-bold flex items-center gap-1 hover:scale-95 transition-transform"
+                                style="background-color: #EDA747;">
+                                <span class="material-symbols-outlined text-base">add</span> Add
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Desserts and Ice Cream -->
+        <section id="desserts" class="scroll-mt-32">
+            <div class="flex items-center justify-between mb-6">
+                <h2 class="text-xl font-bold flex items-center gap-2" style="color: #965223;">
+                    Desserts <span class="material-symbols-outlined text-primary text-lg"
+                        style="color: #965223;">bakery_dining</span>
+                </h2>
+                <div class="h-[1px] flex-1 ml-4 bg-primary/20" style="background-color: rgba(150, 82, 35, 0.2);"></div>
+            </div>
+            <div class="grid gap-4">
+                <div
+                    class="menu-item bg-white dark:bg-slate-800 rounded-xl overflow-hidden shadow-sm border border-slate-100 dark:border-slate-700 flex">
+                    <div class="w-32 h-32 flex-shrink-0 bg-cover bg-center"
+                        style="background-image: url('https://images.unsplash.com/photo-1624353365286-3f8d62daad51?auto=format&fit=crop&w=300&q=80')">
+                    </div>
+                    <div class="p-4 flex flex-col justify-between flex-1">
+                        <div>
+                            <h3 class="font-bold text-slate-900 dark:text-slate-100">Choco Brownie</h3>
+                            <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Warm fudgy brownie with chocolate
+                                drizzle</p>
+                        </div>
+                        <div class="flex items-center justify-between mt-2">
+                            <span class="font-bold text-primary" style="color: #965223;">₹159</span>
+                            <button onclick="addToCart('Choco Brownie', 159)"
+                                class="bg-primary text-white rounded-lg px-4 py-1.5 text-sm font-bold flex items-center gap-1 hover:scale-95 transition-transform"
+                                style="background-color: #EDA747;">
+                                <span class="material-symbols-outlined text-base">add</span> Add
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="ice-cream" class="scroll-mt-32">
+            <div class="flex items-center justify-between mb-6">
+                <h2 class="text-xl font-bold flex items-center gap-2" style="color: #965223;">
+                    Ice Cream <span class="material-symbols-outlined text-primary text-lg"
+                        style="color: #965223;">icecream</span>
+                </h2>
+                <div class="h-[1px] flex-1 ml-4 bg-primary/20" style="background-color: rgba(150, 82, 35, 0.2);"></div>
+            </div>
+            <div class="grid gap-4">
+                <div
+                    class="menu-item bg-white dark:bg-slate-800 rounded-xl overflow-hidden shadow-sm border border-slate-100 dark:border-slate-700 flex">
+                    <div class="w-32 h-32 flex-shrink-0 bg-cover bg-center"
+                        style="background-image: url('https://images.unsplash.com/photo-1570197788417-0e82375c9371?auto=format&fit=crop&w=300&q=80')">
+                    </div>
+                    <div class="p-4 flex flex-col justify-between flex-1">
+                        <div>
+                            <h3 class="font-bold text-slate-900 dark:text-slate-100">Vanilla Fudge</h3>
+                            <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Rich vanilla scoop with chocolate
+                                fudge</p>
+                        </div>
+                        <div class="flex items-center justify-between mt-2">
+                            <span class="font-bold text-primary" style="color: #965223;">₹89</span>
+                            <button onclick="addToCart('Vanilla Fudge', 89)"
+                                class="bg-primary text-white rounded-lg px-4 py-1.5 text-sm font-bold flex items-center gap-1 hover:scale-95 transition-transform"
+                                style="background-color: #EDA747;">
+                                <span class="material-symbols-outlined text-base">add</span> Add
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div
+                    class="menu-item bg-white dark:bg-slate-800 rounded-xl overflow-hidden shadow-sm border border-slate-100 dark:border-slate-700 flex">
+                    <div class="w-32 h-32 flex-shrink-0 bg-cover bg-center"
+                        style="background-image: url('https://images.unsplash.com/photo-1563805042-7684c019e1cb?auto=format&fit=crop&w=300&q=80')">
+                    </div>
+                    <div class="p-4 flex flex-col justify-between flex-1">
+                        <div>
+                            <h3 class="font-bold text-slate-900 dark:text-slate-100">Fruit Sundae</h3>
+                            <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Mixed fruits with vanilla and
+                                strawberry scoops</p>
+                        </div>
+                        <div class="flex items-center justify-between mt-2">
+                            <span class="font-bold text-primary" style="color: #965223;">₹179</span>
+                            <button onclick="addToCart('Fruit Sundae', 179)"
+                                class="bg-primary text-white rounded-lg px-4 py-1.5 text-sm font-bold flex items-center gap-1 hover:scale-95 transition-transform"
+                                style="background-color: #EDA747;">
+                                <span class="material-symbols-outlined text-base">add</span> Add
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Coffee Section -->
+        <section id="coffee" class="scroll-mt-32">
+            <div class="flex items-center justify-between mb-6">
+                <h2 class="text-xl font-bold flex items-center gap-2" style="color: #965223;">
+                    Coffee <span class="material-symbols-outlined text-primary text-lg"
+                        style="color: #965223;">coffee</span>
+                </h2>
+                <div class="h-[1px] flex-1 ml-4 bg-primary/20" style="background-color: rgba(150, 82, 35, 0.2);"></div>
+            </div>
+            <div class="grid gap-4">
+                <div
+                    class="menu-item bg-white dark:bg-slate-800 rounded-xl overflow-hidden shadow-sm border border-slate-100 dark:border-slate-700 flex">
+                    <div class="w-32 h-32 flex-shrink-0 bg-cover bg-center"
+                        style="background-image: url('https://images.unsplash.com/photo-1541173155373-ba22ba91317b?auto=format&fit=crop&w=300&q=80')">
+                    </div>
+                    <div class="p-4 flex flex-col justify-between flex-1">
+                        <div>
+                            <h3 class="font-bold text-slate-900 dark:text-slate-100">Cappuccino</h3>
+                            <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Double shot espresso with steamed
+                                milk foam</p>
+                        </div>
+                        <div class="flex items-center justify-between mt-2">
+                            <span class="font-bold text-primary" style="color: #965223;">₹129</span>
+                            <button onclick="addToCart('Cappuccino', 129)"
+                                class="bg-primary text-white rounded-lg px-4 py-1.5 text-sm font-bold flex items-center gap-1 hover:scale-95 transition-transform"
+                                style="background-color: #EDA747;">
+                                <span class="material-symbols-outlined text-base">add</span> Add
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div
+                    class="menu-item bg-white dark:bg-slate-800 rounded-xl overflow-hidden shadow-sm border border-slate-100 dark:border-slate-700 flex">
+                    <div class="w-32 h-32 flex-shrink-0 bg-cover bg-center"
+                        style="background-image: url('https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?auto=format&fit=crop&w=300&q=80')">
+                    </div>
+                    <div class="p-4 flex flex-col justify-between flex-1">
+                        <div>
+                            <h3 class="font-bold text-slate-900 dark:text-slate-100">Iced Americano</h3>
+                            <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Chilled espresso with water and
+                                ice</p>
+                        </div>
+                        <div class="flex items-center justify-between mt-2">
+                            <span class="font-bold text-primary" style="color: #965223;">₹149</span>
+                            <button onclick="addToCart('Iced Americano', 149)"
+                                class="bg-primary text-white rounded-lg px-4 py-1.5 text-sm font-bold flex items-center gap-1 hover:scale-95 transition-transform"
+                                style="background-color: #EDA747;">
+                                <span class="material-symbols-outlined text-base">add</span> Add
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Bottom Cart Bar -->
+    <div id="cart-bar"
+        class="fixed bottom-0 left-0 right-0 p-4 bg-transparent pointer-events-none transform translate-y-full transition-transform duration-300">
+        <div class="max-w-md mx-auto pointer-events-auto">
+            <button onclick="toggleCartModal()"
+                class="w-full bg-primary text-white p-4 rounded-xl shadow-xl flex items-center justify-between ring-4 ring-white dark:ring-slate-900 group"
+                style="background-color: #EDA747;">
+                <div class="flex items-center gap-3">
+                    <div class="bg-white/20 p-1.5 rounded-lg">
+                        <span class="material-symbols-outlined">shopping_basket</span>
+                    </div>
+                    <div class="text-left">
+                        <p id="cart-count" class="text-xs font-medium text-white/80">View Cart • 0 Items</p>
+                        <p id="cart-total" class="font-bold text-lg">₹0</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-1 font-bold group-hover:translate-x-1 transition-transform">
+                    Checkout <span class="material-symbols-outlined">chevron_right</span>
+                </div>
+            </button>
+        </div>
+    </div>
+
+    <!-- Cart Modal -->
+    <div id="cart-modal" class="fixed inset-0 z-50 hidden">
+        <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" onclick="toggleCartModal()"></div>
+        <div
+            class="absolute bottom-0 left-0 right-0 max-w-2xl mx-auto bg-white dark:bg-slate-900 rounded-t-3xl shadow-2xl p-6 transform transition-transform duration-300 translate-y-0">
+            <div class="flex items-center justify-between mb-6">
+                <h2 class="text-xl font-bold">Your Cart</h2>
+                <button onclick="toggleCartModal()" class="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full">
+                    <span class="material-symbols-outlined">close</span>
+                </button>
+            </div>
+            <div id="cart-items" class="space-y-4 max-h-[50vh] overflow-y-auto no-scrollbar mb-6">
+                <!-- Items populated by JS -->
+            </div>
+            <div class="border-t border-slate-100 dark:border-slate-800 pt-6">
+                <div class="flex items-center justify-between mb-4">
+                    <span class="text-slate-500">Subtotal</span>
+                    <span id="modal-total" class="font-bold text-xl">₹0</span>
+                </div>
+                <button onclick="checkout()"
+                    class="w-full bg-primary text-white p-4 rounded-xl font-bold shadow-lg hover:brightness-110 active:scale-[0.98] transition-all"
+                    style="background-color: #EDA747;">
+                    Confirm Order
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let cart = [];
+
+        function addToCart(name, price) {
+            const existing = cart.find(item => item.name === name);
+            if (existing) {
+                existing.quantity += 1;
+            } else {
+                cart.push({ name, price, quantity: 1 });
+            }
+            updateCartUI();
+            showNotification(`${name} added to cart!`);
+        }
+
+        function removeFromCart(name) {
+            const index = cart.findIndex(item => item.name === name);
+            if (index > -1) {
+                if (cart[index].quantity > 1) {
+                    cart[index].quantity -= 1;
+                } else {
+                    cart.splice(index, 1);
+                }
+            }
+            updateCartUI();
+        }
+
+        function updateCartUI() {
+            const count = cart.reduce((sum, item) => sum + item.quantity, 0);
+            const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+
+            const cartBar = document.getElementById('cart-bar');
+            const cartCount = document.getElementById('cart-count');
+            const cartTotal = document.getElementById('cart-total');
+            const modalTotal = document.getElementById('modal-total');
+            const cartItemsContainer = document.getElementById('cart-items');
+
+            if (count > 0) {
+                cartBar.classList.remove('translate-y-full');
+            } else {
+                cartBar.classList.add('translate-y-full');
+                document.getElementById('cart-modal').classList.add('hidden');
+            }
+
+            cartCount.innerText = `View Cart • ${count} Item${count > 1 ? 's' : ''}`;
+            cartTotal.innerText = `₹${total}`;
+            modalTotal.innerText = `₹${total}`;
+
+            cartItemsContainer.innerHTML = cart.map(item => `
+                <div class="flex items-center justify-between cart-item-animation">
+                    <div>
+                        <p class="font-bold">${item.name}</p>
+                        <p class="text-sm text-slate-500">₹${item.price} x ${item.quantity}</p>
+                    </div>
+                    <div class="flex items-center gap-3 bg-slate-100 dark:bg-slate-800 rounded-lg p-1">
+                        <button onclick="removeFromCart('${item.name}')" class="w-8 h-8 flex items-center justify-center hover:bg-white dark:hover:bg-slate-700 rounded-md transition-colors">
+                            <span class="material-symbols-outlined text-sm">remove</span>
+                        </button>
+                        <span class="font-bold text-sm w-4 text-center">${item.quantity}</span>
+                        <button onclick="addToCart('${item.name}', ${item.price})" class="w-8 h-8 flex items-center justify-center hover:bg-white dark:hover:bg-slate-700 rounded-md transition-colors">
+                            <span class="material-symbols-outlined text-sm">add</span>
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function toggleCartModal() {
+            const modal = document.getElementById('cart-modal');
+            modal.classList.toggle('hidden');
+        }
+
+        function checkout() {
+            alert('Order placed successfully! Total: ₹' + cart.reduce((sum, item) => sum + (item.price * item.quantity), 0));
+            cart = [];
+            updateCartUI();
+        }
+
+        function showNotification(msg) {
+            const toast = document.createElement('div');
+            toast.className = 'fixed top-24 left-1/2 -translate-x-1/2 bg-slate-900 text-white px-6 py-3 rounded-full text-sm font-medium z-[100] shadow-2xl animate-bounce';
+            toast.innerText = msg;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 2000);
+        }
+
+        // Scroll Spy & Nav Highlighting
+        const sections = document.querySelectorAll('section');
+        const navLinks = document.querySelectorAll('.nav-link');
+
+        window.addEventListener('scroll', () => {
+            let current = '';
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                if (pageYOffset >= sectionTop - 150) {
+                    current = section.getAttribute('id');
+                }
+            });
+
+            navLinks.forEach(link => {
+                link.classList.remove('active-nav');
+                if (link.getAttribute('href') === `#${current}`) {
+                    link.classList.add('active-nav');
+                    link.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+                }
+            });
+        });
+
+        // Search Functionality
+        const searchBtn = document.getElementById('search-btn');
+
+        searchBtn.addEventListener('click', () => {
+            const query = prompt('Search for dishes:');
+            if (query === null) return;
+
+            const lowerQuery = query.toLowerCase();
+            let found = false;
+            const menuItems = document.querySelectorAll('.menu-item');
+
+            menuItems.forEach(item => {
+                const name = item.querySelector('h3').innerText.toLowerCase();
+                const desc = item.querySelector('p').innerText.toLowerCase();
+
+                if (name.includes(lowerQuery) || desc.includes(lowerQuery)) {
+                    item.style.display = 'flex';
+                    found = true;
+                    if (lowerQuery !== '') {
+                        item.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+
+            if (!found && lowerQuery !== '') {
+                alert('No items found matching "' + query + '"');
+                menuItems.forEach(item => item.style.display = 'flex');
+            }
+        });
+
+        // Initialize first nav item
+        if (navLinks.length > 0) navLinks[0].classList.add('active-nav');
+    </script>
+</body>
+
+</html>
