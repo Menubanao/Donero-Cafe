@@ -871,17 +871,25 @@
         }
 
         // Scroll Spy & Nav Highlighting
-        const sections = document.querySelectorAll('section');
-        const navLinks = document.querySelectorAll('.nav-link');
+        const sections = Array.from(document.querySelectorAll('section'));
+        const navLinks = Array.from(document.querySelectorAll('.nav-link'));
 
-        window.addEventListener('scroll', () => {
+        function updateNavHighlight() {
             let current = '';
-            sections.forEach(section => {
-                const sectionTop = section.offsetTop;
-                if (pageYOffset >= sectionTop - 150) {
-                    current = section.getAttribute('id');
-                }
-            });
+            const scrollPos = window.pageYOffset || document.documentElement.scrollTop;
+            const scrollBottom = (window.innerHeight + scrollPos) >= document.documentElement.scrollHeight - 20;
+
+            if (scrollBottom) {
+                // If we're at the bottom, highlight the last section
+                current = sections[sections.length - 1].getAttribute('id');
+            } else {
+                sections.forEach(section => {
+                    const sectionTop = section.offsetTop;
+                    if (scrollPos >= sectionTop - 160) {
+                        current = section.getAttribute('id');
+                    }
+                });
+            }
 
             navLinks.forEach(link => {
                 link.classList.remove('active-nav');
@@ -889,6 +897,19 @@
                     link.classList.add('active-nav');
                     link.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
                 }
+            });
+        }
+
+        window.addEventListener('scroll', updateNavHighlight);
+
+        // Initial call
+        updateNavHighlight();
+
+        // Handle clicks for immediate feedback
+        navLinks.forEach(link => {
+            link.addEventListener('click', (e) => {
+                // Let the browser handle the jump/scroll, then update
+                setTimeout(updateNavHighlight, 100);
             });
         });
 
