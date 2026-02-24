@@ -87,7 +87,8 @@
                 </h1>
             </div>
             <div class="flex gap-3">
-                <button id="search-btn" class="p-2 hover:bg-primary/10 rounded-full transition-colors">
+                <button id="search-btn" onclick="toggleSearch()"
+                    class="p-2 hover:bg-primary/10 rounded-full transition-colors">
                     <span class="material-symbols-outlined text-slate-700 dark:text-slate-300">search</span>
                 </button>
                 <button class="p-2 hover:bg-primary/10 rounded-full transition-colors">
@@ -95,6 +96,23 @@
                 </button>
             </div>
         </div>
+
+        <!-- Search Bar Container -->
+        <div id="search-container" class="hidden px-4 pb-4 animate-in fade-in slide-in-from-top-2 duration-300">
+            <div class="relative flex items-center gap-2">
+                <div class="relative flex-1">
+                    <span
+                        class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xl">search</span>
+                    <input type="text" id="menu-search" oninput="filterMenu()" placeholder="Search menu items..."
+                        class="w-full bg-slate-100 dark:bg-slate-800 border-none rounded-xl py-3 pl-10 pr-4 focus:ring-2 focus:ring-primary/50 text-sm">
+                </div>
+                <button onclick="toggleSearch()"
+                    class="p-2 bg-slate-100 dark:bg-slate-800 rounded-xl hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors">
+                    <span class="material-symbols-outlined text-slate-500">close</span>
+                </button>
+            </div>
+        </div>
+
         <!-- Horizontal Nav Bar -->
         <nav id="category-nav" class="flex overflow-x-auto no-scrollbar gap-3 px-4 pb-4 scroll-smooth">
             <a class="nav-link flex-none px-5 py-2 rounded-full bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 text-sm font-semibold border border-slate-200 dark:border-slate-700"
@@ -796,6 +814,75 @@
         });
 
         // Search Functionality
+        function toggleSearch() {
+            const container = document.getElementById('search-container');
+            const input = document.getElementById('menu-search');
+            const nav = document.getElementById('category-nav');
+
+            container.classList.toggle('hidden');
+            if (!container.classList.contains('hidden')) {
+                input.focus();
+                nav.classList.add('hidden'); // Hide category nav when searching
+            } else {
+                input.value = '';
+                filterMenu(); // Reset search results
+                nav.classList.remove('hidden'); // Show category nav when closing search
+            }
+        }
+
+        function filterMenu() {
+            const query = document.getElementById('menu-search').value.toLowerCase().trim();
+            const items = document.querySelectorAll('.menu-item');
+            const sections = document.querySelectorAll('main section');
+            let totalMatch = 0;
+
+            items.forEach(item => {
+                const name = item.querySelector('h3').innerText.toLowerCase();
+                const desc = item.querySelector('p').innerText.toLowerCase();
+
+                if (name.includes(query) || desc.includes(query)) {
+                    item.style.display = 'flex';
+                    totalMatch++;
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+
+            // Hide/Show sections based on matches
+            sections.forEach(section => {
+                const sectionItems = section.querySelectorAll('.menu-item');
+                const hasMatch = Array.from(sectionItems).some(item => item.style.display !== 'none');
+                section.style.display = hasMatch ? 'block' : 'none';
+            });
+
+            // Handle No Results Found
+            let noResults = document.getElementById('no-results');
+            if (totalMatch === 0 && query !== '') {
+                if (!noResults) {
+                    noResults = document.createElement('div');
+                    noResults.id = 'no-results';
+                    noResults.className = 'text-center py-12';
+                    noResults.innerHTML = `
+                        <span class="material-symbols-outlined text-6xl text-slate-300 mb-4">search_off</span>
+                        <p class="text-slate-500 font-medium">No items found matching "${query}"</p>
+                        <button onclick="resetSearch()" class="mt-4 text-primary font-bold">Clear search</button>
+                    `;
+                    document.querySelector('main').appendChild(noResults);
+                } else {
+                    noResults.querySelector('p').innerText = `No items found matching "${query}"`;
+                    noResults.classList.remove('hidden');
+                }
+            } else if (noResults) {
+                noResults.classList.add('hidden');
+            }
+        }
+
+        function resetSearch() {
+            document.getElementById('menu-search').value = '';
+            filterMenu();
+            document.getElementById('menu-search').focus();
+        }
+
         const searchBtn = document.getElementById('search-btn');
 
         searchBtn.addEventListener('click', () => {
