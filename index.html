@@ -19,7 +19,7 @@
                     colors: {
                         "primary": "#EDA747",
                         "accent": "#965223",
-                        "background-light": "#f8f6f6",
+                        "background-light": "#FACC91",
                         "background-dark": "#211114",
                     },
                     fontFamily: {
@@ -123,6 +123,20 @@
                 opacity: 1;
             }
         }
+
+        .ribbon-header {
+            background-color: #5D4037;
+            color: #FFFFFF;
+            padding: 0.75rem 2.5rem 0.75rem 1.5rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            clip-path: polygon(0 0, 100% 0, 93% 50%, 100% 100%, 0 100%);
+            display: inline-block;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            min-width: 200px;
+            text-align: left;
+        }
     </style>
 </head>
 
@@ -167,23 +181,23 @@
 
         <!-- Horizontal Nav Bar -->
         <nav id="category-nav" class="flex overflow-x-auto no-scrollbar gap-3 px-4 pb-4 scroll-smooth">
-            <a class="nav-link flex-none px-5 py-2 rounded-full bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 text-sm font-semibold border border-slate-200 dark:border-slate-700"
+            <a class="nav-link flex-none px-5 py-2 rounded-full bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 text-sm font-semibold border border-slate-200 dark:border-slate-700 shadow-sm hover:shadow-md transition-shadow"
                 href="#pizza">Pizza</a>
-            <a class="nav-link flex-none px-5 py-2 rounded-full bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 text-sm font-semibold border border-slate-200 dark:border-slate-700"
+            <a class="nav-link flex-none px-5 py-2 rounded-full bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 text-sm font-semibold border border-slate-200 dark:border-slate-700 shadow-sm hover:shadow-md transition-shadow"
                 href="#pasta">Pasta</a>
-            <a class="nav-link flex-none px-5 py-2 rounded-full bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 text-sm font-semibold border border-slate-200 dark:border-slate-700"
+            <a class="nav-link flex-none px-5 py-2 rounded-full bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 text-sm font-semibold border border-slate-200 dark:border-slate-700 shadow-sm hover:shadow-md transition-shadow"
                 href="#fries">Fries</a>
-            <a class="nav-link flex-none px-5 py-2 rounded-full bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 text-sm font-semibold border border-slate-200 dark:border-slate-700"
+            <a class="nav-link flex-none px-5 py-2 rounded-full bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 text-sm font-semibold border border-slate-200 dark:border-slate-700 shadow-sm hover:shadow-md transition-shadow"
                 href="#beverages">Beverages</a>
-            <a class="nav-link flex-none px-5 py-2 rounded-full bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 text-sm font-semibold border border-slate-200 dark:border-slate-700"
+            <a class="nav-link flex-none px-5 py-2 rounded-full bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 text-sm font-semibold border border-slate-200 dark:border-slate-700 shadow-sm hover:shadow-md transition-shadow"
                 href="#snacks">Snacks</a>
-            <a class="nav-link flex-none px-5 py-2 rounded-full bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 text-sm font-semibold border border-slate-200 dark:border-slate-700"
+            <a class="nav-link flex-none px-5 py-2 rounded-full bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 text-sm font-semibold border border-slate-200 dark:border-slate-700 shadow-sm hover:shadow-md transition-shadow"
                 href="#main-course">Main Course</a>
-            <a class="nav-link flex-none px-5 py-2 rounded-full bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 text-sm font-semibold border border-slate-200 dark:border-slate-700"
+            <a class="nav-link flex-none px-5 py-2 rounded-full bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 text-sm font-semibold border border-slate-200 dark:border-slate-700 shadow-sm hover:shadow-md transition-shadow"
                 href="#desserts">Desserts</a>
-            <a class="nav-link flex-none px-5 py-2 rounded-full bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 text-sm font-semibold border border-slate-200 dark:border-slate-700"
+            <a class="nav-link flex-none px-5 py-2 rounded-full bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 text-sm font-semibold border border-slate-200 dark:border-slate-700 shadow-sm hover:shadow-md transition-shadow"
                 href="#ice-cream">Ice Cream</a>
-            <a class="nav-link flex-none px-5 py-2 rounded-full bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 text-sm font-semibold border border-slate-200 dark:border-slate-700"
+            <a class="nav-link flex-none px-5 py-2 rounded-full bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 text-sm font-semibold border border-slate-200 dark:border-slate-700 shadow-sm hover:shadow-md transition-shadow"
                 href="#coffee">Coffee</a>
         </nav>
     </header>
@@ -191,12 +205,8 @@
     <main class="max-w-2xl mx-auto px-4 pt-6 space-y-12">
         <!-- Pizza Section -->
         <section id="pizza" class="scroll-mt-32">
-            <div class="flex items-center justify-between mb-6">
-                <h2 class="text-xl font-bold flex items-center gap-2" style="color: #965223;">
-                    Pizza <span class="material-symbols-outlined text-primary text-lg"
-                        style="color: #965223;">local_pizza</span>
-                </h2>
-                <div class="h-[1px] flex-1 ml-4 bg-primary/20" style="background-color: rgba(150, 82, 35, 0.2);"></div>
+            <div class="flex flex-col items-start mb-8 -ml-4">
+                <h2 class="ribbon-header text-lg">Pizza</h2>
             </div>
             <div class="grid gap-4">
                 <!-- Margherita -->
@@ -269,12 +279,8 @@
 
         <!-- Pasta Section -->
         <section id="pasta" class="scroll-mt-32">
-            <div class="flex items-center justify-between mb-6">
-                <h2 class="text-xl font-bold flex items-center gap-2" style="color: #965223;">
-                    Pasta <span class="material-symbols-outlined text-primary text-lg"
-                        style="color: #965223;">dinner_dining</span>
-                </h2>
-                <div class="h-[1px] flex-1 ml-4 bg-primary/20" style="background-color: rgba(150, 82, 35, 0.2);"></div>
+            <div class="flex flex-col items-start mb-8 -ml-4">
+                <h2 class="ribbon-header text-lg">Pasta</h2>
             </div>
             <div class="grid gap-4">
                 <div
@@ -321,9 +327,7 @@
                 </div>
                 <div
                     class="menu-item bg-white dark:bg-slate-800 rounded-xl overflow-hidden shadow-sm border border-slate-100 dark:border-slate-700 flex">
-                    <div class="w-32 h-32 flex-shrink-0 bg-cover bg-center" <!--
-                        style="background-image: url('https://images.unsplash.com/photo-1551183053-bf91a1d81141?auto=format&fit=crop&w=300&q=80')">
-                        -->
+                    <div class="w-32 h-32 flex-shrink-0 bg-cover bg-center">
                     </div>
                     <div class="p-4 flex flex-col justify-between flex-1">
                         <div>
@@ -346,12 +350,8 @@
 
         <!-- Fries Section -->
         <section id="fries" class="scroll-mt-32">
-            <div class="flex items-center justify-between mb-6">
-                <h2 class="text-xl font-bold flex items-center gap-2" style="color: #965223;">
-                    Fries <span class="material-symbols-outlined text-primary text-lg"
-                        style="color: #965223;">breakfast_dining</span>
-                </h2>
-                <div class="h-[1px] flex-1 ml-4 bg-primary/20" style="background-color: rgba(150, 82, 35, 0.2);"></div>
+            <div class="flex flex-col items-start mb-8 -ml-4">
+                <h2 class="ribbon-header text-lg">Fries</h2>
             </div>
             <div class="grid gap-4">
                 <div
@@ -401,12 +401,8 @@
 
         <!-- Beverages Section -->
         <section id="beverages" class="scroll-mt-32">
-            <div class="flex items-center justify-between mb-6">
-                <h2 class="text-xl font-bold flex items-center gap-2" style="color: #965223;">
-                    Beverages <span class="material-symbols-outlined text-primary text-lg"
-                        style="color: #965223;">local_cafe</span>
-                </h2>
-                <div class="h-[1px] flex-1 ml-4 bg-primary/20" style="background-color: rgba(150, 82, 35, 0.2);"></div>
+            <div class="flex flex-col items-start mb-8 -ml-4">
+                <h2 class="ribbon-header text-lg">Beverages</h2>
             </div>
             <div class="grid gap-4">
                 <div
@@ -456,12 +452,8 @@
 
         <!-- Snacks Section -->
         <section id="snacks" class="scroll-mt-32">
-            <div class="flex items-center justify-between mb-6">
-                <h2 class="text-xl font-bold flex items-center gap-2" style="color: #965223;">
-                    Snacks <span class="material-symbols-outlined text-primary text-lg"
-                        style="color: #965223;">fastfood</span>
-                </h2>
-                <div class="h-[1px] flex-1 ml-4 bg-primary/20" style="background-color: rgba(150, 82, 35, 0.2);"></div>
+            <div class="flex flex-col items-start mb-8 -ml-4">
+                <h2 class="ribbon-header text-lg">Snacks</h2>
             </div>
             <div class="grid gap-4">
                 <div
@@ -511,12 +503,8 @@
 
         <!-- Main Course Section -->
         <section id="main-course" class="scroll-mt-32">
-            <div class="flex items-center justify-between mb-6">
-                <h2 class="text-xl font-bold flex items-center gap-2" style="color: #965223;">
-                    Main Course <span class="material-symbols-outlined text-primary text-lg"
-                        style="color: #965223;">lunch_dining</span>
-                </h2>
-                <div class="h-[1px] flex-1 ml-4 bg-primary/20" style="background-color: rgba(150, 82, 35, 0.2);"></div>
+            <div class="flex flex-col items-start mb-8 -ml-4">
+                <h2 class="ribbon-header text-lg">Main Course</h2>
             </div>
             <div class="grid gap-4">
                 <div
@@ -566,12 +554,8 @@
 
         <!-- Desserts and Ice Cream -->
         <section id="desserts" class="scroll-mt-32">
-            <div class="flex items-center justify-between mb-6">
-                <h2 class="text-xl font-bold flex items-center gap-2" style="color: #965223;">
-                    Desserts <span class="material-symbols-outlined text-primary text-lg"
-                        style="color: #965223;">bakery_dining</span>
-                </h2>
-                <div class="h-[1px] flex-1 ml-4 bg-primary/20" style="background-color: rgba(150, 82, 35, 0.2);"></div>
+            <div class="flex flex-col items-start mb-8 -ml-4">
+                <h2 class="ribbon-header text-lg">Desserts</h2>
             </div>
             <div class="grid gap-4">
                 <div
@@ -599,12 +583,8 @@
         </section>
 
         <section id="ice-cream" class="scroll-mt-32">
-            <div class="flex items-center justify-between mb-6">
-                <h2 class="text-xl font-bold flex items-center gap-2" style="color: #965223;">
-                    Ice Cream <span class="material-symbols-outlined text-primary text-lg"
-                        style="color: #965223;">icecream</span>
-                </h2>
-                <div class="h-[1px] flex-1 ml-4 bg-primary/20" style="background-color: rgba(150, 82, 35, 0.2);"></div>
+            <div class="flex flex-col items-start mb-8 -ml-4">
+                <h2 class="ribbon-header text-lg">Ice Cream</h2>
             </div>
             <div class="grid gap-4">
                 <div
@@ -633,7 +613,7 @@
                     <div class="w-32 h-32 flex-shrink-0 bg-cover bg-center"
                         style="background-image: url('https://images.unsplash.com/photo-1563805042-7684c019e1cb?auto=format&fit=crop&w=300&q=80')">
                     </div>
-                    <d iv class="p-4 flex flex-col justify-between flex-1">
+                    <div class="p-4 flex flex-col justify-between flex-1">
                         <div>
                             <h3 class="font-bold text-slate-900 dark:text-slate-100">Fruit Sundae</h3>
                             <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Mixed fruits with vanilla and
@@ -647,19 +627,15 @@
                                 <span class="material-symbols-outlined text-base">add</span> <span>Add</span>
                             </button>
                         </div>
+                    </div>
                 </div>
-            </div>
             </div>
         </section>
 
         <!-- Coffee Section -->
         <section id="coffee" class="scroll-mt-32">
-            <div class="flex items-center justify-between mb-6">
-                <h2 class="text-xl font-bold flex items-center gap-2" style="color: #965223;">
-                    Coffee <span class="material-symbols-outlined text-primary text-lg"
-                        style="color: #965223;">coffee</span>
-                </h2>
-                <div class="h-[1px] flex-1 ml-4 bg-primary/20" style="background-color: rgba(150, 82, 35, 0.2);"></div>
+            <div class="flex flex-col items-start mb-8 -ml-4">
+                <h2 class="ribbon-header text-lg">Coffee</h2>
             </div>
             <div class="grid gap-4">
                 <div
@@ -901,7 +877,6 @@
             } else {
                 sections.forEach(section => {
                     const sectionTop = section.offsetTop;
-                    const sectionHeight = section.offsetHeight;
                     // Use a more dynamic threshold (top 30% of the section)
                     if (scrollPos >= sectionTop - 200) {
                         current = section.getAttribute('id');
@@ -913,7 +888,6 @@
                 link.classList.remove('active-nav');
                 if (link.getAttribute('href') === `#${current}`) {
                     link.classList.add('active-nav');
-                    // Ensure the active link is visible in the scrollable nav bar
                     link.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
                 }
             });
@@ -927,7 +901,6 @@
         // Handle clicks for immediate feedback
         navLinks.forEach(link => {
             link.addEventListener('click', (e) => {
-                // Let the browser handle the jump/scroll, then update
                 setTimeout(updateNavHighlight, 100);
             });
         });
@@ -941,11 +914,11 @@
             container.classList.toggle('hidden');
             if (!container.classList.contains('hidden')) {
                 input.focus();
-                nav.classList.add('hidden'); // Hide category nav when searching
+                nav.classList.add('hidden');
             } else {
                 input.value = '';
-                filterMenu(); // Reset search results
-                nav.classList.remove('hidden'); // Show category nav when closing search
+                filterMenu();
+                nav.classList.remove('hidden');
             }
         }
 
@@ -967,14 +940,12 @@
                 }
             });
 
-            // Hide/Show sections based on matches
             sections.forEach(section => {
                 const sectionItems = section.querySelectorAll('.menu-item');
                 const hasMatch = Array.from(sectionItems).some(item => item.style.display !== 'none');
                 section.style.display = hasMatch ? 'block' : 'none';
             });
 
-            // Handle No Results Found
             let noResults = document.getElementById('no-results');
             if (totalMatch === 0 && query !== '') {
                 if (!noResults) {
@@ -1001,9 +972,6 @@
             filterMenu();
             document.getElementById('menu-search').focus();
         }
-
-        // Initial nav highlighting
-        updateNavHighlight();
 
         // Initialize first nav item
         if (navLinks.length > 0) navLinks[0].classList.add('active-nav');
