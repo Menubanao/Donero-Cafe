@@ -137,88 +137,6 @@
             min-width: 200px;
             text-align: left;
         }
-
-        /* Toggle Switch */
-        .toggle-container {
-            position: relative;
-            display: inline-flex;
-            background: #e2e8f0;
-            padding: 4px;
-            border-radius: 9999px;
-            cursor: pointer;
-            user-select: none;
-            width: 100%;
-            height: 48px;
-            transition: background 0.3s ease;
-        }
-
-        .dark .toggle-container {
-            background: #1e293b;
-        }
-
-        .toggle-pill {
-            position: absolute;
-            top: 4px;
-            left: 4px;
-            width: calc(50% - 4px);
-            height: 40px;
-            background: white;
-            border-radius: 9999px;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        .dark .toggle-pill {
-            background: #334155;
-        }
-
-        .toggle-input:checked+.toggle-pill {
-            transform: translateX(100%);
-        }
-
-        .toggle-label {
-            position: relative;
-            z-index: 10;
-            flex: 1;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 0.875rem;
-            font-weight: 700;
-            transition: color 0.3s ease;
-        }
-
-        .toggle-input:not(:checked)~.label-left {
-            color: #965223;
-        }
-
-        .toggle-input:checked~.label-right {
-            color: #965223;
-        }
-
-        .details-block {
-            background: rgba(237, 167, 71, 0.1);
-            border: 2px solid rgba(237, 167, 71, 0.2);
-            border-radius: 1rem;
-            padding: 1rem;
-            margin-top: 1rem;
-        }
-
-        .details-block input {
-            background: white;
-            border: 1px solid rgba(0, 0, 0, 0.1);
-            border-radius: 0.5rem;
-            padding: 0.5rem 0.75rem;
-            width: 100%;
-            font-size: 0.875rem;
-            margin-top: 0.25rem;
-        }
-
-        .dark .details-block input {
-            background: #1e293b;
-            border-color: rgba(255, 255, 255, 0.1);
-            color: white;
-        }
     </style>
 </head>
 
@@ -803,37 +721,7 @@
             <div id="cart-items" class="space-y-4 max-h-[50vh] overflow-y-auto no-scrollbar mb-6">
                 <!-- Items populated by JS -->
             </div>
-            <!-- New Checkout Options -->
-            <div class="mt-6 border-t pt-6">
-                <p class="text-sm font-bold text-slate-700 dark:text-slate-300 mb-3 ml-1">Dining Preference</p>
-                <div class="toggle-container" onclick="document.getElementById('packing-toggle').click()">
-                    <input type="checkbox" id="packing-toggle" class="hidden toggle-input">
-                    <div class="toggle-pill"></div>
-                    <div class="toggle-label label-left">Table Serving</div>
-                    <div class="toggle-label label-right">Packing</div>
-                </div>
-
-                <div class="details-block">
-                    <p class="text-xs font-bold text-primary mb-3 flex items-center gap-1">
-                        <span class="material-symbols-outlined text-[14px]">info</span>
-                        PLEASE FILL DETAILS TO PLACE ORDER
-                    </p>
-                    <div class="grid grid-cols-2 gap-3">
-                        <div>
-                            <label class="text-[10px] font-bold text-slate-500 uppercase ml-1">Table Number</label>
-                            <input type="text" id="order-table" placeholder="e.g. 05"
-                                class="focus:outline-none focus:ring-1 focus:ring-primary shadow-sm hover:shadow-md transition-shadow">
-                        </div>
-                        <div>
-                            <label class="text-[10px] font-bold text-slate-500 uppercase ml-1">Customer Name</label>
-                            <input type="text" id="order-name" placeholder="Your Name"
-                                class="focus:outline-none focus:ring-1 focus:ring-primary shadow-sm hover:shadow-md transition-shadow">
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="border-t border-slate-100 dark:border-slate-800 pt-6 mt-6">
+            <div class="border-t border-slate-100 dark:border-slate-800 pt-6">
                 <div class="flex items-center justify-between mb-4">
                     <span class="text-slate-500">Subtotal</span>
                     <span id="modal-total" class="font-bold text-xl">₹0</span>
@@ -946,27 +834,8 @@
         }
 
         function checkout() {
-            const tableName = document.getElementById('order-table').value.trim();
-            const userName = document.getElementById('order-name').value.trim();
-            const isPacking = document.getElementById('packing-toggle').checked;
-
-            if (!tableName || !userName) {
-                showNotification("Please fill Name & Table Number!");
-                return;
-            }
-
-            const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-            const type = isPacking ? "Packing" : "Table Serving";
-
-            const message = `Order Placed Successfully!\n\nName: ${userName}\nTable: ${tableName}\nType: ${type}\nTotal: ₹${total}`;
-            alert(message);
-
+            alert('Order placed successfully! Total: ₹' + cart.reduce((sum, item) => sum + (item.price * item.quantity), 0));
             cart = [];
-            // Reset fields
-            document.getElementById('order-table').value = '';
-            document.getElementById('order-name').value = '';
-            document.getElementById('packing-toggle').checked = false;
-
             updateCartUI();
         }
 
