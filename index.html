@@ -3,6 +3,12 @@
 <html class="light" lang="en">
 
 <head>
+    <script>
+        // Authentication Check - MUST RUN BEFORE ANYTHING ELSE
+        if (sessionStorage.getItem('donero_admin_auth') !== 'true') {
+            window.location.href = 'login.html';
+        }
+    </script>
     <meta charset="utf-8" />
     <meta content="width=device-width, initial-scale=1.0" name="viewport" />
     <title>Donero Cafe - Admin Console</title>
@@ -38,6 +44,8 @@
     <link
         href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200"
         rel="stylesheet" />
+    <!-- Supabase Client -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 
 <body class="bg-background-light text-slate-900 antialiased font-display">
@@ -69,18 +77,29 @@
                     </button>
                 </div>
             </div>
-            <div class="h-8 w-[1px] bg-slate-200 mx-2"></div>
-            <div class="flex items-center gap-3">
-                <div class="text-right hidden sm:block">
-                    <p class="text-sm font-bold">Kunal sir</p>
-                    <p class="text-[10px] text-slate-500 uppercase font-bold tracking-wider">App Owner</p>
+            <div class="flex items-center gap-4">
+                <a href="https://menubanao.github.io/Donero-Cafe/"
+                    class="flex items-center gap-2 text-slate-500 hover:text-primary transition-colors text-sm font-medium pr-4 border-r border-slate-200">
+                    <span class="material-symbols-outlined text-lg">restaurant_menu</span>
+                    View Live Menu
+                </a>
+                <div class="flex items-center gap-3">
+                    <div class="text-right hidden sm:block">
+                        <p class="text-sm font-bold">Kunal sir</p>
+                        <p class="text-[10px] text-slate-500 uppercase font-bold tracking-wider">App Owner</p>
+                    </div>
+                    <div
+                        class="h-10 w-10 rounded-full bg-primary/20 flex items-center justify-center overflow-hidden border-2 border-primary/20">
+                        <img class="h-full w-full object-cover" data-alt="Profile photo of the cafe administrator"
+                            src="https://lh3.googleusercontent.com/aida-public/AB6AXuDuMVyxKYlfSqsyfWa4ESusD7pJPEU2kYkxL0VLKpGUgCbpd3zuIcYolqNHCH_t4CUGsWqOS5az7FYX8T26_qH7GWTK5MsURu6lS9pZ2cx72KQfg-4W7Y-ZV4LurM7HVMUClQeJt9nT6ayUwhTrrLfOVJtjBeGZBK8caPhp5Ak4ByuqiAoVUeSvso3d0FCRplprZPOArWeqfEqih_UV-gKVYenAeTpEZGQr6UwWsg4I_n0eDFxsqDfPErRLZ7H6vSuAT50O5VE3R4Y" />
+                    </div>
+                    <!-- Logout Button -->
+                    <button onclick="logoutAdmin()"
+                        class="flex items-center justify-center p-2 text-slate-400 hover:text-red-500 transition-colors"
+                        title="Logout">
+                        <span class="material-symbols-outlined">logout</span>
+                    </button>
                 </div>
-                <div
-                    class="h-10 w-10 rounded-full bg-primary/20 flex items-center justify-center overflow-hidden border-2 border-primary/20">
-                    <img class="h-full w-full object-cover" data-alt="Profile photo of the cafe administrator"
-                        src="https://lh3.googleusercontent.com/aida-public/AB6AXuDuMVyxKYlfSqsyfWa4ESusD7pJPEU2kYkxL0VLKpGUgCbpd3zuIcYolqNHCH_t4CUGsWqOS5az7FYX8T26_qH7GWTK5MsURu6lS9pZ2cx72KQfg-4W7Y-ZV4LurM7HVMUClQeJt9nT6ayUwhTrrLfOVJtjBeGZBK8caPhp5Ak4ByuqiAoVUeSvso3d0FCRplprZPOArWeqfEqih_UV-gKVYenAeTpEZGQr6UwWsg4I_n0eDFxsqDfPErRLZ7H6vSuAT50O5VE3R4Y" />
-                </div>
-            </div>
         </header>
         <!-- Status Filter Bar -->
         <nav class="bg-white border-b border-primary/10 px-6 overflow-x-auto whitespace-nowrap scrollbar-hide">
@@ -248,60 +267,25 @@
         </div>
     </div>
 
+    <!-- Hidden Iframe for Printing -->
+    <iframe id="print-frame" style="display:none;"></iframe>
+
     <script>
-        // --- Mock Data ---
-        let MOCK_ORDERS = [
-            {
-                id: 'ORD-8821',
-                customer: 'Alex Rivers',
-                table: '05',
-                items: [
-                    { name: 'Caramel Macchiato', qty: 2, price: 6.00 },
-                    { name: 'Avocado Toast with Poached Egg', qty: 1, price: 18.50 },
-                    { name: 'Fresh Orange Juice', qty: 1, price: 12.00 }
-                ],
-                total: 42.50,
-                status: 'NEW',
-                time: '2 mins ago',
-                notes: 'Extra shot of espresso in one Macchiato. No onions in avocado toast please.',
-                payment: 'Visa •••• 4242'
-            },
-            {
-                id: 'ORD-8815',
-                customer: 'Sam Lee',
-                table: '12',
-                items: [
-                    { name: 'Flat White (Large)', qty: 1, price: 6.50 },
-                    { name: 'Turkey & Swiss Panini', qty: 1, price: 12.25 }
-                ],
-                total: 18.75,
-                status: 'PREPARING',
-                time: '12 mins ago',
-                progress: 75,
-                payment: 'Apple Pay'
-            },
-            {
-                id: 'ORD-8812',
-                customer: 'Jordan P.',
-                table: 'Takeaway',
-                items: [
-                    { name: 'Iced Vanilla Latte', qty: 1, price: 5.75 },
-                    { name: 'Cinnamon Roll', qty: 1, price: 6.75 }
-                ],
-                total: 12.50,
-                status: 'READY',
-                time: '18 mins ago',
-                payment: 'Cash (To be paid)'
-            }
-        ];
+        // Supabase Configuration
+        const SUPABASE_URL = 'https://vuqvokufivgtevpvppcd.supabase.co';
+        const SUPABASE_KEY = 'sb_publishable_-957Cp2j5PH0VkWJH9XdmQ_wf2WqLMN';
+        const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        // --- Data State ---
+        let MOCK_ORDERS = []; // Will be populated from Supabase
 
         const MOCK_STATS = {
-            revenue: '₹1,248.50',
-            revenueTrend: '+12%',
-            ordersServed: 142,
+            revenue: '₹0.00',
+            revenueTrend: '+0%',
+            ordersServed: 0,
             ordersGoal: 200,
-            avgPrepTime: '8.5 min',
-            cancelled: 3
+            avgPrepTime: '0 min',
+            cancelled: 0
         };
 
         // --- State Management ---
@@ -551,7 +535,7 @@
                 </div>
                 <div class="bg-slate-50 p-4 grid grid-cols-2 gap-2">
                     ${getActionButtons(order)}
-                    <button class="bg-white border border-slate-200 text-slate-600 font-bold py-2 px-3 rounded text-sm hover:bg-slate-50 transition-colors flex items-center justify-center gap-2">
+                    <button onclick="printOrderTicket('${order.id}')" class="bg-white border border-slate-200 text-slate-600 font-bold py-2 px-3 rounded text-sm hover:bg-slate-50 transition-colors flex items-center justify-center gap-2">
                         <span class="material-symbols-outlined text-base">print</span> Ticket
                     </button>
                     ${order.status === 'NEW' ? `
@@ -604,20 +588,34 @@
         `).join('');
         }
 
-        function handleAction(id, action) {
+        async function handleAction(id, action) {
             if (action === 'CANCEL') {
                 if (confirm('Are you sure you want to cancel this order?')) {
-                    MOCK_ORDERS = MOCK_ORDERS.filter(o => o.id !== id);
-                    renderOrders();
+                    const { error } = await supabase
+                        .from('orders')
+                        .delete()
+                        .eq('id', id);
+
+                    if (error) {
+                        console.error('Error cancelling order:', error);
+                        alert('Failed to cancel order.');
+                    }
                 }
                 return;
             }
 
-            const order = MOCK_ORDERS.find(o => o.id === id);
-            if (order) {
-                order.status = action;
-                if (action === 'PREPARING') order.progress = 0;
-                renderOrders();
+            // Update status in Supabase
+            const updates = { status: action };
+            if (action === 'PREPARING') updates.progress = 0;
+
+            const { error } = await supabase
+                .from('orders')
+                .update(updates)
+                .eq('id', id);
+
+            if (error) {
+                console.error('Error updating order:', error);
+                alert('Failed to update status.');
             }
         }
 
@@ -627,41 +625,150 @@
             document.getElementById('manual-entry-btn').addEventListener('click', openManualEntryModal);
 
             // Form Submission
-            document.getElementById('manual-order-form').addEventListener('submit', (e) => {
+            document.getElementById('manual-order-form').addEventListener('submit', async (e) => {
                 e.preventDefault();
 
                 const orderData = {
                     customer: document.getElementById('modal-customer').value,
-                    table: document.getElementById('modal-table').value,
+                    table_no: document.getElementById('modal-table').value,
                     items: formItems.map(i => ({ name: i.name, qty: i.qty, price: i.price })),
                     total: formItems.reduce((sum, item) => sum + (item.qty * item.price), 0),
-                    notes: document.getElementById('modal-notes').value
+                    notes: document.getElementById('modal-notes').value,
+                    status: 'NEW',
+                    payment: 'Cash (Unpaid)'
                 };
 
-                if (editingOrderId) {
-                    // Update existing
-                    const index = MOCK_ORDERS.findIndex(o => o.id === editingOrderId);
-                    if (index !== -1) {
-                        MOCK_ORDERS[index] = { ...MOCK_ORDERS[index], ...orderData };
+                const submitBtn = e.target.querySelector('button[type="submit"]');
+                submitBtn.disabled = true;
+                submitBtn.innerText = 'Syncing...';
+
+                try {
+                    if (editingOrderId) {
+                        const { error } = await supabase
+                            .from('orders')
+                            .update(orderData)
+                            .eq('id', editingOrderId);
+                        if (error) throw error;
                         alert(`Order ${editingOrderId} updated successfully!`);
+                    } else {
+                        const newOrder = {
+                            id: `ORD-${Math.floor(1000 + Math.random() * 9000)}`,
+                            ...orderData
+                        };
+                        const { error } = await supabase
+                            .from('orders')
+                            .insert([newOrder]);
+                        if (error) throw error;
+                        alert(`Order ${newOrder.id} created successfully!`);
                     }
-                } else {
-                    // Create new
-                    const newOrder = {
-                        id: `ORD-${Math.floor(1000 + Math.random() * 9000)}`,
-                        ...orderData,
-                        status: 'NEW',
-                        time: 'Just now',
-                        payment: 'Cash (Unpaid)'
-                    };
-                    MOCK_ORDERS.unshift(newOrder);
-                    alert(`Order ${newOrder.id} created successfully!`);
+                    closeManualEntryModal();
+                } catch (err) {
+                    console.error('Submission error:', err);
+                    alert('Failed to sync with database.');
+                } finally {
+                    submitBtn.disabled = false;
+                    submitBtn.innerText = editingOrderId ? 'Update Order' : 'Create Order';
+                }
+            });
+
+            // --- Realtime and Initial Fetch ---
+            async function fetchInitialOrders() {
+                const { data, error } = await supabase
+                    .from('orders')
+                    .select('*')
+                    .order('created_at', { ascending: false });
+
+                if (error) {
+                    console.error('Fetch error:', error);
+                    return;
                 }
 
+                MOCK_ORDERS = data.map(o => ({
+                    ...o,
+                    table: o.table_no, // Mapping DB naming to UI naming
+                    time: formatDbDate(o.created_at)
+                }));
+                updateStatsFromData();
                 renderOrders();
                 renderStats();
-                closeManualEntryModal();
-            });
+            }
+
+            function setupRealtimeListener() {
+                supabase
+                    .channel('orders_channel')
+                    .on('postgres_changes', { event: '*', schema: 'public', table: 'orders' }, (payload) => {
+                        console.log('Change received!', payload);
+
+                        if (payload.eventType === 'INSERT') {
+                            const newOrder = {
+                                ...payload.new,
+                                table: payload.new.table_no,
+                                time: 'Just now'
+                            };
+                            MOCK_ORDERS.unshift(newOrder);
+                            showLiveNotification(`New order from ${newOrder.customer}!`);
+                        } else if (payload.eventType === 'UPDATE') {
+                            const index = MOCK_ORDERS.findIndex(o => o.id === payload.new.id);
+                            if (index !== -1) {
+                                MOCK_ORDERS[index] = {
+                                    ...MOCK_ORDERS[index],
+                                    ...payload.new,
+                                    table: payload.new.table_no
+                                };
+                            }
+                        } else if (payload.eventType === 'DELETE') {
+                            MOCK_ORDERS = MOCK_ORDERS.filter(o => o.id !== payload.old.id);
+                        }
+
+                        updateStatsFromData();
+                        renderOrders();
+                        renderStats();
+                    })
+                    .subscribe();
+            }
+
+            function formatDbDate(dateString) {
+                const date = new Date(dateString);
+                const now = new Date();
+                const diffMs = now - date;
+                const diffMins = Math.floor(diffMs / 60000);
+
+                if (diffMins < 1) return 'Just now';
+                if (diffMins < 60) return `${diffMins} mins ago`;
+                const diffHours = Math.floor(diffMins / 60);
+                if (diffHours < 24) return `${diffHours} hours ago`;
+                return date.toLocaleDateString();
+            }
+
+            function updateStatsFromData() {
+                const served = MOCK_ORDERS.filter(o => o.status === 'SERVED' || o.status === 'PAID').length;
+                const revenue = MOCK_ORDERS.reduce((sum, o) => sum + (o.status !== 'CANCELLED' ? o.total : 0), 0);
+                const cancelled = MOCK_ORDERS.filter(o => o.status === 'CANCELLED').length; // If you add cancelled status later
+
+                MOCK_STATS.ordersServed = served;
+                MOCK_STATS.revenue = `₹${revenue.toLocaleString('en-IN', { minimumFractionDigits: 2 })}`;
+                // Other stats can be calculated as needed
+            }
+
+            function showLiveNotification(msg) {
+                const connectedBadge = document.getElementById('live-connection');
+                const originalContent = connectedBadge.innerHTML;
+
+                connectedBadge.innerHTML = `<span class="w-2 h-2 bg-yellow-500 rounded-full mr-2 animate-ping"></span> ${msg}`;
+                connectedBadge.classList.replace('text-green-600', 'text-yellow-600');
+                connectedBadge.classList.replace('bg-green-50', 'bg-yellow-50');
+
+                // Play notification sound if possible (optional)
+
+                setTimeout(() => {
+                    connectedBadge.innerHTML = originalContent;
+                    connectedBadge.classList.replace('text-yellow-600', 'text-green-600');
+                    connectedBadge.classList.replace('bg-yellow-50', 'bg-green-50');
+                }, 5000);
+            }
+
+            fetchInitialOrders();
+            setupRealtimeListener();
 
             // Filter Event Listeners
             document.querySelectorAll('.filter-btn').forEach(btn => {
@@ -693,6 +800,89 @@
             renderOrders();
             renderStats();
         });
+
+        // Logout Function
+        function logoutAdmin() {
+            if (confirm('Are you sure you want to logout?')) {
+                sessionStorage.removeItem('donero_admin_auth');
+                sessionStorage.removeItem('donero_admin_name');
+                window.location.href = 'login.html';
+            }
+        }
+
+        // Print Order Ticket Function
+        function printOrderTicket(orderId) {
+            const order = MOCK_ORDERS.find(o => o.id === orderId);
+            if (!order) {
+                alert('Order not found!');
+                return;
+            }
+
+            const printFrame = document.getElementById('print-frame');
+            const doc = printFrame.contentWindow.document;
+
+            const itemsHtml = order.items.map(it => `
+                <div style="display: flex; justify-content: space-between; margin-bottom: 4px; font-size: 14px;">
+                    <span>${it.qty}x ${it.name}</span>
+                    <span>₹${(it.qty * it.price).toFixed(2)}</span>
+                </div>
+            `).join('');
+
+            const receiptHtml = `
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <title>Order Receipt - ${order.id}</title>
+                    <style>
+                        body { font-family: 'Courier New', Courier, monospace; width: 80mm; margin: 0; padding: 10mm; color: #000; }
+                        .header { text-align: center; border-bottom: 1px dashed #000; padding-bottom: 10px; margin-bottom: 15px; }
+                        .cafe-name { font-size: 22px; font-weight: bold; margin: 0; }
+                        .order-info { margin-bottom: 15px; font-size: 14px; }
+                        .items { border-bottom: 1px dashed #000; padding-bottom: 10px; margin-bottom: 10px; }
+                        .total { text-align: right; font-size: 18px; font-weight: bold; }
+                        .footer { text-align: center; margin-top: 20px; font-size: 12px; }
+                        @media print {
+                            body { margin: 0; padding: 5mm; }
+                        }
+                    </style>
+                </head>
+                <body>
+                    <div class="header">
+                        <p class="cafe-name">DONERO CAFE</p>
+                        <p style="margin: 5px 0 0 0; font-size: 12px;">Admin Console Receipt</p>
+                    </div>
+                    <div class="order-info">
+                        <div style="display: flex; justify-content: space-between;">
+                            <span><b>Order:</b> #${order.id}</span>
+                            <span><b>Date:</b> ${new Date().toLocaleDateString()}</span>
+                        </div>
+                        <div><b>Table:</b> ${order.table}</div>
+                        <div><b>Customer:</b> ${order.customer}</div>
+                    </div>
+                    <div class="items">
+                        ${itemsHtml}
+                    </div>
+                    <div class="total">
+                        Total: ₹${order.total.toFixed(2)}
+                    </div>
+                    <div class="footer">
+                        <p>Thank you for choosing Donero Cafe!<br>Visit again soon.</p>
+                        <p style="font-size: 10px; color: #666;">Manual Entry / System Generated</p>
+                    </div>
+                </body>
+                </html>
+            `;
+
+            doc.open();
+            doc.write(receiptHtml);
+            doc.close();
+
+            // Wait for resources to load if any, then print
+            setTimeout(() => {
+                printFrame.contentWindow.focus();
+                printFrame.contentWindow.print();
+            }, 250);
+        }
     </script>
     </div>
 </body>
