@@ -274,7 +274,7 @@
         // Supabase Configuration
         const SUPABASE_URL = 'https://vuqvokufivgtevpvppcd.supabase.co';
         const SUPABASE_KEY = 'sb_publishable_-957Cp2j5PH0VkWJH9XdmQ_wf2WqLMN';
-        const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        const sbClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
         // --- Data State ---
         let MOCK_ORDERS = []; // Will be populated from Supabase
@@ -591,7 +591,7 @@
         async function handleAction(id, action) {
             if (action === 'CANCEL') {
                 if (confirm('Are you sure you want to cancel this order?')) {
-                    const { error } = await supabase
+                    const { error } = await sbClient
                         .from('orders')
                         .delete()
                         .eq('id', id);
@@ -608,7 +608,7 @@
             const updates = { status: action };
             if (action === 'PREPARING') updates.progress = 0;
 
-            const { error } = await supabase
+            const { error } = await sbClient
                 .from('orders')
                 .update(updates)
                 .eq('id', id);
@@ -644,7 +644,7 @@
 
                 try {
                     if (editingOrderId) {
-                        const { error } = await supabase
+                        const { error } = await sbClient
                             .from('orders')
                             .update(orderData)
                             .eq('id', editingOrderId);
@@ -655,7 +655,7 @@
                             id: `ORD-${Math.floor(1000 + Math.random() * 9000)}`,
                             ...orderData
                         };
-                        const { error } = await supabase
+                        const { error } = await sbClient
                             .from('orders')
                             .insert([newOrder]);
                         if (error) throw error;
@@ -673,7 +673,7 @@
 
             // --- Realtime and Initial Fetch ---
             async function fetchInitialOrders() {
-                const { data, error } = await supabase
+                const { data, error } = await sbClient
                     .from('orders')
                     .select('*')
                     .order('created_at', { ascending: false });
@@ -694,7 +694,7 @@
             }
 
             function setupRealtimeListener() {
-                supabase
+                sbClient
                     .channel('orders_channel')
                     .on('postgres_changes', { event: '*', schema: 'public', table: 'orders' }, (payload) => {
                         console.log('Change received!', payload);
