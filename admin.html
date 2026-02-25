@@ -145,6 +145,14 @@
                         Served
                     </span>
                 </button>
+                <button
+                    class="filter-btn flex flex-col items-center border-b-2 border-transparent py-2 px-2 hover:border-primary/50 transition-colors"
+                    data-status="CANCELLED">
+                    <span class="text-sm font-bold text-slate-500 hover:text-primary flex items-center gap-2">
+                        <span class="material-symbols-outlined text-sm">cancel</span>
+                        Cancelled
+                    </span>
+                </button>
             </div>
         </nav>
         <main class="flex-1 px-6 pt-2 pb-6 space-y-4">
@@ -223,7 +231,37 @@
                                 <option value="08">Table 08</option>
                                 <option value="09">Table 09</option>
                                 <option value="10">Table 10</option>
+                                <option value="11">Table 11</option>
+                                <option value="12">Table 12</option>
+                                <option value="13">Table 13</option>
+                                <option value="14">Table 14</option>
+                                <option value="15">Table 15</option>
                             </select>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Quick Add
+                            Common Items</label>
+                        <div class="flex flex-wrap gap-2">
+                            <button type="button" onclick="quickAddItem('Coffee', 60)"
+                                class="px-3 py-1.5 bg-slate-100 rounded-lg text-xs font-bold hover:bg-primary/10 hover:text-primary transition-colors border border-slate-200 text-slate-700">☕
+                                Coffee</button>
+                            <button type="button" onclick="quickAddItem('Tea', 40)"
+                                class="px-3 py-1.5 bg-slate-100 rounded-lg text-xs font-bold hover:bg-primary/10 hover:text-primary transition-colors border border-slate-200 text-slate-700">🍵
+                                Tea</button>
+                            <button type="button" onclick="quickAddItem('Burger', 120)"
+                                class="px-3 py-1.5 bg-slate-100 rounded-lg text-xs font-bold hover:bg-primary/10 hover:text-primary transition-colors border border-slate-200 text-slate-700">🍔
+                                Burger</button>
+                            <button type="button" onclick="quickAddItem('Pizza', 250)"
+                                class="px-3 py-1.5 bg-slate-100 rounded-lg text-xs font-bold hover:bg-primary/10 hover:text-primary transition-colors border border-slate-200 text-slate-700">🍕
+                                Pizza</button>
+                            <button type="button" onclick="quickAddItem('Pasta', 180)"
+                                class="px-3 py-1.5 bg-slate-100 rounded-lg text-xs font-bold hover:bg-primary/10 hover:text-primary transition-colors border border-slate-200 text-slate-700">🍝
+                                Pasta</button>
+                            <button type="button" onclick="quickAddItem('Fries', 90)"
+                                class="px-3 py-1.5 bg-slate-100 rounded-lg text-xs font-bold hover:bg-primary/10 hover:text-primary transition-colors border border-slate-200 text-slate-700">🍟
+                                Fries</button>
                         </div>
                     </div>
 
@@ -256,6 +294,8 @@
                         <p class="text-2xl font-black text-primary" id="modal-total">₹0.00</p>
                     </div>
                     <div class="flex gap-3">
+                        <button type="button" onclick="clearManualForm()"
+                            class="px-4 py-2.5 rounded-lg text-sm font-bold text-red-500 hover:bg-red-50 transition-colors border border-red-100">Reset</button>
                         <button type="button" onclick="closeManualEntryModal()"
                             class="px-6 py-2.5 rounded-lg text-sm font-bold text-slate-500 hover:bg-slate-200 transition-colors">Cancel</button>
                         <button type="submit" form="manual-order-form"
@@ -283,8 +323,8 @@
             revenue: '₹0.00',
             todayRevenue: '₹0.00',
             revenueTrend: '+0%',
-            ordersServed: 0,
-            ordersGoal: 200,
+            totalOrders: 0,
+            todayOrders: 0,
             cancelled: 0
         };
 
@@ -348,6 +388,15 @@
             document.body.style.overflow = '';
         }
 
+        function clearManualForm() {
+            if (confirm('Are you sure you want to clear all form data?')) {
+                document.getElementById('manual-order-form').reset();
+                formItems = [];
+                addItemToForm();
+                calculateFormTotal();
+            }
+        }
+
         function addItemToForm() {
             const id = Date.now() + Math.random();
             formItems.push({ id, name: '', qty: 1, price: 0 });
@@ -378,27 +427,42 @@
 
         function renderFormItems() {
             const list = document.getElementById('modal-items-list');
-            list.innerHTML = formItems.map(item => `
-                <div class="flex items-center gap-3 bg-slate-50 p-3 rounded-xl border border-slate-100 group">
-                    <div class="flex-1">
-                        <input type="text" value="${item.name}" oninput="updateFormItem(${item.id}, 'name', this.value)" required
-                            class="w-full bg-white border-slate-200 rounded-lg px-3 py-1.5 text-sm focus:ring-1 focus:ring-primary" placeholder="Item Name">
+            if (formItems.length === 0) {
+                list.innerHTML = `<p class="text-center text-slate-400 text-xs py-4 border-2 border-dashed border-slate-100 rounded-xl">No items added yet. Use "Add Item" or "Quick Add".</p>`;
+            } else {
+                list.innerHTML = formItems.map(item => `
+                    <div class="flex items-center gap-3 bg-slate-50 p-3 rounded-xl border border-slate-100 group">
+                        <div class="flex-1">
+                            <input type="text" value="${item.name}" oninput="updateFormItem(${item.id}, 'name', this.value)" required
+                                class="w-full bg-white border-slate-200 rounded-lg px-3 py-1.5 text-sm focus:ring-1 focus:ring-primary" placeholder="Item Name">
+                        </div>
+                        <div class="w-16">
+                            <input type="number" value="${item.qty}" min="1" oninput="updateFormItem(${item.id}, 'qty', this.value)" required
+                                class="w-full bg-white border-slate-200 rounded-lg px-2 py-1.5 text-sm focus:ring-1 focus:ring-primary text-center" placeholder="Qty">
+                        </div>
+                        <div class="w-24 relative">
+                            <span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs">₹</span>
+                            <input type="number" step="0.01" value="${item.price}" oninput="updateFormItem(${item.id}, 'price', this.value)" required
+                                class="w-full bg-white border-slate-200 rounded-lg pl-6 pr-3 py-1.5 text-sm focus:ring-1 focus:ring-primary" placeholder="Price">
+                        </div>
+                        <button type="button" onclick="removeItemFromForm(${item.id})" class="text-slate-300 hover:text-red-500 transition-colors">
+                            <span class="material-symbols-outlined text-lg">delete</span>
+                        </button>
                     </div>
-                    <div class="w-20">
-                        <input type="number" value="${item.qty}" min="1" oninput="updateFormItem(${item.id}, 'qty', this.value)" required
-                            class="w-full bg-white border-slate-200 rounded-lg px-3 py-1.5 text-sm focus:ring-1 focus:ring-primary text-center" placeholder="Qty">
-                    </div>
-                    <div class="w-24 relative">
-                        <span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs">₹</span>
-                        <input type="number" step="0.01" value="${item.price}" oninput="updateFormItem(${item.id}, 'price', this.value)" required
-                            class="w-full bg-white border-slate-200 rounded-lg pl-6 pr-3 py-1.5 text-sm focus:ring-1 focus:ring-primary" placeholder="Price">
-                    </div>
-                    <button type="button" onclick="removeItemFromForm(${item.id})" class="text-slate-300 hover:text-red-500 transition-colors">
-                        <span class="material-symbols-outlined text-lg">delete</span>
-                    </button>
-                </div>
-            `).join('');
+                `).join('');
+            }
             calculateFormTotal();
+        }
+
+        function quickAddItem(name, price) {
+            const existing = formItems.find(i => i.name === name);
+            if (existing) {
+                existing.qty += 1;
+            } else {
+                const id = Date.now() + Math.random();
+                formItems.push({ id, name, qty: 1, price });
+            }
+            renderFormItems();
         }
 
         // --- Rendering Logic ---
@@ -538,14 +602,15 @@
                     <button onclick="printOrderTicket('${order.id}')" class="bg-white border border-slate-200 text-slate-600 font-bold py-2 px-3 rounded text-sm hover:bg-slate-50 transition-colors flex items-center justify-center gap-2">
                         <span class="material-symbols-outlined text-base">print</span> Ticket
                     </button>
-                    ${order.status === 'NEW' ? `
-                        <button class="col-span-2 text-primary font-bold py-1.5 text-xs hover:underline mt-1" data-id="${order.id}" data-action="CANCEL">
-                            Cancel Order
+                    ${order.status !== 'CANCELLED' ? `
+                        <button class="col-span-1 text-red-500 font-bold py-1.5 text-xs hover:underline mt-1 border border-red-100 rounded bg-white flex items-center justify-center gap-1" data-id="${order.id}" data-action="CANCEL">
+                            <span class="material-symbols-outlined text-[14px]">cancel</span> Cancel
+                        </button>
+                        <button onclick="editOrder('${order.id}')" class="col-span-1 text-slate-400 font-bold py-1.5 text-xs hover:underline mt-1 flex items-center justify-center gap-1">
+                            <span class="material-symbols-outlined text-[14px]">edit</span> Edit
                         </button>
                     ` : `
-                        <button onclick="editOrder('${order.id}')" class="col-span-2 text-slate-400 font-bold py-1.5 text-xs hover:underline mt-1">
-                            Modify Order
-                        </button>
+                        <p class="col-span-2 text-center text-[10px] text-slate-400 font-bold uppercase py-2">Order Cancelled</p>
                     `}
                 </div>
             </div>
@@ -581,7 +646,13 @@
                     icon: "payments",
                     color: "primary"
                 },
-                { title: "Orders Served", value: MOCK_STATS.ordersServed, subtext: `Goal: ${MOCK_STATS.ordersGoal} orders`, icon: "list_alt", color: "slate-900" },
+                {
+                    title: "Orders Volume",
+                    value: MOCK_STATS.todayOrders,
+                    subtext: `Total Orders: ${MOCK_STATS.totalOrders}`,
+                    icon: "list_alt",
+                    color: "slate-900"
+                },
                 { title: "Cancelled", value: String(MOCK_STATS.cancelled).padStart(2, '0'), subtext: "Requires review", icon: "cancel", color: "slate-400" }
             ];
 
@@ -601,7 +672,7 @@
                 if (confirm('Are you sure you want to cancel this order?')) {
                     const { error } = await sbClient
                         .from('orders')
-                        .delete()
+                        .update({ status: 'CANCELLED' })
                         .eq('id', id);
 
                     if (error) {
@@ -651,6 +722,7 @@
                 submitBtn.innerText = 'Syncing...';
 
                 try {
+                    console.log("Submitting order data:", orderData);
                     if (editingOrderId) {
                         const { error } = await sbClient
                             .from('orders')
@@ -661,7 +733,8 @@
                     } else {
                         const newOrder = {
                             id: `ORD-${Math.floor(1000 + Math.random() * 9000)}`,
-                            ...orderData
+                            ...orderData,
+                            created_at: new Date().toISOString()
                         };
                         const { error } = await sbClient
                             .from('orders')
@@ -671,8 +744,9 @@
                     }
                     closeManualEntryModal();
                 } catch (err) {
-                    console.error('Submission error:', err);
-                    alert('Failed to sync with database.');
+                    console.error('Submission error details:', err);
+                    const msg = err.message || err.details || "Check console for details";
+                    alert(`Failed to sync with database: ${msg}`);
                 } finally {
                     submitBtn.disabled = false;
                     submitBtn.innerText = editingOrderId ? 'Update Order' : 'Create Order';
@@ -750,23 +824,25 @@
 
             function updateStatsFromData() {
                 const today = new Date().toLocaleDateString();
-                const served = MOCK_ORDERS.filter(o => o.status === 'SERVED' || o.status === 'PAID').length;
-                const revenue = MOCK_ORDERS.reduce((sum, o) => sum + (o.status !== 'CANCELLED' ? o.total : 0), 0);
+                const liveOrders = MOCK_ORDERS.filter(o => o.status !== 'CANCELLED');
 
-                // Calculate today's revenue
-                const todayRevenue = MOCK_ORDERS
-                    .filter(o => {
-                        const orderDate = new Date(o.created_at).toLocaleDateString();
-                        return orderDate === today && o.status !== 'CANCELLED';
-                    })
-                    .reduce((sum, o) => sum + o.total, 0);
+                const servedCount = liveOrders.filter(o => o.status === 'SERVED' || o.status === 'PAID').length;
+                const revenue = liveOrders.reduce((sum, o) => sum + o.total, 0);
 
-                const cancelled = MOCK_ORDERS.filter(o => o.status === 'CANCELLED').length;
+                // Calculate today's revenue & orders
+                const todayOrders = liveOrders.filter(o => {
+                    const orderDate = new Date(o.created_at).toLocaleDateString();
+                    return orderDate === today;
+                });
 
-                MOCK_STATS.ordersServed = served;
+                const todayRevenueAmount = todayOrders.reduce((sum, o) => sum + o.total, 0);
+                const cancelledCount = MOCK_ORDERS.filter(o => o.status === 'CANCELLED').length;
+
+                MOCK_STATS.totalOrders = liveOrders.length;
+                MOCK_STATS.todayOrders = todayOrders.length;
                 MOCK_STATS.revenue = `₹${revenue.toLocaleString('en-IN', { minimumFractionDigits: 2 })}`;
-                MOCK_STATS.todayRevenue = `₹${todayRevenue.toLocaleString('en-IN', { minimumFractionDigits: 2 })}`;
-                MOCK_STATS.cancelled = cancelled;
+                MOCK_STATS.todayRevenue = `₹${todayRevenueAmount.toLocaleString('en-IN', { minimumFractionDigits: 2 })}`;
+                MOCK_STATS.cancelled = cancelledCount;
             }
 
             function showLiveNotification(msg) {
