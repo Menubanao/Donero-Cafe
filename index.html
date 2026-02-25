@@ -1074,13 +1074,32 @@
 
             try {
                 isPlacingOrder = true;
-                const { error } = await sbClient
+
+                // Create a 5-second minimum wait promise
+                const delay = new Promise(resolve => setTimeout(resolve, 5000));
+
+                // Start database operation
+                const dbOp = sbClient
                     .from('orders')
                     .insert([orderData]);
 
-                if (error) throw error;
+                // Wait for both DB operation and the 5-second timer
+                const [dbResult] = await Promise.all([dbOp, delay]);
+
+                if (dbResult.error) throw dbResult.error;
+
+                // Success State on Button
+                if (btn) {
+                    btn.innerHTML = `<span class="material-symbols-outlined">check_circle</span> Order Placed!`;
+                    btn.className = btn.className.replace('bg-primary', 'bg-green-500');
+                    btn.style.backgroundColor = '#22c55e';
+                }
 
                 showNotification("Order Placed Successfully!");
+
+                // Small additional delay to show "Order Placed!" before reset
+                await new Promise(resolve => setTimeout(resolve, 1000));
+
                 alert(`Order Placed Successfully!\n\nOrder ID: ${orderId}\nTotal: ₹${total}`);
 
                 cart = [];
@@ -1088,6 +1107,15 @@
                 document.getElementById('order-table').value = '';
                 document.getElementById('order-name').value = '';
                 document.getElementById('packing-toggle').checked = false;
+
+                // Restore button for next time (even though modal closes)
+                if (btn) {
+                    btn.disabled = false;
+                    btn.innerText = originalText;
+                    btn.className = btn.className.replace('bg-green-500', 'bg-primary');
+                    btn.style.backgroundColor = '#EDA747';
+                }
+
                 updateCartUI();
                 toggleCartModal();
             } catch (err) {
@@ -1098,6 +1126,8 @@
                 if (btn) {
                     btn.disabled = false;
                     btn.innerText = originalText;
+                    btn.className = btn.className.replace('bg-green-500', 'bg-primary');
+                    btn.style.backgroundColor = '#EDA747';
                 }
             } finally {
                 isPlacingOrder = false;
