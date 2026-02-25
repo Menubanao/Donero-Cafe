@@ -1075,8 +1075,8 @@
             try {
                 isPlacingOrder = true;
 
-                // Create a 5-second minimum wait promise
-                const delay = new Promise(resolve => setTimeout(resolve, 5000));
+                // Create a 2-second minimum wait promise
+                const delay = new Promise(resolve => setTimeout(resolve, 2000));
 
                 // Start database operation
                 const dbOp = sbClient
