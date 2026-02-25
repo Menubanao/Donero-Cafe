@@ -245,6 +245,11 @@
                     style="color: #965223;">restaurant_menu</span>
                 <h1 class="font-handwritten text-2xl text-primary tracking-tight" style="color: #965223;">Donero Cafe
                 </h1>
+                <div id="connection-badge"
+                    class="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-slate-100 text-[10px] font-bold text-slate-400">
+                    <span class="w-1.5 h-1.5 rounded-full bg-slate-300"></span>
+                    <span>Checking...</span>
+                </div>
             </div>
             <div class="flex gap-3">
                 <button id="search-btn" onclick="toggleSearch()"
@@ -318,7 +323,8 @@
                         </div>
                         <div class="flex items-center justify-between mt-2">
                             <span class="font-bold text-primary" style="color: #965223;">₹129</span>
-                            <button onclick="addToCart('Margherita Pizza', 129)" data-item-name="Margherita Pizza"
+                            <button onclick="addToCart('Margherita Pizza', 129, event)"
+                                data-item-name="Margherita Pizza"
                                 class="bg-primary text-white rounded-lg px-4 py-1.5 text-sm font-bold flex items-center gap-1 hover:scale-95 transition-transform active:bg-primary/90"
                                 style="background-color: #EDA747;">
                                 <span class="material-symbols-outlined text-base">add</span> <span>Add</span>
@@ -340,7 +346,8 @@
                         </div>
                         <div class="flex items-center justify-between mt-2">
                             <span class="font-bold text-primary" style="color: #965223;">₹239</span>
-                            <button onclick="addToCart('Chicken Tikka Pizza', 239)" data-item-name="Chicken Tikka Pizza"
+                            <button onclick="addToCart('Chicken Tikka Pizza', 239, event)"
+                                data-item-name="Chicken Tikka Pizza"
                                 class="bg-primary text-white rounded-lg px-4 py-1.5 text-sm font-bold flex items-center gap-1 hover:scale-95 transition-transform active:bg-primary/90"
                                 style="background-color: #EDA747;">
                                 <span class="material-symbols-outlined text-base">add</span> <span>Add</span>
@@ -361,7 +368,8 @@
                         </div>
                         <div class="flex items-center justify-between mt-2">
                             <span class="font-bold text-primary" style="color: #965223;">₹219</span>
-                            <button onclick="addToCart('Mexican Wave Pizza', 219)" data-item-name="Mexican Wave Pizza"
+                            <button onclick="addToCart('Mexican Wave Pizza', 219, event)"
+                                data-item-name="Mexican Wave Pizza"
                                 class="bg-primary text-white rounded-lg px-4 py-1.5 text-sm font-bold flex items-center gap-1 hover:scale-95 transition-transform active:bg-primary/90"
                                 style="background-color: #EDA747;">
                                 <span class="material-symbols-outlined text-base">add</span> <span>Add</span>
@@ -391,7 +399,8 @@
                         </div>
                         <div class="flex items-center justify-between mt-2">
                             <span class="font-bold text-primary" style="color: #965223;">₹210</span>
-                            <button onclick="addToCart('Arrabbiata Pasta', 210)" data-item-name="Arrabbiata Pasta"
+                            <button onclick="addToCart('Arrabbiata Pasta', 210, event)"
+                                data-item-name="Arrabbiata Pasta"
                                 class="bg-primary text-white rounded-lg px-4 py-1.5 text-sm font-bold flex items-center gap-1 hover:scale-95 transition-transform"
                                 style="background-color: #EDA747;">
                                 <span class="material-symbols-outlined text-base">add</span> <span>Add</span>
@@ -412,7 +421,7 @@
                         </div>
                         <div class="flex items-center justify-between mt-2">
                             <span class="font-bold text-primary" style="color: #965223;">₹210</span>
-                            <button onclick="addToCart('Alfredo Pasta', 210)" data-item-name="Alfredo Pasta"
+                            <button onclick="addToCart('Alfredo Pasta', 210, event)" data-item-name="Alfredo Pasta"
                                 class="bg-primary text-white rounded-lg px-4 py-1.5 text-sm font-bold flex items-center gap-1 hover:scale-95 transition-transform"
                                 style="background-color: #EDA747;">
                                 <span class="material-symbols-outlined text-base">add</span> <span>Add</span>
@@ -432,7 +441,8 @@
                         </div>
                         <div class="flex items-center justify-between mt-2">
                             <span class="font-bold text-primary" style="color: #965223;">₹229</span>
-                            <button onclick="addToCart('Penne Pink Sauce', 229)" data-item-name="Penne Pink Sauce"
+                            <button onclick="addToCart('Penne Pink Sauce', 229, event)"
+                                data-item-name="Penne Pink Sauce"
                                 class="bg-primary text-white rounded-lg px-4 py-1.5 text-sm font-bold flex items-center gap-1 hover:scale-95 transition-transform"
                                 style="background-color: #EDA747;">
                                 <span class="material-symbols-outlined text-base">add</span> <span>Add</span>
@@ -462,7 +472,7 @@
                         </div>
                         <div class="flex items-center justify-between mt-2">
                             <span class="font-bold text-primary" style="color: #965223;">₹89</span>
-                            <button onclick="addToCart('Peri Peri Fries', 89)" data-item-name="Peri Peri Fries"
+                            <button onclick="addToCart('Peri Peri Fries', 89, event)" data-item-name="Peri Peri Fries"
                                 class="bg-primary text-white rounded-lg px-4 py-1.5 text-sm font-bold flex items-center gap-1 hover:scale-95 transition-transform"
                                 style="background-color: #EDA747;">
                                 <span class="material-symbols-outlined text-base">add</span> <span>Add</span>
@@ -483,7 +493,8 @@
                         </div>
                         <div class="flex items-center justify-between mt-2">
                             <span class="font-bold text-primary" style="color: #965223;">₹129</span>
-                            <button onclick="addToCart('Cheese Garlic Fries', 129)" data-item-name="Cheese Garlic Fries"
+                            <button onclick="addToCart('Cheese Garlic Fries', 129, event)"
+                                data-item-name="Cheese Garlic Fries"
                                 class="bg-primary text-white rounded-lg px-4 py-1.5 text-sm font-bold flex items-center gap-1 hover:scale-95 transition-transform"
                                 style="background-color: #EDA747;">
                                 <span class="material-symbols-outlined text-base">add</span> <span>Add</span>
@@ -513,7 +524,7 @@
                         </div>
                         <div class="flex items-center justify-between mt-2">
                             <span class="font-bold text-primary" style="color: #965223;">₹99</span>
-                            <button onclick="addToCart('Iced Lemon Tea', 99)" data-item-name="Iced Lemon Tea"
+                            <button onclick="addToCart('Iced Lemon Tea', 99, event)" data-item-name="Iced Lemon Tea"
                                 class="bg-primary text-white rounded-lg px-4 py-1.5 text-sm font-bold flex items-center gap-1 hover:scale-95 transition-transform"
                                 style="background-color: #EDA747;">
                                 <span class="material-symbols-outlined text-base">add</span> <span>Add</span>
@@ -534,7 +545,7 @@
                         </div>
                         <div class="flex items-center justify-between mt-2">
                             <span class="font-bold text-primary" style="color: #965223;">₹79</span>
-                            <button onclick="addToCart('Fresh Lime Soda', 79)" data-item-name="Fresh Lime Soda"
+                            <button onclick="addToCart('Fresh Lime Soda', 79, event)" data-item-name="Fresh Lime Soda"
                                 class="bg-primary text-white rounded-lg px-4 py-1.5 text-sm font-bold flex items-center gap-1 hover:scale-95 transition-transform"
                                 style="background-color: #EDA747;">
                                 <span class="material-symbols-outlined text-base">add</span> <span>Add</span>
@@ -564,7 +575,7 @@
                         </div>
                         <div class="flex items-center justify-between mt-2">
                             <span class="font-bold text-primary" style="color: #965223;">₹199</span>
-                            <button onclick="addToCart('Paneer Tikka', 199)" data-item-name="Paneer Tikka"
+                            <button onclick="addToCart('Paneer Tikka', 199, event)" data-item-name="Paneer Tikka"
                                 class="bg-primary text-white rounded-lg px-4 py-1.5 text-sm font-bold flex items-center gap-1 hover:scale-95 transition-transform"
                                 style="background-color: #EDA747;">
                                 <span class="material-symbols-outlined text-base">add</span> <span>Add</span>
@@ -585,7 +596,8 @@
                         </div>
                         <div class="flex items-center justify-between mt-2">
                             <span class="font-bold text-primary" style="color: #965223;">₹149</span>
-                            <button onclick="addToCart('Crispy Spring Rolls', 149)" data-item-name="Crispy Spring Rolls"
+                            <button onclick="addToCart('Crispy Spring Rolls', 149, event)"
+                                data-item-name="Crispy Spring Rolls"
                                 class="bg-primary text-white rounded-lg px-4 py-1.5 text-sm font-bold flex items-center gap-1 hover:scale-95 transition-transform"
                                 style="background-color: #EDA747;">
                                 <span class="material-symbols-outlined text-base">add</span> <span>Add</span>
@@ -767,7 +779,7 @@
                         </div>
                         <div class="flex items-center justify-between mt-2">
                             <span class="font-bold text-primary" style="color: #965223;">₹149</span>
-                            <button onclick="addToCart('Iced Americano', 149)" data-item-name="Iced Americano"
+                            <button onclick="addToCart('Iced Americano', 149, event)" data-item-name="Iced Americano"
                                 class="bg-primary text-white rounded-lg px-4 py-1.5 text-sm font-bold flex items-center gap-1 hover:scale-95 transition-transform"
                                 style="background-color: #EDA747;">
                                 <span class="material-symbols-outlined text-base">add</span> <span>Add</span>
@@ -851,7 +863,7 @@
                     <span class="text-slate-500">Subtotal</span>
                     <span id="modal-total" class="font-bold text-xl">₹0</span>
                 </div>
-                <button onclick="checkout()"
+                <button onclick="checkout(event)"
                     class="w-full bg-primary text-white p-4 rounded-xl font-bold shadow-lg hover:brightness-110 active:scale-[0.98] transition-all"
                     style="background-color: #EDA747;">
                     Confirm Order
@@ -871,7 +883,7 @@
 
         let cart = [];
 
-        function addToCart(name, price) {
+        function addToCart(name, price, event) {
             const existing = cart.find(item => item.name === name);
             if (existing) {
                 existing.quantity += 1;
@@ -881,7 +893,7 @@
             updateCartUI();
 
             // Animation Feedback
-            const btn = window.event ? window.event.currentTarget : null;
+            const btn = event ? event.currentTarget : null;
             if (btn && btn.classList) {
                 btn.classList.add('animate-button-pop');
                 setTimeout(() => btn.classList.remove('animate-button-pop'), 300);
@@ -966,7 +978,7 @@
             modal.classList.toggle('hidden');
         }
 
-        async function checkout() {
+        async function checkout(event) {
             const tableName = document.getElementById('order-table').value.trim();
             const userName = document.getElementById('order-name').value.trim();
             const isPacking = document.getElementById('packing-toggle').checked;
@@ -978,6 +990,13 @@
 
             if (cart.length === 0) {
                 showNotification("Your cart is empty!");
+                return;
+            }
+
+            // Connection Check
+            if (typeof sbClient === 'undefined' || !sbClient) {
+                showNotification("Connection error. Refreshing...");
+                location.reload();
                 return;
             }
 
@@ -997,7 +1016,7 @@
             };
 
             // Success animation on button
-            const btn = window.event ? window.event.currentTarget : null;
+            const btn = event ? event.currentTarget : null;
             if (btn) {
                 const originalText = btn.innerText;
                 btn.disabled = true;
@@ -1022,7 +1041,9 @@
                     toggleCartModal();
                 } catch (err) {
                     console.error('Error placing order:', err);
-                    showNotification("Failed to place order. Try again.");
+                    const errorMsg = err.message || "Unknown error";
+                    showNotification("Failed to place order.");
+                    alert(`Error: ${errorMsg}\n\nPlease ensure you have run the SQL script in Supabase!`);
                     btn.disabled = false;
                     btn.innerText = originalText;
                 }
@@ -1178,6 +1199,29 @@
 
         // Initialize first nav item
         if (navLinks.length > 0) navLinks[0].classList.add('active-nav');
+
+        // Connection Status Monitoring
+        function updateConnectionStatus() {
+            const badge = document.getElementById('connection-badge');
+            if (!badge) return;
+
+            const dot = badge.querySelector('span');
+            const text = badge.querySelector('span:last-child');
+
+            if (typeof sbClient !== 'undefined' && sbClient) {
+                dot.className = 'w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse';
+                text.innerText = 'Connected';
+                badge.className = 'flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-green-50 text-[10px] font-bold text-green-600 transition-colors';
+            } else {
+                dot.className = 'w-1.5 h-1.5 rounded-full bg-red-500';
+                text.innerText = 'Disconnected';
+                badge.className = 'flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-red-50 text-[10px] font-bold text-red-600 transition-colors';
+            }
+        }
+
+        // Initial check and periodic updates
+        setTimeout(updateConnectionStatus, 1000);
+        setInterval(updateConnectionStatus, 5000);
     </script>
 </body>
 
