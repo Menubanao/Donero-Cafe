@@ -851,10 +851,27 @@
                         PLEASE FILL DETAILS TO PLACE ORDER
                     </p>
                     <div class="grid grid-cols-2 gap-3">
-                        <div>
+                        <div id="table-selection-container">
                             <label class="text-[10px] font-bold text-slate-500 uppercase ml-1">Table Number</label>
-                            <input type="text" id="order-table" placeholder="e.g. 05"
-                                class="focus:outline-none focus:ring-1 focus:ring-primary shadow-sm hover:shadow-md transition-shadow">
+                            <select id="order-table"
+                                class="w-full bg-white dark:bg-[#1e293b] border border-black/10 dark:border-white/10 rounded-lg p-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary shadow-sm hover:shadow-md transition-shadow">
+                                <option value="">Select Table</option>
+                                <option value="Table 1">Table 1</option>
+                                <option value="Table 2">Table 2</option>
+                                <option value="Table 3">Table 3</option>
+                                <option value="Table 4">Table 4</option>
+                                <option value="Table 5">Table 5</option>
+                                <option value="Table 6">Table 6</option>
+                                <option value="Table 7">Table 7</option>
+                                <option value="Table 8">Table 8</option>
+                                <option value="Table 9">Table 9</option>
+                                <option value="Table 10">Table 10</option>
+                                <option value="Table 11">Table 11</option>
+                                <option value="Table 12">Table 12</option>
+                                <option value="Table 13">Table 13</option>
+                                <option value="Table 14">Table 14</option>
+                                <option value="Table 15">Table 15</option>
+                            </select>
                         </div>
                         <div>
                             <label class="text-[10px] font-bold text-slate-500 uppercase ml-1">Customer Name</label>
@@ -1006,12 +1023,17 @@
         async function checkout(event) {
             if (isPlacingOrder) return;
 
-            const tableName = document.getElementById('order-table').value.trim();
-            const userName = document.getElementById('order-name').value.trim();
             const isPacking = document.getElementById('packing-toggle').checked;
+            const tableName = isPacking ? "Takeaway" : document.getElementById('order-table').value.trim();
+            const userName = document.getElementById('order-name').value.trim();
 
-            if (!tableName || !userName) {
-                showNotification("Please fill Name & Table Number!");
+            if (!isPacking && !tableName) {
+                showNotification("Please select a Table Number!");
+                return;
+            }
+
+            if (!userName) {
+                showNotification("Please enter Customer Name!");
                 return;
             }
 
@@ -1028,13 +1050,12 @@
             }
 
             const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-            const type = isPacking ? "Takeaway" : tableName;
             const orderId = `ORD-${Math.floor(1000 + Math.random() * 9000)}`;
 
             const orderData = {
                 id: orderId,
                 customer: userName,
-                table_no: type,
+                table_no: tableName,
                 items: cart.map(i => ({ name: i.name, qty: i.quantity, price: i.price })),
                 total: total,
                 status: 'NEW',
@@ -1255,6 +1276,16 @@
         // Initial check and periodic updates
         setTimeout(updateConnectionStatus, 1000);
         setInterval(updateConnectionStatus, 5000);
+
+        // Toggle Table Visibility based on Packing
+        document.getElementById('packing-toggle').addEventListener('change', function () {
+            const tableContainer = document.getElementById('table-selection-container');
+            if (this.checked) {
+                tableContainer.classList.add('hidden');
+            } else {
+                tableContainer.classList.remove('hidden');
+            }
+        });
     </script>
 </body>
 
