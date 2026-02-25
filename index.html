@@ -787,6 +787,13 @@
                         </div>
                     </div>
                 </div>
+                <div class="mt-8 pt-8 border-t border-slate-200 dark:border-slate-800 text-center">
+                    <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest mb-2">Powered by Donero
+                        Cloud</p>
+                    <button onclick="location.reload(true)"
+                        class="text-[10px] text-primary/60 hover:text-primary font-bold underline">Reload App</button>
+                    <p class="text-[10px] text-slate-300 mt-2">v1.2.1 • Nothing/Vivo Compatibility Fix</p>
+                </div>
             </div>
         </section>
     </main>
@@ -873,6 +880,16 @@
     </div>
 
     <script>
+        // Global Error Handling for Mobile Debugging
+        window.onerror = function (msg, url, line) {
+            console.error("DEBUG:", msg, "at", line);
+            // Only show alert for critical errors that block the app
+            if (msg.toLowerCase().includes("supabase") || msg.toLowerCase().includes("sbclient")) {
+                alert("Connection Error: " + msg + " (Line: " + line + ")");
+            }
+            return false;
+        };
+
         // Supabase Configuration
         const SUPABASE_URL = 'https://vuqvokufivgtevpvppcd.supabase.co';
         const SUPABASE_KEY = 'sb_publishable_-957Cp2j5PH0VkWJH9XdmQ_wf2WqLMN';
@@ -882,6 +899,7 @@
         window.supabase = sbClient;
 
         let cart = [];
+        let isPlacingOrder = false;
 
         function addToCart(name, price, event) {
             const existing = cart.find(item => item.name === name);
@@ -893,7 +911,7 @@
             updateCartUI();
 
             // Animation Feedback
-            const btn = event ? event.currentTarget : null;
+            const btn = event ? (event.currentTarget || event.target.closest('button')) : null;
             if (btn && btn.classList) {
                 btn.classList.add('animate-button-pop');
                 setTimeout(() => btn.classList.remove('animate-button-pop'), 300);
@@ -909,7 +927,7 @@
             showNotification(`${name} added to cart!`);
         }
 
-        function removeFromCart(name) {
+        function removeFromCart(name, event) {
             const index = cart.findIndex(item => item.name === name);
             if (index > -1) {
                 if (cart[index].quantity > 1) {
@@ -919,6 +937,13 @@
                 }
             }
             updateCartUI();
+
+            // Animation for minus button if needed
+            const btn = event ? (event.currentTarget || event.target.closest('button')) : null;
+            if (btn && btn.classList) {
+                btn.classList.add('scale-75');
+                setTimeout(() => btn.classList.remove('scale-75'), 150);
+            }
         }
 
         function updateCartUI() {
@@ -955,17 +980,17 @@
             });
 
             cartItemsContainer.innerHTML = cart.map(item => `
-                <div class="flex items-center justify-between cart-item-animation">
-                    <div>
-                        <p class="font-bold">${item.name}</p>
-                        <p class="text-sm text-slate-500">₹${item.price} x ${item.quantity}</p>
+                <div class="flex items-center justify-between cart-item-animation bg-slate-50 dark:bg-slate-800/50 p-3 rounded-xl border border-slate-100 dark:border-slate-700/50 mb-2">
+                    <div class="flex-1">
+                        <p class="font-bold text-sm text-slate-800 dark:text-slate-100">${item.name}</p>
+                        <p class="text-xs text-slate-500">₹${item.price} x ${item.quantity}</p>
                     </div>
-                    <div class="flex items-center gap-3 bg-slate-100 dark:bg-slate-800 rounded-lg p-1">
-                        <button onclick="removeFromCart('${item.name}')" class="w-8 h-8 flex items-center justify-center hover:bg-white dark:hover:bg-slate-700 rounded-md transition-colors">
+                    <div class="flex items-center gap-2 bg-slate-200/50 dark:bg-slate-900 rounded-lg p-1">
+                        <button onclick="removeFromCart('${item.name}', event)" class="w-8 h-8 flex items-center justify-center hover:bg-white dark:hover:bg-slate-700 rounded-md transition-all active:scale-90">
                             <span class="material-symbols-outlined text-sm">remove</span>
                         </button>
                         <span class="font-bold text-sm w-4 text-center">${item.quantity}</span>
-                        <button onclick="addToCart('${item.name}', ${item.price})" class="w-8 h-8 flex items-center justify-center hover:bg-white dark:hover:bg-slate-700 rounded-md transition-colors">
+                        <button onclick="addToCart('${item.name}', ${item.price}, event)" class="w-8 h-8 flex items-center justify-center hover:bg-white dark:hover:bg-slate-700 rounded-md transition-all active:scale-90 text-primary">
                             <span class="material-symbols-outlined text-sm">add</span>
                         </button>
                     </div>
@@ -979,6 +1004,8 @@
         }
 
         async function checkout(event) {
+            if (isPlacingOrder) return;
+
             const tableName = document.getElementById('order-table').value.trim();
             const userName = document.getElementById('order-name').value.trim();
             const isPacking = document.getElementById('packing-toggle').checked;
@@ -1016,37 +1043,43 @@
             };
 
             // Success animation on button
-            const btn = event ? event.currentTarget : null;
+            const btn = event ? (event.currentTarget || event.target.closest('button')) : null;
+            let originalText = "";
             if (btn) {
-                const originalText = btn.innerText;
+                originalText = btn.innerText;
                 btn.disabled = true;
                 btn.innerHTML = `<span class="material-symbols-outlined animate-spin">sync</span> Placing Order...`;
+            }
 
-                try {
-                    const { error } = await sbClient
-                        .from('orders')
-                        .insert([orderData]);
+            try {
+                isPlacingOrder = true;
+                const { error } = await sbClient
+                    .from('orders')
+                    .insert([orderData]);
 
-                    if (error) throw error;
+                if (error) throw error;
 
-                    showNotification("Order Placed Successfully!");
-                    alert(`Order Placed Successfully!\n\nOrder ID: ${orderId}\nTotal: ₹${total}`);
+                showNotification("Order Placed Successfully!");
+                alert(`Order Placed Successfully!\n\nOrder ID: ${orderId}\nTotal: ₹${total}`);
 
-                    cart = [];
-                    // Reset fields
-                    document.getElementById('order-table').value = '';
-                    document.getElementById('order-name').value = '';
-                    document.getElementById('packing-toggle').checked = false;
-                    updateCartUI();
-                    toggleCartModal();
-                } catch (err) {
-                    console.error('Error placing order:', err);
-                    const errorMsg = err.message || "Unknown error";
-                    showNotification("Failed to place order.");
-                    alert(`Error: ${errorMsg}\n\nPlease ensure you have run the SQL script in Supabase!`);
+                cart = [];
+                // Reset fields
+                document.getElementById('order-table').value = '';
+                document.getElementById('order-name').value = '';
+                document.getElementById('packing-toggle').checked = false;
+                updateCartUI();
+                toggleCartModal();
+            } catch (err) {
+                console.error('Error placing order:', err);
+                const errorMsg = err.message || "Unknown error";
+                showNotification("Failed to place order.");
+                alert(`Error: ${errorMsg}\n\nPlease check your internet connection!`);
+                if (btn) {
                     btn.disabled = false;
                     btn.innerText = originalText;
                 }
+            } finally {
+                isPlacingOrder = false;
             }
         }
 
