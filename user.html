@@ -230,6 +230,8 @@
             transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.3s ease;
         }
     </style>
+    <!-- Supabase Client -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 
 <body
@@ -249,6 +251,7 @@
                     class="p-2 hover:bg-primary/10 rounded-full transition-colors">
                     <span class="material-symbols-outlined text-slate-700 dark:text-slate-300">search</span>
                 </button>
+
                 <button class="p-2 hover:bg-primary/10 rounded-full transition-colors">
                     <span class="material-symbols-outlined text-slate-700 dark:text-slate-300">account_circle</span>
                 </button>
@@ -858,6 +861,11 @@
     </div>
 
     <script>
+        // Supabase Configuration
+        const SUPABASE_URL = 'https://vuqvokufivgtevpvppcd.supabase.co';
+        const SUPABASE_KEY = 'sb_publishable_-957Cp2j5PH0VkWJH9XdmQ_wf2WqLMN';
+        const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
         let cart = [];
 
         function addToCart(name, price) {
@@ -955,7 +963,7 @@
             modal.classList.toggle('hidden');
         }
 
-        function checkout() {
+        async function checkout() {
             const tableName = document.getElementById('order-table').value.trim();
             const userName = document.getElementById('order-name').value.trim();
             const isPacking = document.getElementById('packing-toggle').checked;
@@ -965,19 +973,57 @@
                 return;
             }
 
+            if (cart.length === 0) {
+                showNotification("Your cart is empty!");
+                return;
+            }
+
             const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-            const type = isPacking ? "Packing" : "Table Serving";
+            const type = isPacking ? "Takeaway" : tableName;
+            const orderId = `ORD-${Math.floor(1000 + Math.random() * 9000)}`;
 
-            const message = `Order Placed Successfully!\n\nName: ${userName}\nTable: ${tableName}\nType: ${type}\nTotal: ₹${total}`;
-            alert(message);
+            const orderData = {
+                id: orderId,
+                customer: userName,
+                table_no: type,
+                items: cart.map(i => ({ name: i.name, qty: i.quantity, price: i.price })),
+                total: total,
+                status: 'NEW',
+                notes: '', // Can be extended later
+                payment: 'Cash'
+            };
 
-            cart = [];
-            // Reset fields
-            document.getElementById('order-table').value = '';
-            document.getElementById('order-name').value = '';
-            document.getElementById('packing-toggle').checked = false;
+            // Success animation on button
+            const btn = window.event ? window.event.currentTarget : null;
+            if (btn) {
+                const originalText = btn.innerText;
+                btn.disabled = true;
+                btn.innerHTML = `<span class="material-symbols-outlined animate-spin">sync</span> Placing Order...`;
 
-            updateCartUI();
+                try {
+                    const { error } = await supabase
+                        .from('orders')
+                        .insert([orderData]);
+
+                    if (error) throw error;
+
+                    showNotification("Order Placed Successfully!");
+                    alert(`Order Placed Successfully!\n\nOrder ID: ${orderId}\nTotal: ₹${total}`);
+
+                    cart = [];
+                    // Reset fields
+                    document.getElementById('order-table').value = '';
+                    document.getElementById('order-name').value = '';
+                    document.getElementById('packing-toggle').checked = false;
+                    updateCartUI();
+                    toggleCartModal();
+                } catch (err) {
+                    console.error('Error placing order:', err);
+                    showNotification("Failed to place order. Try again.");
+                    btn.disabled = false;
+                    btn.innerText = originalText;
+                }
+            }
         }
 
         // Keyboard Focus Fix & Animation
