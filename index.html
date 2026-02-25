@@ -864,7 +864,10 @@
         // Supabase Configuration
         const SUPABASE_URL = 'https://vuqvokufivgtevpvppcd.supabase.co';
         const SUPABASE_KEY = 'sb_publishable_-957Cp2j5PH0VkWJH9XdmQ_wf2WqLMN';
-        const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        const sbClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        // Alias for easier use if needed, but we'll use sbClient consistently or rename properly
+        window.supabase = sbClient;
 
         let cart = [];
 
@@ -1001,7 +1004,7 @@
                 btn.innerHTML = `<span class="material-symbols-outlined animate-spin">sync</span> Placing Order...`;
 
                 try {
-                    const { error } = await supabase
+                    const { error } = await sbClient
                         .from('orders')
                         .insert([orderData]);
 
