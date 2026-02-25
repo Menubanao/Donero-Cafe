@@ -1,1322 +1,909 @@
 <!DOCTYPE html>
-<html lang="en">
+
+<html class="light" lang="en">
 
 <head>
-    <meta charset="utf-8" />
-    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
-    <title>Donero Cafe - Menu</title>
-    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-    <link
-        href="https://fonts.googleapis.com/css2?family=Epilogue:wght@300;400;500;600;700&family=Gloria+Hallelujah&display=swap"
-        rel="stylesheet" />
-    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
-        rel="stylesheet" />
-    <script id="tailwind-config">
-        tailwind.config = {
-            darkMode: "class",
-            theme: {
-                extend: {
-                    colors: {
-                        "primary": "#EDA747",
-                        "accent": "#965223",
-                        "background-light": "#FEEDD7",
-                        "background-dark": "#211114",
-                    },
-                    fontFamily: {
-                        "display": ["Epilogue"],
-                        "handwritten": ["Gloria Hallelujah", "cursive"]
-                    },
-                    borderRadius: { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" },
-                },
-            },
+    <script>
+        // Authentication Check - MUST RUN BEFORE ANYTHING ELSE
+        if (sessionStorage.getItem('donero_admin_auth') !== 'true') {
+            window.location.href = 'login.html';
         }
     </script>
-    <style>
-        .no-scrollbar::-webkit-scrollbar {
-            display: none;
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Donero Cafe - Admin Console</title>
+    <!-- Tailwind CSS (v4) -->
+    <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
+    <style type="text/tailwindcss">
+        @theme {
+        --color-primary: #EDA747;
+        --color-background-light: #fafafa;
+        --font-display: "Epilogue", sans-serif;
+        --font-handwritten: "Gloria Hallelujah", cursive;
+        --radius-default: 0.25rem;
+        --radius-lg: 0.5rem;
+        --radius-xl: 0.75rem;
+        --radius-full: 9999px;
+    }
+    @layer base {
+        body {
+            @apply bg-background-light text-slate-900 antialiased;
+            font-family: var(--font-display);
         }
-
-        .no-scrollbar {
-            -ms-overflow-style: none;
-            scrollbar-width: none;
-        }
-
-        .line-art-bg {
-            background-image: radial-gradient(circle at 2px 2px, rgba(150, 82, 35, 0.05) 1px, transparent 0);
-            background-size: 24px 24px;
-        }
-
-        .active-nav {
-            background-color: #EDA747 !important;
-            color: white !important;
-            box-shadow: 0 4px 6px -1px rgb(237 167 71 / 0.2), 0 2px 4px -2px rgb(237 167 71 / 0.2) !important;
-        }
-
-        html {
-            scroll-behavior: smooth;
-        }
-
-        .cart-item-animation {
-            animation: slideIn 0.3s ease-out;
-        }
-
-        @keyframes slideIn {
-            from {
-                opacity: 0;
-                transform: translateY(10px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        @keyframes pulse-cart {
-            0% {
-                transform: scale(1);
-            }
-
-            50% {
-                transform: scale(1.05);
-            }
-
-            100% {
-                transform: scale(1);
-            }
-        }
-
-        .animate-pulse-cart {
-            animation: pulse-cart 0.4s ease-out;
-        }
-
-        @keyframes button-pop {
-            0% {
-                transform: scale(1);
-            }
-
-            50% {
-                transform: scale(0.9);
-            }
-
-            100% {
-                transform: scale(1);
-            }
-        }
-
-        .animate-button-pop {
-            animation: button-pop 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        }
-
-        .toast-enter {
-            animation: toast-in 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
-        }
-
-        @keyframes toast-in {
-            from {
-                transform: translate(-50%, 20px);
-                opacity: 0;
-            }
-
-            to {
-                transform: translate(-50%, 0);
-                opacity: 1;
-            }
-        }
-
-        .ribbon-header {
-            background-color: #5D4037;
-            color: #FFFFFF;
-            padding: 0.75rem 2.5rem 0.75rem 1.5rem;
-            font-weight: 800;
-            text-transform: uppercase;
-            letter-spacing: 0.1em;
-            clip-path: polygon(0 0, 100% 0, 93% 50%, 100% 100%, 0 100%);
-            display: inline-block;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-            min-width: 200px;
-            text-align: left;
-        }
-
-        /* Toggle Switch */
-        .toggle-container {
-            position: relative;
-            display: inline-flex;
-            background: #e2e8f0;
-            padding: 4px;
-            border-radius: 9999px;
-            cursor: pointer;
-            user-select: none;
-            width: 100%;
-            height: 48px;
-            transition: background 0.3s ease;
-        }
-
-        .dark .toggle-container {
-            background: #1e293b;
-        }
-
-        .toggle-pill {
-            position: absolute;
-            top: 4px;
-            left: 4px;
-            width: calc(50% - 4px);
-            height: 40px;
-            background: white;
-            border-radius: 9999px;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        .dark .toggle-pill {
-            background: #334155;
-        }
-
-        .toggle-input:checked+.toggle-pill {
-            transform: translateX(100%);
-        }
-
-        .toggle-label {
-            position: relative;
-            z-index: 10;
-            flex: 1;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 0.875rem;
-            font-weight: 700;
-            transition: color 0.3s ease;
-        }
-
-        .toggle-input:not(:checked)~.label-left {
-            color: #965223;
-        }
-
-        .toggle-input:checked~.label-right {
-            color: #965223;
-        }
-
-        .details-block {
-            background: rgba(237, 167, 71, 0.1);
-            border: 2px solid rgba(237, 167, 71, 0.2);
-            border-radius: 1rem;
-            padding: 1rem;
-            margin-top: 1rem;
-        }
-
-        .details-block input {
-            background: white;
-            border: 1px solid rgba(0, 0, 0, 0.1);
-            border-radius: 0.5rem;
-            padding: 0.5rem 0.75rem;
-            width: 100%;
-            font-size: 0.875rem;
-            margin-top: 0.25rem;
-        }
-
-        .dark .details-block input {
-            background: #1e293b;
-            border-color: rgba(255, 255, 255, 0.1);
-            color: white;
-        }
-
-        /* Typing Mode Shift */
-        .typing-active {
-            transform: translateY(-30vh) !important;
-            opacity: 1 !important;
-        }
-
-        #cart-modal-content {
-            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.3s ease;
-        }
-    </style>
+    }
+    .scrollbar-hide::-webkit-scrollbar { display: none; }
+    .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+    .material-symbols-outlined {
+        font-family: 'Material Symbols Outlined' !important;
+        font-display: block;
+    }
+</style>
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Epilogue:wght@100..900&family=Gloria+Hallelujah&display=swap"
+        rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200"
+        rel="stylesheet" />
     <!-- Supabase Client -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 
-<body
-    class="font-display bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 min-h-screen pb-24 line-art-bg">
-    <!-- Header Section -->
-    <header
-        class="sticky top-0 z-50 bg-white/90 dark:bg-background-dark/90 backdrop-blur-md border-b border-primary/10">
-        <div class="flex items-center justify-between px-4 py-4">
-            <div class="flex items-center gap-2">
-                <span class="material-symbols-outlined text-primary text-2xl"
-                    style="color: #965223;">restaurant_menu</span>
-                <h1 class="font-handwritten text-2xl text-primary tracking-tight" style="color: #965223;">Donero Cafe
-                </h1>
-                <div id="connection-badge"
-                    class="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-slate-100 text-[10px] font-bold text-slate-400">
-                    <span class="w-1.5 h-1.5 rounded-full bg-slate-300"></span>
-                    <span>Checking...</span>
-                </div>
-            </div>
-            <div class="flex gap-3">
-                <button id="search-btn" onclick="toggleSearch()"
-                    class="p-2 hover:bg-primary/10 rounded-full transition-colors">
-                    <span class="material-symbols-outlined text-slate-700 dark:text-slate-300">search</span>
-                </button>
-
-                <button class="p-2 hover:bg-primary/10 rounded-full transition-colors">
-                    <span class="material-symbols-outlined text-slate-700 dark:text-slate-300">account_circle</span>
-                </button>
-            </div>
-        </div>
-
-        <!-- Search Bar Container -->
-        <div id="search-container" class="hidden px-4 pb-4 animate-in fade-in slide-in-from-top-2 duration-300">
-            <div class="relative flex items-center gap-2">
-                <div class="relative flex-1">
-                    <span
-                        class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xl">search</span>
-                    <input type="text" id="menu-search" oninput="filterMenu()" placeholder="Search menu items..."
-                        class="w-full bg-slate-100 dark:bg-slate-800 border-none rounded-xl py-3 pl-10 pr-4 focus:ring-2 focus:ring-primary/50 text-sm">
-                </div>
-                <button onclick="toggleSearch()"
-                    class="p-2 bg-slate-100 dark:bg-slate-800 rounded-xl hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors">
-                    <span class="material-symbols-outlined text-slate-500">close</span>
-                </button>
-            </div>
-        </div>
-
-        <!-- Horizontal Nav Bar -->
-        <nav id="category-nav" class="flex overflow-x-auto no-scrollbar gap-3 px-4 pb-4 scroll-smooth">
-            <a class="nav-link flex-none px-5 py-2 rounded-full bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 text-sm font-semibold border border-slate-200 dark:border-slate-700 shadow-sm hover:shadow-md transition-shadow"
-                href="#pizza">Pizza</a>
-            <a class="nav-link flex-none px-5 py-2 rounded-full bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 text-sm font-semibold border border-slate-200 dark:border-slate-700 shadow-sm hover:shadow-md transition-shadow"
-                href="#pasta">Pasta</a>
-            <a class="nav-link flex-none px-5 py-2 rounded-full bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 text-sm font-semibold border border-slate-200 dark:border-slate-700 shadow-sm hover:shadow-md transition-shadow"
-                href="#fries">Fries</a>
-            <a class="nav-link flex-none px-5 py-2 rounded-full bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 text-sm font-semibold border border-slate-200 dark:border-slate-700 shadow-sm hover:shadow-md transition-shadow"
-                href="#beverages">Beverages</a>
-            <a class="nav-link flex-none px-5 py-2 rounded-full bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 text-sm font-semibold border border-slate-200 dark:border-slate-700 shadow-sm hover:shadow-md transition-shadow"
-                href="#snacks">Snacks</a>
-            <a class="nav-link flex-none px-5 py-2 rounded-full bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 text-sm font-semibold border border-slate-200 dark:border-slate-700 shadow-sm hover:shadow-md transition-shadow"
-                href="#main-course">Main Course</a>
-            <a class="nav-link flex-none px-5 py-2 rounded-full bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 text-sm font-semibold border border-slate-200 dark:border-slate-700 shadow-sm hover:shadow-md transition-shadow"
-                href="#desserts">Desserts</a>
-            <a class="nav-link flex-none px-5 py-2 rounded-full bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 text-sm font-semibold border border-slate-200 dark:border-slate-700 shadow-sm hover:shadow-md transition-shadow"
-                href="#ice-cream">Ice Cream</a>
-            <a class="nav-link flex-none px-5 py-2 rounded-full bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 text-sm font-semibold border border-slate-200 dark:border-slate-700 shadow-sm hover:shadow-md transition-shadow"
-                href="#coffee">Coffee</a>
-        </nav>
-    </header>
-
-    <main class="max-w-2xl mx-auto px-4 pt-6 space-y-12">
-        <!-- Pizza Section -->
-        <section id="pizza" class="scroll-mt-32">
-            <div class="flex flex-col items-start mb-8 -ml-4">
-                <h2 class="ribbon-header text-lg">Pizza</h2>
-            </div>
-            <div class="grid gap-4">
-                <!-- Margherita -->
-                <div
-                    class="menu-item bg-white dark:bg-slate-800 rounded-xl overflow-hidden shadow-sm border border-slate-100 dark:border-slate-700 flex">
-                    <div class="w-32 h-32 flex-shrink-0 bg-cover bg-center"
-                        style="background-image: url('https://images.unsplash.com/photo-1604068549290-dea0e4a305ca?auto=format&fit=crop&w=300&q=80')">
-                    </div>
-                    <div class="p-4 flex flex-col justify-between flex-1">
-                        <div>
-                            <h3 class="font-bold text-slate-900 dark:text-slate-100">Margherita Pizza</h3>
-                            <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Classic tomato sauce and
-                                mozzarella</p>
-                        </div>
-                        <div class="flex items-center justify-between mt-2">
-                            <span class="font-bold text-primary" style="color: #965223;">₹129</span>
-                            <button onclick="addToCart('Margherita Pizza', 129, event)"
-                                data-item-name="Margherita Pizza"
-                                class="bg-primary text-white rounded-lg px-4 py-1.5 text-sm font-bold flex items-center gap-1 hover:scale-95 transition-transform active:bg-primary/90"
-                                style="background-color: #EDA747;">
-                                <span class="material-symbols-outlined text-base">add</span> <span>Add</span>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-                <!-- Chicken Tikka -->
-                <div
-                    class="menu-item bg-white dark:bg-slate-800 rounded-xl overflow-hidden shadow-sm border border-slate-100 dark:border-slate-700 flex">
-                    <div class="w-32 h-32 flex-shrink-0 bg-cover bg-center"
-                        style="background-image: url('https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?auto=format&fit=crop&w=300&q=80')">
-                    </div>
-                    <div class="p-4 flex flex-col justify-between flex-1">
-                        <div>
-                            <h3 class="font-bold text-slate-900 dark:text-slate-100">Chicken Tikka Pizza</h3>
-                            <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Tandoori chicken pieces with
-                                spicy dip</p>
-                        </div>
-                        <div class="flex items-center justify-between mt-2">
-                            <span class="font-bold text-primary" style="color: #965223;">₹239</span>
-                            <button onclick="addToCart('Chicken Tikka Pizza', 239, event)"
-                                data-item-name="Chicken Tikka Pizza"
-                                class="bg-primary text-white rounded-lg px-4 py-1.5 text-sm font-bold flex items-center gap-1 hover:scale-95 transition-transform active:bg-primary/90"
-                                style="background-color: #EDA747;">
-                                <span class="material-symbols-outlined text-base">add</span> <span>Add</span>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-                <div
-                    class="menu-item bg-white dark:bg-slate-800 rounded-xl overflow-hidden shadow-sm border border-slate-100 dark:border-slate-700 flex">
-                    <div class="w-32 h-32 flex-shrink-0 bg-cover bg-center"
-                        style="background-image: url('https://images.unsplash.com/photo-1513104890138-7c749659a591?auto=format&fit=crop&w=300&q=80')">
-                    </div>
-                    <div class="p-4 flex flex-col justify-between flex-1">
-                        <div>
-                            <h3 class="font-bold text-slate-900 dark:text-slate-100">Mexican Wave Pizza</h3>
-                            <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Spicy jalapeños, onions and corn
-                            </p>
-                        </div>
-                        <div class="flex items-center justify-between mt-2">
-                            <span class="font-bold text-primary" style="color: #965223;">₹219</span>
-                            <button onclick="addToCart('Mexican Wave Pizza', 219, event)"
-                                data-item-name="Mexican Wave Pizza"
-                                class="bg-primary text-white rounded-lg px-4 py-1.5 text-sm font-bold flex items-center gap-1 hover:scale-95 transition-transform active:bg-primary/90"
-                                style="background-color: #EDA747;">
-                                <span class="material-symbols-outlined text-base">add</span> <span>Add</span>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Pasta Section -->
-        <section id="pasta" class="scroll-mt-32">
-            <div class="flex flex-col items-start mb-8 -ml-4">
-                <h2 class="ribbon-header text-lg">Pasta</h2>
-            </div>
-            <div class="grid gap-4">
-                <div
-                    class="menu-item bg-white dark:bg-slate-800 rounded-xl overflow-hidden shadow-sm border border-slate-100 dark:border-slate-700 flex">
-                    <div class="w-32 h-32 flex-shrink-0 bg-cover bg-center"
-                        style="background-image: url('https://images.unsplash.com/photo-1563379926898-05f4575a45d8?auto=format&fit=crop&w=300&q=80')">
-                    </div>
-                    <div class="p-4 flex flex-col justify-between flex-1">
-                        <div>
-                            <h3 class="font-bold text-slate-900 dark:text-slate-100">Arrabbiata Pasta</h3>
-                            <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Spicy red sauce with garlic and
-                                herbs</p>
-                        </div>
-                        <div class="flex items-center justify-between mt-2">
-                            <span class="font-bold text-primary" style="color: #965223;">₹210</span>
-                            <button onclick="addToCart('Arrabbiata Pasta', 210, event)"
-                                data-item-name="Arrabbiata Pasta"
-                                class="bg-primary text-white rounded-lg px-4 py-1.5 text-sm font-bold flex items-center gap-1 hover:scale-95 transition-transform"
-                                style="background-color: #EDA747;">
-                                <span class="material-symbols-outlined text-base">add</span> <span>Add</span>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-                <div
-                    class="menu-item bg-white dark:bg-slate-800 rounded-xl overflow-hidden shadow-sm border border-slate-100 dark:border-slate-700 flex">
-                    <div class="w-32 h-32 flex-shrink-0 bg-cover bg-center"
-                        style="background-image: url('https://images.unsplash.com/photo-1645112411341-6c4fd023714a?auto=format&fit=crop&w=300&q=80')">
-                    </div>
-                    <div class="p-4 flex flex-col justify-between flex-1">
-                        <div>
-                            <h3 class="font-bold text-slate-900 dark:text-slate-100">Alfredo Pasta</h3>
-                            <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Rich creamy white sauce with
-                                Parmesan</p>
-                        </div>
-                        <div class="flex items-center justify-between mt-2">
-                            <span class="font-bold text-primary" style="color: #965223;">₹210</span>
-                            <button onclick="addToCart('Alfredo Pasta', 210, event)" data-item-name="Alfredo Pasta"
-                                class="bg-primary text-white rounded-lg px-4 py-1.5 text-sm font-bold flex items-center gap-1 hover:scale-95 transition-transform"
-                                style="background-color: #EDA747;">
-                                <span class="material-symbols-outlined text-base">add</span> <span>Add</span>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-                <div
-                    class="menu-item bg-white dark:bg-slate-800 rounded-xl overflow-hidden shadow-sm border border-slate-100 dark:border-slate-700 flex">
-                    <div class="w-32 h-32 flex-shrink-0 bg-cover bg-center">
-                    </div>
-                    <div class="p-4 flex flex-col justify-between flex-1">
-                        <div>
-                            <h3 class="font-bold text-slate-900 dark:text-slate-100">Penne Pink Sauce</h3>
-                            <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Delicious blend of red and white
-                                sauces</p>
-                        </div>
-                        <div class="flex items-center justify-between mt-2">
-                            <span class="font-bold text-primary" style="color: #965223;">₹229</span>
-                            <button onclick="addToCart('Penne Pink Sauce', 229, event)"
-                                data-item-name="Penne Pink Sauce"
-                                class="bg-primary text-white rounded-lg px-4 py-1.5 text-sm font-bold flex items-center gap-1 hover:scale-95 transition-transform"
-                                style="background-color: #EDA747;">
-                                <span class="material-symbols-outlined text-base">add</span> <span>Add</span>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Fries Section -->
-        <section id="fries" class="scroll-mt-32">
-            <div class="flex flex-col items-start mb-8 -ml-4">
-                <h2 class="ribbon-header text-lg">Fries</h2>
-            </div>
-            <div class="grid gap-4">
-                <div
-                    class="menu-item bg-white dark:bg-slate-800 rounded-xl overflow-hidden shadow-sm border border-slate-100 dark:border-slate-700 flex">
-                    <div class="w-32 h-32 flex-shrink-0 bg-cover bg-center"
-                        style="background-image: url('https://images.unsplash.com/photo-1573080496219-bb080dd4f877?auto=format&fit=crop&w=300&q=80')">
-                    </div>
-                    <div class="p-4 flex flex-col justify-between flex-1">
-                        <div>
-                            <h3 class="font-bold text-slate-900 dark:text-slate-100">Peri Peri Fries</h3>
-                            <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Spiced with African Peri Peri
-                                masala</p>
-                        </div>
-                        <div class="flex items-center justify-between mt-2">
-                            <span class="font-bold text-primary" style="color: #965223;">₹89</span>
-                            <button onclick="addToCart('Peri Peri Fries', 89, event)" data-item-name="Peri Peri Fries"
-                                class="bg-primary text-white rounded-lg px-4 py-1.5 text-sm font-bold flex items-center gap-1 hover:scale-95 transition-transform"
-                                style="background-color: #EDA747;">
-                                <span class="material-symbols-outlined text-base">add</span> <span>Add</span>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-                <div
-                    class="menu-item bg-white dark:bg-slate-800 rounded-xl overflow-hidden shadow-sm border border-slate-100 dark:border-slate-700 flex">
-                    <div class="w-32 h-32 flex-shrink-0 bg-cover bg-center"
-                        style="background-image: url('https://images.unsplash.com/photo-1630384060421-cb20d0e0649d?auto=format&fit=crop&w=300&q=80')">
-                    </div>
-                    <div class="p-4 flex flex-col justify-between flex-1">
-                        <div>
-                            <h3 class="font-bold text-slate-900 dark:text-slate-100">Cheese Garlic Fries</h3>
-                            <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Melted cheese with roasted garlic
-                            </p>
-                        </div>
-                        <div class="flex items-center justify-between mt-2">
-                            <span class="font-bold text-primary" style="color: #965223;">₹129</span>
-                            <button onclick="addToCart('Cheese Garlic Fries', 129, event)"
-                                data-item-name="Cheese Garlic Fries"
-                                class="bg-primary text-white rounded-lg px-4 py-1.5 text-sm font-bold flex items-center gap-1 hover:scale-95 transition-transform"
-                                style="background-color: #EDA747;">
-                                <span class="material-symbols-outlined text-base">add</span> <span>Add</span>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Beverages Section -->
-        <section id="beverages" class="scroll-mt-32">
-            <div class="flex flex-col items-start mb-8 -ml-4">
-                <h2 class="ribbon-header text-lg">Beverages</h2>
-            </div>
-            <div class="grid gap-4">
-                <div
-                    class="menu-item bg-white dark:bg-slate-800 rounded-xl overflow-hidden shadow-sm border border-slate-100 dark:border-slate-700 flex">
-                    <div class="w-32 h-32 flex-shrink-0 bg-cover bg-center"
-                        style="background-image: url('https://images.unsplash.com/photo-1544145945-f904253d0c7b?auto=format&fit=crop&w=300&q=80')">
-                    </div>
-                    <div class="p-4 flex flex-col justify-between flex-1">
-                        <div>
-                            <h3 class="font-bold text-slate-900 dark:text-slate-100">Iced Lemon Tea</h3>
-                            <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Refreshing tea with a dash of
-                                lime</p>
-                        </div>
-                        <div class="flex items-center justify-between mt-2">
-                            <span class="font-bold text-primary" style="color: #965223;">₹99</span>
-                            <button onclick="addToCart('Iced Lemon Tea', 99, event)" data-item-name="Iced Lemon Tea"
-                                class="bg-primary text-white rounded-lg px-4 py-1.5 text-sm font-bold flex items-center gap-1 hover:scale-95 transition-transform"
-                                style="background-color: #EDA747;">
-                                <span class="material-symbols-outlined text-base">add</span> <span>Add</span>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-                <div
-                    class="menu-item bg-white dark:bg-slate-800 rounded-xl overflow-hidden shadow-sm border border-slate-100 dark:border-slate-700 flex">
-                    <div class="w-32 h-32 flex-shrink-0 bg-cover bg-center"
-                        style="background-image: url('https://images.unsplash.com/photo-1599390805147-383566162383?auto=format&fit=crop&w=300&q=80')">
-                    </div>
-                    <div class="p-4 flex flex-col justify-between flex-1">
-                        <div>
-                            <h3 class="font-bold text-slate-900 dark:text-slate-100">Fresh Lime Soda</h3>
-                            <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Sparkling limeade with a hint of
-                                salt</p>
-                        </div>
-                        <div class="flex items-center justify-between mt-2">
-                            <span class="font-bold text-primary" style="color: #965223;">₹79</span>
-                            <button onclick="addToCart('Fresh Lime Soda', 79, event)" data-item-name="Fresh Lime Soda"
-                                class="bg-primary text-white rounded-lg px-4 py-1.5 text-sm font-bold flex items-center gap-1 hover:scale-95 transition-transform"
-                                style="background-color: #EDA747;">
-                                <span class="material-symbols-outlined text-base">add</span> <span>Add</span>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Snacks Section -->
-        <section id="snacks" class="scroll-mt-32">
-            <div class="flex flex-col items-start mb-8 -ml-4">
-                <h2 class="ribbon-header text-lg">Snacks</h2>
-            </div>
-            <div class="grid gap-4">
-                <div
-                    class="menu-item bg-white dark:bg-slate-800 rounded-xl overflow-hidden shadow-sm border border-slate-100 dark:border-slate-700 flex">
-                    <div class="w-32 h-32 flex-shrink-0 bg-cover bg-center"
-                        style="background-image: url('https://images.unsplash.com/photo-1626074353765-517a681e40be?auto=format&fit=crop&w=300&q=80')">
-                    </div>
-                    <div class="p-4 flex flex-col justify-between flex-1">
-                        <div>
-                            <h3 class="font-bold text-slate-900 dark:text-slate-100">Paneer Tikka</h3>
-                            <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Grilled cottage cheese with mint
-                                chutney</p>
-                        </div>
-                        <div class="flex items-center justify-between mt-2">
-                            <span class="font-bold text-primary" style="color: #965223;">₹199</span>
-                            <button onclick="addToCart('Paneer Tikka', 199, event)" data-item-name="Paneer Tikka"
-                                class="bg-primary text-white rounded-lg px-4 py-1.5 text-sm font-bold flex items-center gap-1 hover:scale-95 transition-transform"
-                                style="background-color: #EDA747;">
-                                <span class="material-symbols-outlined text-base">add</span> <span>Add</span>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-                <div
-                    class="menu-item bg-white dark:bg-slate-800 rounded-xl overflow-hidden shadow-sm border border-slate-100 dark:border-slate-700 flex">
-                    <div class="w-32 h-32 flex-shrink-0 bg-cover bg-center"
-                        style="background-image: url('https://images.unsplash.com/photo-1601050690597-df056fb272ad?auto=format&fit=crop&w=300&q=80')">
-                    </div>
-                    <div class="p-4 flex flex-col justify-between flex-1">
-                        <div>
-                            <h3 class="font-bold text-slate-900 dark:text-slate-100">Crispy Spring Rolls</h3>
-                            <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Vegetable filled rolls with
-                                chilly dip</p>
-                        </div>
-                        <div class="flex items-center justify-between mt-2">
-                            <span class="font-bold text-primary" style="color: #965223;">₹149</span>
-                            <button onclick="addToCart('Crispy Spring Rolls', 149, event)"
-                                data-item-name="Crispy Spring Rolls"
-                                class="bg-primary text-white rounded-lg px-4 py-1.5 text-sm font-bold flex items-center gap-1 hover:scale-95 transition-transform"
-                                style="background-color: #EDA747;">
-                                <span class="material-symbols-outlined text-base">add</span> <span>Add</span>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Main Course Section -->
-        <section id="main-course" class="scroll-mt-32">
-            <div class="flex flex-col items-start mb-8 -ml-4">
-                <h2 class="ribbon-header text-lg">Main Course</h2>
-            </div>
-            <div class="grid gap-4">
-                <div
-                    class="menu-item bg-white dark:bg-slate-800 rounded-xl overflow-hidden shadow-sm border border-slate-100 dark:border-slate-700 flex">
-                    <div class="w-32 h-32 flex-shrink-0 bg-cover bg-center"
-                        style="background-image: url('https://images.unsplash.com/photo-1588166524941-3bf61a9c41db?auto=format&fit=crop&w=300&q=80')">
-                    </div>
-                    <div class="p-4 flex flex-col justify-between flex-1">
-                        <div>
-                            <h3 class="font-bold text-slate-900 dark:text-slate-100">Veg Biryani</h3>
-                            <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Aromatic rice with seasonal
-                                vegetables</p>
-                        </div>
-                        <div class="flex items-center justify-between mt-2">
-                            <span class="font-bold text-primary" style="color: #965223;">₹279</span>
-                            <button onclick="addToCart('Veg Biryani', 279)" data-item-name="Veg Biryani"
-                                class="bg-primary text-white rounded-lg px-4 py-1.5 text-sm font-bold flex items-center gap-1 hover:scale-95 transition-transform"
-                                style="background-color: #EDA747;">
-                                <span class="material-symbols-outlined text-base">add</span> <span>Add</span>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-                <div
-                    class="menu-item bg-white dark:bg-slate-800 rounded-xl overflow-hidden shadow-sm border border-slate-100 dark:border-slate-700 flex">
-                    <div class="w-32 h-32 flex-shrink-0 bg-cover bg-center"
-                        style="background-image: url('https://images.unsplash.com/photo-1603894584202-9ca8fe995c96?auto=format&fit=crop&w=300&q=80')">
-                    </div>
-                    <div class="p-4 flex flex-col justify-between flex-1">
-                        <div>
-                            <h3 class="font-bold text-slate-900 dark:text-slate-100">Butter Chicken</h3>
-                            <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Creamy tomato gravy with tender
-                                chicken</p>
-                        </div>
-                        <div class="flex items-center justify-between mt-2">
-                            <span class="font-bold text-primary" style="color: #965223;">₹349</span>
-                            <button onclick="addToCart('Butter Chicken', 349)" data-item-name="Butter Chicken"
-                                class="bg-primary text-white rounded-lg px-4 py-1.5 text-sm font-bold flex items-center gap-1 hover:scale-95 transition-transform"
-                                style="background-color: #EDA747;">
-                                <span class="material-symbols-outlined text-base">add</span> <span>Add</span>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Desserts and Ice Cream -->
-        <section id="desserts" class="scroll-mt-32">
-            <div class="flex flex-col items-start mb-8 -ml-4">
-                <h2 class="ribbon-header text-lg">Desserts</h2>
-            </div>
-            <div class="grid gap-4">
-                <div
-                    class="menu-item bg-white dark:bg-slate-800 rounded-xl overflow-hidden shadow-sm border border-slate-100 dark:border-slate-700 flex">
-                    <div class="w-32 h-32 flex-shrink-0 bg-cover bg-center"
-                        style="background-image: url('https://images.unsplash.com/photo-1624353365286-3f8d62daad51?auto=format&fit=crop&w=300&q=80')">
-                    </div>
-                    <div class="p-4 flex flex-col justify-between flex-1">
-                        <div>
-                            <h3 class="font-bold text-slate-900 dark:text-slate-100">Choco Brownie</h3>
-                            <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Warm fudgy brownie with chocolate
-                                drizzle</p>
-                        </div>
-                        <div class="flex items-center justify-between mt-2">
-                            <span class="font-bold text-primary" style="color: #965223;">₹159</span>
-                            <button onclick="addToCart('Choco Brownie', 159)" data-item-name="Choco Brownie"
-                                class="bg-primary text-white rounded-lg px-4 py-1.5 text-sm font-bold flex items-center gap-1 hover:scale-95 transition-transform"
-                                style="background-color: #EDA747;">
-                                <span class="material-symbols-outlined text-base">add</span> <span>Add</span>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <section id="ice-cream" class="scroll-mt-32">
-            <div class="flex flex-col items-start mb-8 -ml-4">
-                <h2 class="ribbon-header text-lg">Ice Cream</h2>
-            </div>
-            <div class="grid gap-4">
-                <div
-                    class="menu-item bg-white dark:bg-slate-800 rounded-xl overflow-hidden shadow-sm border border-slate-100 dark:border-slate-700 flex">
-                    <div class="w-32 h-32 flex-shrink-0 bg-cover bg-center"
-                        style="background-image: url('https://images.unsplash.com/photo-1570197788417-0e82375c9371?auto=format&fit=crop&w=300&q=80')">
-                    </div>
-                    <div class="p-4 flex flex-col justify-between flex-1">
-                        <div>
-                            <h3 class="font-bold text-slate-900 dark:text-slate-100">Vanilla Fudge</h3>
-                            <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Rich vanilla scoop with chocolate
-                                fudge</p>
-                        </div>
-                        <div class="flex items-center justify-between mt-2">
-                            <span class="font-bold text-primary" style="color: #965223;">₹89</span>
-                            <button onclick="addToCart('Vanilla Fudge', 89)" data-item-name="Vanilla Fudge"
-                                class="bg-primary text-white rounded-lg px-4 py-1.5 text-sm font-bold flex items-center gap-1 hover:scale-95 transition-transform"
-                                style="background-color: #EDA747;">
-                                <span class="material-symbols-outlined text-base">add</span> <span>Add</span>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-                <div
-                    class="menu-item bg-white dark:bg-slate-800 rounded-xl overflow-hidden shadow-sm border border-slate-100 dark:border-slate-700 flex">
-                    <div class="w-32 h-32 flex-shrink-0 bg-cover bg-center"
-                        style="background-image: url('https://images.unsplash.com/photo-1563805042-7684c019e1cb?auto=format&fit=crop&w=300&q=80')">
-                    </div>
-                    <div class="p-4 flex flex-col justify-between flex-1">
-                        <div>
-                            <h3 class="font-bold text-slate-900 dark:text-slate-100">Fruit Sundae</h3>
-                            <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Mixed fruits with vanilla and
-                                strawberry scoops</p>
-                        </div>
-                        <div class="flex items-center justify-between mt-2">
-                            <span class="font-bold text-primary" style="color: #965223;">₹179</span>
-                            <button onclick="addToCart('Fruit Sundae', 179)" data-item-name="Fruit Sundae"
-                                class="bg-primary text-white rounded-lg px-4 py-1.5 text-sm font-bold flex items-center gap-1 hover:scale-95 transition-transform"
-                                style="background-color: #EDA747;">
-                                <span class="material-symbols-outlined text-base">add</span> <span>Add</span>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Coffee Section -->
-        <section id="coffee" class="scroll-mt-32">
-            <div class="flex flex-col items-start mb-8 -ml-4">
-                <h2 class="ribbon-header text-lg">Coffee</h2>
-            </div>
-            <div class="grid gap-4">
-                <div
-                    class="menu-item bg-white dark:bg-slate-800 rounded-xl overflow-hidden shadow-sm border border-slate-100 dark:border-slate-700 flex">
-                    <div class="w-32 h-32 flex-shrink-0 bg-cover bg-center"
-                        style="background-image: url('https://images.unsplash.com/photo-1541173155373-ba22ba91317b?auto=format&fit=crop&w=300&q=80')">
-                    </div>
-                    <div class="p-4 flex flex-col justify-between flex-1">
-                        <div>
-                            <h3 class="font-bold text-slate-900 dark:text-slate-100">Cappuccino</h3>
-                            <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Double shot espresso with steamed
-                                milk foam</p>
-                        </div>
-                        <div class="flex items-center justify-between mt-2">
-                            <span class="font-bold text-primary" style="color: #965223;">₹129</span>
-                            <button onclick="addToCart('Cappuccino', 129)" data-item-name="Cappuccino"
-                                class="bg-primary text-white rounded-lg px-4 py-1.5 text-sm font-bold flex items-center gap-1 hover:scale-95 transition-transform"
-                                style="background-color: #EDA747;">
-                                <span class="material-symbols-outlined text-base">add</span> <span>Add</span>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-                <div
-                    class="menu-item bg-white dark:bg-slate-800 rounded-xl overflow-hidden shadow-sm border border-slate-100 dark:border-slate-700 flex">
-                    <div class="w-32 h-32 flex-shrink-0 bg-cover bg-center"
-                        style="background-image: url('https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?auto=format&fit=crop&w=300&q=80')">
-                    </div>
-                    <div class="p-4 flex flex-col justify-between flex-1">
-                        <div>
-                            <h3 class="font-bold text-slate-900 dark:text-slate-100">Iced Americano</h3>
-                            <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Chilled espresso with water and
-                                ice</p>
-                        </div>
-                        <div class="flex items-center justify-between mt-2">
-                            <span class="font-bold text-primary" style="color: #965223;">₹149</span>
-                            <button onclick="addToCart('Iced Americano', 149, event)" data-item-name="Iced Americano"
-                                class="bg-primary text-white rounded-lg px-4 py-1.5 text-sm font-bold flex items-center gap-1 hover:scale-95 transition-transform"
-                                style="background-color: #EDA747;">
-                                <span class="material-symbols-outlined text-base">add</span> <span>Add</span>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-                <div class="mt-8 pt-8 border-t border-slate-200 dark:border-slate-800 text-center">
-                    <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest mb-2">Powered by Donero
-                        Cloud</p>
-                    <button onclick="location.reload(true)"
-                        class="text-[10px] text-primary/60 hover:text-primary font-bold underline">Reload App</button>
-                    <p class="text-[10px] text-slate-300 mt-2">v1.2.1 • Nothing/Vivo Compatibility Fix</p>
-                </div>
-            </div>
-        </section>
-    </main>
-
-    <!-- Bottom Cart Bar -->
-    <div id="cart-bar"
-        class="fixed bottom-0 left-0 right-0 p-4 bg-transparent pointer-events-none transform translate-y-full transition-transform duration-300">
-        <div class="max-w-md mx-auto pointer-events-auto">
-            <button onclick="toggleCartModal()"
-                class="w-full bg-primary text-white p-4 rounded-xl shadow-xl flex items-center justify-between ring-4 ring-white dark:ring-slate-900 group"
-                style="background-color: #EDA747;">
+<body class="bg-background-light text-slate-900 antialiased font-display">
+    <div class="relative flex min-h-screen w-full flex-col overflow-x-hidden">
+        <!-- Top Navigation Bar -->
+        <header
+            class="flex items-center justify-between border-b border-primary/10 bg-white px-6 py-3 sticky top-0 z-50 shadow-sm">
+            <div class="flex items-center gap-6">
                 <div class="flex items-center gap-3">
-                    <div class="bg-white/20 p-1.5 rounded-lg">
-                        <span class="material-symbols-outlined">shopping_basket</span>
+                    <div class="w-10 h-10 bg-primary flex items-center justify-center rounded-lg text-white">
+                        <span class="material-symbols-outlined text-2xl font-bold">coffee</span>
                     </div>
-                    <div class="text-left">
-                        <p id="cart-count" class="text-xs font-medium text-white/80">View Cart • 0 Items</p>
-                        <p id="cart-total" class="font-bold text-lg">₹0</p>
+                    <div>
+                        <h2 class="text-xl font-handwritten font-bold leading-tight tracking-tight text-primary">
+                            Donero Cafe</h2>
+                        <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none">Admin
+                            Console</p>
                     </div>
                 </div>
-                <div class="flex items-center gap-1 font-bold group-hover:translate-x-1 transition-transform">
-                    Checkout <span class="material-symbols-outlined">chevron_right</span>
+                <div
+                    class="hidden md:flex items-center bg-slate-100 rounded-lg px-3 py-1.5 ml-4 relative transition-all">
+                    <span class="material-symbols-outlined text-slate-500 text-sm mr-2">search</span>
+                    <input id="search-input"
+                        class="bg-transparent border-none focus:ring-0 focus:outline-none text-sm w-64 placeholder:text-slate-400"
+                        placeholder="Search orders, tables, items..." type="text" />
+                    <button id="clear-search"
+                        class="hidden absolute right-2 top-1/2 -translate-y-1/2 p-1 text-slate-400 hover:text-red-500 transition-colors">
+                        <span class="material-symbols-outlined text-xs">close</span>
+                    </button>
                 </div>
-            </button>
-        </div>
-    </div>
-
-    <!-- Cart Modal -->
-    <div id="cart-modal" class="fixed inset-0 z-50 hidden flex items-end justify-center">
-        <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" onclick="toggleCartModal()"></div>
-        <div id="cart-modal-content"
-            class="relative w-full max-w-2xl bg-white dark:bg-slate-900 rounded-t-3xl shadow-2xl p-6 transform transition-transform duration-300 translate-y-0 max-h-[92vh] overflow-y-auto no-scrollbar pb-10">
-            <div class="flex items-center justify-between mb-6">
-                <h2 class="text-xl font-bold">Your Cart</h2>
-                <button onclick="toggleCartModal()" class="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full">
-                    <span class="material-symbols-outlined">close</span>
+            </div>
+            <div class="flex items-center gap-4">
+                <a href="https://menubanao.github.io/Donero-Cafe/"
+                    class="flex items-center gap-2 text-slate-500 hover:text-primary transition-colors text-sm font-medium pr-4 border-r border-slate-200">
+                    <span class="material-symbols-outlined text-lg">restaurant_menu</span>
+                    View Live Menu
+                </a>
+                <div class="flex items-center gap-3">
+                    <div class="text-right hidden sm:block">
+                        <p class="text-sm font-bold">Kunal sir</p>
+                        <p class="text-[10px] text-slate-500 uppercase font-bold tracking-wider">App Owner</p>
+                    </div>
+                    <div
+                        class="h-10 w-10 rounded-full bg-primary/20 flex items-center justify-center overflow-hidden border-2 border-primary/20">
+                        <img class="h-full w-full object-cover" data-alt="Profile photo of the cafe administrator"
+                            src="https://lh3.googleusercontent.com/aida-public/AB6AXuDuMVyxKYlfSqsyfWa4ESusD7pJPEU2kYkxL0VLKpGUgCbpd3zuIcYolqNHCH_t4CUGsWqOS5az7FYX8T26_qH7GWTK5MsURu6lS9pZ2cx72KQfg-4W7Y-ZV4LurM7HVMUClQeJt9nT6ayUwhTrrLfOVJtjBeGZBK8caPhp5Ak4ByuqiAoVUeSvso3d0FCRplprZPOArWeqfEqih_UV-gKVYenAeTpEZGQr6UwWsg4I_n0eDFxsqDfPErRLZ7H6vSuAT50O5VE3R4Y" />
+                    </div>
+                    <!-- Logout Button -->
+                    <button onclick="logoutAdmin()"
+                        class="flex items-center justify-center p-2 text-slate-400 hover:text-red-500 transition-colors"
+                        title="Logout">
+                        <span class="material-symbols-outlined">logout</span>
+                    </button>
+                </div>
+        </header>
+        <!-- Status Filter Bar -->
+        <nav class="bg-white border-b border-primary/10 px-6 overflow-x-auto whitespace-nowrap scrollbar-hide">
+            <div id="filter-nav" class="flex gap-8">
+                <button class="filter-btn flex flex-col items-center border-b-2 border-primary py-2 px-2 group"
+                    data-status="ALL">
+                    <span class="text-sm font-bold text-primary flex items-center gap-2">
+                        <span class="material-symbols-outlined text-sm">list_alt</span>
+                        All Live
+                    </span>
+                </button>
+                <button
+                    class="filter-btn flex flex-col items-center border-b-2 border-transparent py-2 px-2 hover:border-primary/50 transition-colors"
+                    data-status="NEW">
+                    <span class="text-sm font-bold text-slate-500 hover:text-primary flex items-center gap-2">
+                        <span class="material-symbols-outlined text-sm">new_releases</span>
+                        New <span id="count-new"
+                            class="bg-primary/10 text-primary px-1.5 py-0.5 rounded text-[10px]">0</span>
+                    </span>
+                </button>
+                <button
+                    class="filter-btn flex flex-col items-center border-b-2 border-transparent py-2 px-2 hover:border-primary/50 transition-colors"
+                    data-status="PREPARING">
+                    <span class="text-sm font-bold text-slate-500 hover:text-primary flex items-center gap-2">
+                        <span class="material-symbols-outlined text-sm">cooking</span>
+                        Preparing <span id="count-preparing"
+                            class="bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded text-[10px]">0</span>
+                    </span>
+                </button>
+                <button
+                    class="filter-btn flex flex-col items-center border-b-2 border-transparent py-2 px-2 hover:border-primary/50 transition-colors"
+                    data-status="READY">
+                    <span class="text-sm font-bold text-slate-500 hover:text-primary flex items-center gap-2">
+                        <span class="material-symbols-outlined text-sm">check_circle</span>
+                        Ready
+                    </span>
+                </button>
+                <button
+                    class="filter-btn flex flex-col items-center border-b-2 border-transparent py-2 px-2 hover:border-primary/50 transition-colors"
+                    data-status="SERVED">
+                    <span class="text-sm font-bold text-slate-500 hover:text-primary flex items-center gap-2">
+                        <span class="material-symbols-outlined text-sm">delivery_dining</span>
+                        Served
+                    </span>
                 </button>
             </div>
-            <div id="cart-items" class="space-y-4 max-h-[50vh] overflow-y-auto no-scrollbar mb-6">
-                <!-- Items populated by JS -->
-            </div>
-            <!-- New Checkout Options -->
-            <div class="mt-6 border-t pt-6">
-                <p class="text-sm font-bold text-slate-700 dark:text-slate-300 mb-3 ml-1">Dining Preference</p>
-                <div class="toggle-container" onclick="document.getElementById('packing-toggle').click()">
-                    <input type="checkbox" id="packing-toggle" class="hidden toggle-input">
-                    <div class="toggle-pill"></div>
-                    <div class="toggle-label label-left">Table Serving</div>
-                    <div class="toggle-label label-right">Packing</div>
+        </nav>
+        <main class="flex-1 px-6 pt-2 pb-6 space-y-4">
+            <div class="flex items-center justify-between">
+                <h1 class="text-2xl font-black tracking-tight uppercase">Live Orders Panel</h1>
+                <div class="flex items-center gap-3">
+                    <div id="live-connection"
+                        class="flex items-center text-xs font-semibold text-green-600 bg-green-50 px-2.5 py-1 rounded-full border border-green-200">
+                        <span class="w-2 h-2 bg-green-500 rounded-full mr-2 animate-pulse"></span>
+                        Live Connection Active
+                    </div>
+                    <button id="manual-entry-btn"
+                        class="bg-primary shadow-lg shadow-primary/20 text-white px-4 py-2 rounded-lg text-sm font-bold flex items-center gap-2 hover:bg-primary/90 transition-all">
+                        <span class="material-symbols-outlined text-sm">add</span>
+                        Manual Entry
+                    </button>
                 </div>
+            </div>
+            <!-- Orders Grid -->
+            <div id="orders-grid"
+                class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-6 min-h-[400px]">
+                <!-- Dynamic Content -->
+            </div>
+            <!-- Dashboard Stats Summary -->
+            <section class="mt-8 border-t border-slate-200 pt-8">
+                <h2 class="text-lg font-bold mb-4">Daily Performance Summary</h2>
+                <div id="stats-summary" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <!-- Dynamic Content -->
+                </div>
+            </section>
+        </main>
+        <!-- Floating Action Button for Mobile -->
+        <button onclick="openManualEntryModal()"
+            class="fixed bottom-6 right-6 lg:hidden bg-primary text-white w-14 h-14 rounded-full shadow-lg flex items-center justify-center">
+            <span class="material-symbols-outlined">add</span>
+        </button>
 
-                <div class="details-block">
-                    <p class="text-xs font-bold text-primary mb-3 flex items-center gap-1">
-                        <span class="material-symbols-outlined text-[14px]">info</span>
-                        PLEASE FILL DETAILS TO PLACE ORDER
-                    </p>
-                    <div class="grid grid-cols-2 gap-3">
-                        <div id="table-selection-container">
-                            <label class="text-[10px] font-bold text-slate-500 uppercase ml-1">Table Number</label>
-                            <select id="order-table"
-                                class="w-full bg-white dark:bg-[#1e293b] border border-black/10 dark:border-white/10 rounded-lg p-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary shadow-sm hover:shadow-md transition-shadow">
-                                <option value="">Select Table</option>
-                                <option value="Table 1">Table 1</option>
-                                <option value="Table 2">Table 2</option>
-                                <option value="Table 3">Table 3</option>
-                                <option value="Table 4">Table 4</option>
-                                <option value="Table 5">Table 5</option>
-                                <option value="Table 6">Table 6</option>
-                                <option value="Table 7">Table 7</option>
-                                <option value="Table 8">Table 8</option>
-                                <option value="Table 9">Table 9</option>
-                                <option value="Table 10">Table 10</option>
-                                <option value="Table 11">Table 11</option>
-                                <option value="Table 12">Table 12</option>
-                                <option value="Table 13">Table 13</option>
-                                <option value="Table 14">Table 14</option>
-                                <option value="Table 15">Table 15</option>
+        <!-- Manual Entry Modal -->
+        <div id="manual-entry-modal"
+            class="hidden fixed inset-0 z-[100] bg-slate-900/40 backdrop-blur-sm flex items-center justify-center p-4">
+            <div class="bg-white w-full max-w-2xl rounded-2xl shadow-2xl flex flex-col max-h-[90vh]">
+                <div class="p-6 border-b border-slate-100 flex items-center justify-between">
+                    <h2 id="modal-title" class="text-xl font-bold flex items-center gap-2 text-slate-800">
+                        <span class="material-symbols-outlined text-primary">add_shopping_cart</span>
+                        Create Manual Order
+                    </h2>
+                    <button onclick="closeManualEntryModal()"
+                        class="text-slate-400 hover:text-slate-600 transition-colors">
+                        <span class="material-symbols-outlined">close</span>
+                    </button>
+                </div>
+                <form id="manual-order-form" class="flex-1 overflow-y-auto p-6 space-y-6 scrollbar-hide">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label
+                                class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-1.5">Customer
+                                Name</label>
+                            <input type="text" id="modal-customer" required
+                                class="w-full bg-slate-50 border-none rounded-lg px-4 py-2.5 focus:ring-2 focus:ring-primary shadow-sm text-sm"
+                                placeholder="e.g. John Doe">
+                        </div>
+                        <div>
+                            <label
+                                class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-1.5">Table/Type</label>
+                            <select id="modal-table" required
+                                class="w-full bg-slate-50 border-none rounded-lg px-4 py-2.5 focus:ring-2 focus:ring-primary shadow-sm text-sm">
+                                <option value="">Select Table...</option>
+                                <option value="Takeaway">Takeaway</option>
+                                <option value="01">Table 01</option>
+                                <option value="02">Table 02</option>
+                                <option value="03">Table 03</option>
+                                <option value="04">Table 04</option>
+                                <option value="05">Table 05</option>
+                                <option value="06">Table 06</option>
+                                <option value="07">Table 07</option>
+                                <option value="08">Table 08</option>
+                                <option value="09">Table 09</option>
+                                <option value="10">Table 10</option>
                             </select>
                         </div>
-                        <div>
-                            <label class="text-[10px] font-bold text-slate-500 uppercase ml-1">Customer Name</label>
-                            <input type="text" id="order-name" placeholder="Your Name"
-                                class="focus:outline-none focus:ring-1 focus:ring-primary shadow-sm hover:shadow-md transition-shadow">
+                    </div>
+
+                    <div class="space-y-3">
+                        <div class="flex items-center justify-between">
+                            <label class="text-xs font-bold text-slate-500 uppercase tracking-widest">Order
+                                Items</label>
+                            <button type="button" onclick="addItemToForm()"
+                                class="text-primary text-xs font-bold border border-primary/20 bg-primary/5 px-3 py-1.5 rounded-lg hover:bg-primary/10 transition-colors flex items-center gap-1">
+                                <span class="material-symbols-outlined text-sm">add</span> Add Item
+                            </button>
+                        </div>
+                        <div id="modal-items-list" class="space-y-3">
+                            <!-- Items injected here -->
                         </div>
                     </div>
-                </div>
-            </div>
 
-            <div class="border-t border-slate-100 dark:border-slate-800 pt-6 mt-6">
-                <div class="flex items-center justify-between mb-4">
-                    <span class="text-slate-500">Subtotal</span>
-                    <span id="modal-total" class="font-bold text-xl">₹0</span>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-1.5">Special
+                            Notes (Optional)</label>
+                        <textarea id="modal-notes" rows="2"
+                            class="w-full bg-slate-50 border-none rounded-lg px-4 py-2.5 focus:ring-2 focus:ring-primary shadow-sm text-sm"
+                            placeholder="Add any special requests..."></textarea>
+                    </div>
+                </form>
+
+                <div class="p-6 border-t border-slate-100 bg-slate-50 rounded-b-2xl flex items-center justify-between">
+                    <div>
+                        <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Total Amount</p>
+                        <p class="text-2xl font-black text-primary" id="modal-total">₹0.00</p>
+                    </div>
+                    <div class="flex gap-3">
+                        <button type="button" onclick="closeManualEntryModal()"
+                            class="px-6 py-2.5 rounded-lg text-sm font-bold text-slate-500 hover:bg-slate-200 transition-colors">Cancel</button>
+                        <button type="submit" form="manual-order-form"
+                            class="bg-primary shadow-lg shadow-primary/20 text-white px-8 py-2.5 rounded-lg text-sm font-bold hover:bg-primary/90 transition-all">Create
+                            Order</button>
+                    </div>
                 </div>
-                <button onclick="checkout(event)"
-                    class="w-full bg-primary text-white p-4 rounded-xl font-bold shadow-lg hover:brightness-110 active:scale-[0.98] transition-all"
-                    style="background-color: #EDA747;">
-                    Confirm Order
-                </button>
             </div>
         </div>
     </div>
 
-    <script>
-        // Global Error Handling for Mobile Debugging
-        window.onerror = function (msg, url, line) {
-            console.error("DEBUG:", msg, "at", line);
-            // Only show alert for critical errors that block the app
-            if (msg.toLowerCase().includes("supabase") || msg.toLowerCase().includes("sbclient")) {
-                alert("Connection Error: " + msg + " (Line: " + line + ")");
-            }
-            return false;
-        };
+    <!-- Hidden Iframe for Printing -->
+    <iframe id="print-frame" style="display:none;"></iframe>
 
+    <script>
         // Supabase Configuration
         const SUPABASE_URL = 'https://vuqvokufivgtevpvppcd.supabase.co';
         const SUPABASE_KEY = 'sb_publishable_-957Cp2j5PH0VkWJH9XdmQ_wf2WqLMN';
         const sbClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-        // Alias for easier use if needed, but we'll use sbClient consistently or rename properly
-        window.supabase = sbClient;
+        // --- Data State ---
+        let MOCK_ORDERS = []; // Will be populated from Supabase
 
-        let cart = [];
-        let isPlacingOrder = false;
+        const MOCK_STATS = {
+            revenue: '₹0.00',
+            todayRevenue: '₹0.00',
+            revenueTrend: '+0%',
+            ordersServed: 0,
+            ordersGoal: 200,
+            cancelled: 0
+        };
 
-        function addToCart(name, price, event) {
-            const existing = cart.find(item => item.name === name);
-            if (existing) {
-                existing.quantity += 1;
-            } else {
-                cart.push({ name, price, quantity: 1 });
-            }
-            updateCartUI();
+        // --- State Management ---
+        let currentFilter = 'ALL';
+        let searchQuery = '';
+        let formItems = []; // For Manual Entry Form
+        let editingOrderId = null; // Track if we are editing an order
 
-            // Animation Feedback
-            const btn = event ? (event.currentTarget || event.target.closest('button')) : null;
-            if (btn && btn.classList) {
-                btn.classList.add('animate-button-pop');
-                setTimeout(() => btn.classList.remove('animate-button-pop'), 300);
-            }
+        // --- Modal Logic ---
+        function openManualEntryModal() {
+            editingOrderId = null;
+            const modal = document.getElementById('manual-entry-modal');
+            const title = document.getElementById('modal-title');
 
-            const cartBar = document.getElementById('cart-bar');
-            if (cartBar) {
-                const innerBtn = cartBar.querySelector('button');
-                innerBtn.classList.add('animate-pulse-cart');
-                setTimeout(() => innerBtn.classList.remove('animate-pulse-cart'), 400);
-            }
+            title.innerHTML = `<span class="material-symbols-outlined text-primary">add_shopping_cart</span> Create Manual Order`;
+            modal.classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
 
-            showNotification(`${name} added to cart!`);
+            // Reset form
+            document.getElementById('manual-order-form').reset();
+            formItems = [];
+            addItemToForm(); // Start with one item
         }
 
-        function removeFromCart(name, event) {
-            const index = cart.findIndex(item => item.name === name);
-            if (index > -1) {
-                if (cart[index].quantity > 1) {
-                    cart[index].quantity -= 1;
+        function editOrder(id) {
+            const order = MOCK_ORDERS.find(o => o.id === id);
+            if (!order) return;
+
+            editingOrderId = id;
+            const modal = document.getElementById('manual-entry-modal');
+            const title = document.getElementById('modal-title');
+
+            title.innerHTML = `<span class="material-symbols-outlined text-primary">edit_note</span> Modify Order #${id}`;
+            modal.classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+
+            // Populate form
+            document.getElementById('modal-customer').value = order.customer;
+            document.getElementById('modal-table').value = order.table;
+            document.getElementById('modal-notes').value = order.notes || '';
+
+            formItems = order.items.map(item => ({
+                id: Date.now() + Math.random(),
+                name: item.name,
+                qty: item.qty,
+                price: item.price
+            }));
+
+            renderFormItems();
+        }
+
+        function closeModal() {
+            // Alias for the existing closeModal if needed, but we'll use closeManualEntryModal for clarity
+            closeManualEntryModal();
+        }
+
+        function closeManualEntryModal() {
+            const modal = document.getElementById('manual-entry-modal');
+            modal.classList.add('hidden');
+            document.body.style.overflow = '';
+        }
+
+        function addItemToForm() {
+            const id = Date.now() + Math.random();
+            formItems.push({ id, name: '', qty: 1, price: 0 });
+            renderFormItems();
+        }
+
+        function removeItemFromForm(id) {
+            formItems = formItems.filter(item => item.id !== id);
+            renderFormItems();
+        }
+
+        function updateFormItem(id, field, value) {
+            const item = formItems.find(i => i.id === id);
+            if (item) {
+                if (field === 'price' || field === 'qty') {
+                    item[field] = parseFloat(value) || 0;
                 } else {
-                    cart.splice(index, 1);
+                    item[field] = value;
                 }
-            }
-            updateCartUI();
-
-            // Animation for minus button if needed
-            const btn = event ? (event.currentTarget || event.target.closest('button')) : null;
-            if (btn && btn.classList) {
-                btn.classList.add('scale-75');
-                setTimeout(() => btn.classList.remove('scale-75'), 150);
+                calculateFormTotal();
             }
         }
 
-        function updateCartUI() {
-            const count = cart.reduce((sum, item) => sum + item.quantity, 0);
-            const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+        function calculateFormTotal() {
+            const total = formItems.reduce((sum, item) => sum + (item.qty * item.price), 0);
+            document.getElementById('modal-total').textContent = `₹${total.toFixed(2)}`;
+        }
 
-            const cartBar = document.getElementById('cart-bar');
-            const cartCount = document.getElementById('cart-count');
-            const cartTotal = document.getElementById('cart-total');
-            const modalTotal = document.getElementById('modal-total');
-            const cartItemsContainer = document.getElementById('cart-items');
-
-            if (count > 0) {
-                cartBar.classList.remove('translate-y-full');
-            } else {
-                cartBar.classList.add('translate-y-full');
-                document.getElementById('cart-modal').classList.add('hidden');
-            }
-
-            cartCount.innerText = `View Cart • ${count} Item${count > 1 ? 's' : ''}`;
-            cartTotal.innerText = `₹${total}`;
-            modalTotal.innerText = `₹${total}`;
-
-            // Update Add Buttons with count
-            const addButtons = document.querySelectorAll('button[data-item-name]');
-            addButtons.forEach(btn => {
-                const itemName = btn.getAttribute('data-item-name');
-                const cartItem = cart.find(item => item.name === itemName);
-                const qty = cartItem ? cartItem.quantity : 0;
-                const span = btn.querySelector('span:not(.material-symbols-outlined)');
-                if (span) {
-                    span.innerText = qty > 0 ? `Add (${qty})` : 'Add';
-                }
-            });
-
-            cartItemsContainer.innerHTML = cart.map(item => `
-                <div class="flex items-center justify-between cart-item-animation bg-slate-50 dark:bg-slate-800/50 p-3 rounded-xl border border-slate-100 dark:border-slate-700/50 mb-2">
+        function renderFormItems() {
+            const list = document.getElementById('modal-items-list');
+            list.innerHTML = formItems.map(item => `
+                <div class="flex items-center gap-3 bg-slate-50 p-3 rounded-xl border border-slate-100 group">
                     <div class="flex-1">
-                        <p class="font-bold text-sm text-slate-800 dark:text-slate-100">${item.name}</p>
-                        <p class="text-xs text-slate-500">₹${item.price} x ${item.quantity}</p>
+                        <input type="text" value="${item.name}" oninput="updateFormItem(${item.id}, 'name', this.value)" required
+                            class="w-full bg-white border-slate-200 rounded-lg px-3 py-1.5 text-sm focus:ring-1 focus:ring-primary" placeholder="Item Name">
                     </div>
-                    <div class="flex items-center gap-2 bg-slate-200/50 dark:bg-slate-900 rounded-lg p-1">
-                        <button onclick="removeFromCart('${item.name}', event)" class="w-8 h-8 flex items-center justify-center hover:bg-white dark:hover:bg-slate-700 rounded-md transition-all active:scale-90">
-                            <span class="material-symbols-outlined text-sm">remove</span>
-                        </button>
-                        <span class="font-bold text-sm w-4 text-center">${item.quantity}</span>
-                        <button onclick="addToCart('${item.name}', ${item.price}, event)" class="w-8 h-8 flex items-center justify-center hover:bg-white dark:hover:bg-slate-700 rounded-md transition-all active:scale-90 text-primary">
-                            <span class="material-symbols-outlined text-sm">add</span>
-                        </button>
+                    <div class="w-20">
+                        <input type="number" value="${item.qty}" min="1" oninput="updateFormItem(${item.id}, 'qty', this.value)" required
+                            class="w-full bg-white border-slate-200 rounded-lg px-3 py-1.5 text-sm focus:ring-1 focus:ring-primary text-center" placeholder="Qty">
                     </div>
+                    <div class="w-24 relative">
+                        <span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs">₹</span>
+                        <input type="number" step="0.01" value="${item.price}" oninput="updateFormItem(${item.id}, 'price', this.value)" required
+                            class="w-full bg-white border-slate-200 rounded-lg pl-6 pr-3 py-1.5 text-sm focus:ring-1 focus:ring-primary" placeholder="Price">
+                    </div>
+                    <button type="button" onclick="removeItemFromForm(${item.id})" class="text-slate-300 hover:text-red-500 transition-colors">
+                        <span class="material-symbols-outlined text-lg">delete</span>
+                    </button>
                 </div>
             `).join('');
+            calculateFormTotal();
         }
 
-        function toggleCartModal() {
-            const modal = document.getElementById('cart-modal');
-            modal.classList.toggle('hidden');
-        }
+        // --- Rendering Logic ---
+        function renderOrders() {
+            const grid = document.getElementById('orders-grid');
+            const filterBtns = document.querySelectorAll('.filter-btn');
 
-        async function checkout(event) {
-            if (isPlacingOrder) return;
-
-            const isPacking = document.getElementById('packing-toggle').checked;
-            const tableName = isPacking ? "Takeaway" : document.getElementById('order-table').value.trim();
-            const userName = document.getElementById('order-name').value.trim();
-
-            if (!isPacking && !tableName) {
-                showNotification("Please select a Table Number!");
-                return;
-            }
-
-            if (!userName) {
-                showNotification("Please enter Customer Name!");
-                return;
-            }
-
-            if (cart.length === 0) {
-                showNotification("Your cart is empty!");
-                return;
-            }
-
-            // Connection Check
-            if (typeof sbClient === 'undefined' || !sbClient) {
-                showNotification("Connection error. Refreshing...");
-                location.reload();
-                return;
-            }
-
-            const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-            const orderId = `ORD-${Math.floor(1000 + Math.random() * 9000)}`;
-
-            const orderData = {
-                id: orderId,
-                customer: userName,
-                table_no: tableName,
-                items: cart.map(i => ({ name: i.name, qty: i.quantity, price: i.price })),
-                total: total,
-                status: 'NEW',
-                notes: '', // Can be extended later
-                payment: 'Cash'
-            };
-
-            // Success animation on button
-            const btn = event ? (event.currentTarget || event.target.closest('button')) : null;
-            let originalText = "";
-            if (btn) {
-                originalText = btn.innerText;
-                btn.disabled = true;
-                btn.innerHTML = `<span class="material-symbols-outlined animate-spin">sync</span> Placing Order...`;
-            }
-
-            try {
-                isPlacingOrder = true;
-
-                // Create a 2-second minimum wait promise
-                const delay = new Promise(resolve => setTimeout(resolve, 2000));
-
-                // Start database operation
-                const dbOp = sbClient
-                    .from('orders')
-                    .insert([orderData]);
-
-                // Wait for both DB operation and the 5-second timer
-                const [dbResult] = await Promise.all([dbOp, delay]);
-
-                if (dbResult.error) throw dbResult.error;
-
-                // Success State on Button
-                if (btn) {
-                    btn.innerHTML = `<span class="material-symbols-outlined">check_circle</span> Order Placed!`;
-                    btn.className = btn.className.replace('bg-primary', 'bg-green-500');
-                    btn.style.backgroundColor = '#22c55e';
+            // Update Filter UI
+            filterBtns.forEach(btn => {
+                if (btn.dataset.status === currentFilter) {
+                    btn.classList.add('border-primary');
+                    btn.classList.remove('border-transparent');
+                    btn.querySelector('span').classList.add('text-primary');
+                    btn.querySelector('span').classList.remove('text-slate-500');
+                } else {
+                    btn.classList.remove('border-primary');
+                    btn.classList.add('border-transparent');
+                    btn.querySelector('span').classList.remove('text-primary');
+                    btn.querySelector('span').classList.add('text-slate-500');
                 }
-
-                showNotification("Order Placed Successfully!");
-
-                // Small additional delay to show "Order Placed!" before reset
-                await new Promise(resolve => setTimeout(resolve, 1000));
-
-                alert(`Order Placed Successfully!\n\nOrder ID: ${orderId}\nTotal: ₹${total}`);
-
-                cart = [];
-                // Reset fields
-                document.getElementById('order-table').value = '';
-                document.getElementById('order-name').value = '';
-                document.getElementById('packing-toggle').checked = false;
-
-                // Restore button for next time (even though modal closes)
-                if (btn) {
-                    btn.disabled = false;
-                    btn.innerText = originalText;
-                    btn.className = btn.className.replace('bg-green-500', 'bg-primary');
-                    btn.style.backgroundColor = '#EDA747';
-                }
-
-                updateCartUI();
-                toggleCartModal();
-            } catch (err) {
-                console.error('Error placing order:', err);
-                const errorMsg = err.message || "Unknown error";
-                showNotification("Failed to place order.");
-                alert(`Error: ${errorMsg}\n\nPlease check your internet connection!`);
-                if (btn) {
-                    btn.disabled = false;
-                    btn.innerText = originalText;
-                    btn.className = btn.className.replace('bg-green-500', 'bg-primary');
-                    btn.style.backgroundColor = '#EDA747';
-                }
-            } finally {
-                isPlacingOrder = false;
-            }
-        }
-
-        // Keyboard Focus Fix & Animation
-        document.querySelectorAll('.details-block input').forEach(input => {
-            input.addEventListener('focus', function () {
-                document.getElementById('cart-modal-content').classList.add('typing-active');
-                setTimeout(() => {
-                    this.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                }, 300);
             });
-            input.addEventListener('blur', function () {
-                document.getElementById('cart-modal-content').classList.remove('typing-active');
+
+            // Filter Orders
+            const q = searchQuery.toLowerCase();
+            let filtered = MOCK_ORDERS.filter(o => {
+                const matchesStatus = currentFilter === 'ALL' || o.status === currentFilter;
+                const matchesSearch = o.customer.toLowerCase().includes(q) ||
+                    o.id.toLowerCase().includes(q) ||
+                    o.table.toLowerCase().includes(q) ||
+                    o.items.some(item => item.name.toLowerCase().includes(q));
+                return matchesStatus && matchesSearch;
             });
-        });
 
-        function showNotification(msg) {
-            // Remove existing toasts
-            const oldToasts = document.querySelectorAll('.custom-toast');
-            oldToasts.forEach(t => t.remove());
+            // Update Counts
+            document.getElementById('count-new').textContent = MOCK_ORDERS.filter(o => o.status === 'NEW').length;
+            document.getElementById('count-preparing').textContent = MOCK_ORDERS.filter(o => o.status === 'PREPARING').length;
 
-            const toast = document.createElement('div');
-            toast.className = 'custom-toast fixed bottom-28 left-1/2 -translate-x-1/2 bg-slate-900/90 backdrop-blur-md text-white px-6 py-3 rounded-2xl text-sm font-bold z-[100] shadow-2xl flex items-center gap-3 border border-white/10 toast-enter';
-            toast.innerHTML = `
-                <span class="material-symbols-outlined text-primary">check_circle</span>
-                ${msg}
+            if (filtered.length === 0) {
+                grid.innerHTML = `
+                <div class="col-span-full bg-white/50 rounded-xl border-2 border-dashed border-slate-200 flex flex-col items-center justify-center p-8 text-center min-h-[400px]">
+                    <span class="material-symbols-outlined text-4xl text-slate-300 mb-2">pending_actions</span>
+                    <p class="text-slate-400 font-medium">No orders found matching your criteria...</p>
+                    <p class="text-[10px] text-slate-300 mt-1">Updates in real-time</p>
+                </div>
             `;
-            document.body.appendChild(toast);
-            setTimeout(() => {
-                toast.style.opacity = '0';
-                toast.style.transform = 'translate(-50%, 20px)';
-                toast.style.transition = 'all 0.4s ease-in';
-                setTimeout(() => toast.remove(), 400);
-            }, 2000);
-        }
+                return;
+            }
 
-        // Scroll Spy & Nav Highlighting
-        const sections = Array.from(document.querySelectorAll('section'));
-        const navLinks = Array.from(document.querySelectorAll('.nav-link'));
+            grid.innerHTML = filtered.map(order => createOrderCard(order)).join('');
 
-        function updateNavHighlight() {
-            let current = '';
-            const scrollPos = window.pageYOffset || document.documentElement.scrollTop;
-            const windowHeight = window.innerHeight;
-            const scrollHeight = document.documentElement.scrollHeight;
-
-            // Refined bottom detection: if we're within 10% of the bottom, highlight the last section
-            const isAtBottom = (scrollPos + windowHeight) >= (scrollHeight - 100);
-
-            if (isAtBottom) {
-                current = sections[sections.length - 1].getAttribute('id');
-            } else {
-                sections.forEach(section => {
-                    const sectionTop = section.offsetTop;
-                    // Use a more dynamic threshold (top 30% of the section)
-                    if (scrollPos >= sectionTop - 200) {
-                        current = section.getAttribute('id');
-                    }
+            // Add event listeners to buttons
+            grid.querySelectorAll('[data-action]').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const action = e.currentTarget.dataset.action;
+                    const id = e.currentTarget.dataset.id;
+                    handleAction(id, action);
                 });
-            }
-
-            navLinks.forEach(link => {
-                link.classList.remove('active-nav');
-                if (link.getAttribute('href') === `#${current}`) {
-                    link.classList.add('active-nav');
-                    link.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
-                }
             });
         }
 
-        window.addEventListener('scroll', updateNavHighlight);
+        function createOrderCard(order) {
+            const statusCfg = {
+                NEW: { label: 'New Order', border: 'border-primary', bg: 'bg-primary/10', color: 'text-primary' },
+                PREPARING: { label: 'Preparing', border: 'border-yellow-500', bg: 'bg-yellow-50', color: 'text-yellow-700' },
+                READY: { label: 'Ready', border: 'border-green-500', bg: 'bg-green-50', color: 'text-green-700' },
+                SERVED: { label: 'Served', border: 'border-slate-400', bg: 'bg-slate-50', color: 'text-slate-600' },
+                PAID: { label: 'Paid', border: 'border-slate-800', bg: 'bg-slate-100', color: 'text-slate-800' }
+            };
+            const cfg = statusCfg[order.status];
 
-        // Initial call
-        updateNavHighlight();
+            return `
+            <div class="bg-white rounded-xl shadow-md border-l-4 ${cfg.border} overflow-hidden flex flex-col">
+                <div class="p-4 border-b border-primary/5 flex justify-between items-start">
+                    <div>
+                        <div class="flex items-center gap-2 mb-1">
+                            <span class="${cfg.bg} ${cfg.color} text-[10px] font-black uppercase px-2 py-0.5 rounded tracking-widest">${cfg.label}</span>
+                            <span class="text-slate-400 text-xs font-medium">#${order.id}</span>
+                        </div>
+                        <h3 class="text-lg font-bold leading-none">Table ${order.table}</h3>
+                    </div>
+                    <div class="text-right">
+                        <p class="text-sm font-bold text-primary">₹${order.total.toFixed(2)}</p>
+                        <p class="text-[10px] text-slate-400">${order.time}</p>
+                    </div>
+                </div>
+                <div class="p-4 flex-1 space-y-4">
+                    <div class="flex items-center gap-3">
+                        <div class="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-400">
+                            <span class="material-symbols-outlined text-sm">person</span>
+                        </div>
+                        <div>
+                            <p class="text-xs text-slate-500 leading-none mb-0.5">Customer</p>
+                            <p class="text-sm font-bold">${order.customer}</p>
+                        </div>
+                    </div>
+                    <div class="space-y-2">
+                        <p class="text-xs font-bold text-slate-400 uppercase tracking-tighter">Items</p>
+                        <div class="space-y-1.5">
+                            ${order.items.map(it => `
+                                <div class="flex justify-between items-center text-sm">
+                                    <span class="flex items-center gap-2">
+                                        <b>${it.qty}x</b> ${it.name}
+                                    </span>
+                                    <span class="text-slate-400">₹${(it.qty * it.price).toFixed(2)}</span>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                    ${order.notes ? `
+                        <div class="bg-primary/5 rounded-lg p-3 border border-primary/10">
+                            <p class="text-xs font-bold text-primary uppercase mb-1 flex items-center gap-1">
+                                <span class="material-symbols-outlined text-sm">description</span> Special Notes
+                            </p>
+                            <p class="text-xs italic text-slate-600">"${order.notes}"</p>
+                        </div>
+                    ` : ''}
+                    ${order.status === 'PREPARING' ? `
+                        <div class="border-t border-slate-100 pt-4">
+                            <div class="flex items-center justify-between text-xs font-medium text-slate-500">
+                                <span>Preparation Progress</span>
+                                <span>${order.progress}%</span>
+                            </div>
+                            <div class="w-full bg-slate-100 rounded-full h-1.5 mt-2">
+                                <div class="bg-yellow-500 h-1.5 rounded-full" style="width: ${order.progress}%"></div>
+                            </div>
+                        </div>
+                    ` : ''}
+                    ${order.status === 'READY' ? `
+                        <div class="bg-green-50 rounded-lg p-3 border border-green-100 flex items-center gap-3">
+                            <span class="material-symbols-outlined text-green-600">notifications_active</span>
+                            <p class="text-xs text-green-800 font-medium">Customer has been notified for pickup.</p>
+                        </div>
+                    ` : ''}
+                </div>
+                <div class="bg-slate-50 p-4 grid grid-cols-2 gap-2">
+                    ${getActionButtons(order)}
+                    <button onclick="printOrderTicket('${order.id}')" class="bg-white border border-slate-200 text-slate-600 font-bold py-2 px-3 rounded text-sm hover:bg-slate-50 transition-colors flex items-center justify-center gap-2">
+                        <span class="material-symbols-outlined text-base">print</span> Ticket
+                    </button>
+                    ${order.status === 'NEW' ? `
+                        <button class="col-span-2 text-primary font-bold py-1.5 text-xs hover:underline mt-1" data-id="${order.id}" data-action="CANCEL">
+                            Cancel Order
+                        </button>
+                    ` : `
+                        <button onclick="editOrder('${order.id}')" class="col-span-2 text-slate-400 font-bold py-1.5 text-xs hover:underline mt-1">
+                            Modify Order
+                        </button>
+                    `}
+                </div>
+            </div>
+        `;
+        }
 
-        // Handle clicks for immediate feedback
-        navLinks.forEach(link => {
-            link.addEventListener('click', (e) => {
-                setTimeout(updateNavHighlight, 100);
+        function getActionButtons(order) {
+            if (order.status === 'NEW') {
+                return `<button data-id="${order.id}" data-action="PREPARING" class="bg-primary text-white font-bold py-2 px-3 rounded text-sm hover:bg-primary/90 transition-colors flex items-center justify-center gap-2">
+                <span class="material-symbols-outlined text-base">play_arrow</span> Accept
+            </button>`;
+            }
+            if (order.status === 'PREPARING') {
+                return `<button data-id="${order.id}" data-action="READY" class="bg-yellow-500 text-white font-bold py-2 px-3 rounded text-sm hover:bg-yellow-600 transition-colors flex items-center justify-center gap-2">
+                <span class="material-symbols-outlined text-base">check_circle</span> Mark Ready
+            </button>`;
+            }
+            if (order.status === 'READY') {
+                return `<button data-id="${order.id}" data-action="SERVED" class="bg-green-500 text-white font-bold py-2 px-3 rounded text-sm hover:bg-green-600 transition-colors flex items-center justify-center gap-2">
+                <span class="material-symbols-outlined text-base">delivery_dining</span> Mark Served
+            </button>`;
+            }
+            return '';
+        }
+
+        function renderStats() {
+            const statsContainer = document.getElementById('stats-summary');
+            const stats = [
+                {
+                    title: "Total Revenue",
+                    value: MOCK_STATS.revenue,
+                    subtext: `Today's Earning: ${MOCK_STATS.todayRevenue}`,
+                    icon: "payments",
+                    color: "primary"
+                },
+                { title: "Orders Served", value: MOCK_STATS.ordersServed, subtext: `Goal: ${MOCK_STATS.ordersGoal} orders`, icon: "list_alt", color: "slate-900" },
+                { title: "Cancelled", value: String(MOCK_STATS.cancelled).padStart(2, '0'), subtext: "Requires review", icon: "cancel", color: "slate-400" }
+            ];
+
+            statsContainer.innerHTML = stats.map(stat => `
+            <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-100 flex flex-col justify-between">
+                <div>
+                    <p class="text-slate-500 text-[10px] font-bold uppercase mb-1">${stat.title}</p>
+                    <h4 class="text-2xl font-black ${stat.color === 'primary' ? 'text-primary' : ''}" style="${stat.color !== 'primary' ? `color: ${stat.color}` : ''}">${stat.value}</h4>
+                </div>
+                ${stat.subtext ? `<p class="text-[10px] font-bold text-slate-400 mt-2 uppercase tracking-tight">${stat.subtext}</p>` : ''}
+            </div>
+        `).join('');
+        }
+
+        async function handleAction(id, action) {
+            if (action === 'CANCEL') {
+                if (confirm('Are you sure you want to cancel this order?')) {
+                    const { error } = await sbClient
+                        .from('orders')
+                        .delete()
+                        .eq('id', id);
+
+                    if (error) {
+                        console.error('Error cancelling order:', error);
+                        alert('Failed to cancel order.');
+                    }
+                }
+                return;
+            }
+
+            // Update status in Supabase
+            const updates = { status: action };
+            if (action === 'PREPARING') updates.progress = 0;
+
+            const { error } = await sbClient
+                .from('orders')
+                .update(updates)
+                .eq('id', id);
+
+            if (error) {
+                console.error('Error updating order:', error);
+                alert('Failed to update status.');
+            }
+        }
+
+        // --- Initialization ---
+        document.addEventListener('DOMContentLoaded', () => {
+            // Modal Hook
+            document.getElementById('manual-entry-btn').addEventListener('click', openManualEntryModal);
+
+            // Form Submission
+            document.getElementById('manual-order-form').addEventListener('submit', async (e) => {
+                e.preventDefault();
+
+                const orderData = {
+                    customer: document.getElementById('modal-customer').value,
+                    table_no: document.getElementById('modal-table').value,
+                    items: formItems.map(i => ({ name: i.name, qty: i.qty, price: i.price })),
+                    total: formItems.reduce((sum, item) => sum + (item.qty * item.price), 0),
+                    notes: document.getElementById('modal-notes').value,
+                    status: 'NEW',
+                    payment: 'Cash (Unpaid)'
+                };
+
+                const submitBtn = e.target.querySelector('button[type="submit"]');
+                submitBtn.disabled = true;
+                submitBtn.innerText = 'Syncing...';
+
+                try {
+                    if (editingOrderId) {
+                        const { error } = await sbClient
+                            .from('orders')
+                            .update(orderData)
+                            .eq('id', editingOrderId);
+                        if (error) throw error;
+                        alert(`Order ${editingOrderId} updated successfully!`);
+                    } else {
+                        const newOrder = {
+                            id: `ORD-${Math.floor(1000 + Math.random() * 9000)}`,
+                            ...orderData
+                        };
+                        const { error } = await sbClient
+                            .from('orders')
+                            .insert([newOrder]);
+                        if (error) throw error;
+                        alert(`Order ${newOrder.id} created successfully!`);
+                    }
+                    closeManualEntryModal();
+                } catch (err) {
+                    console.error('Submission error:', err);
+                    alert('Failed to sync with database.');
+                } finally {
+                    submitBtn.disabled = false;
+                    submitBtn.innerText = editingOrderId ? 'Update Order' : 'Create Order';
+                }
             });
+
+            // --- Realtime and Initial Fetch ---
+            async function fetchInitialOrders() {
+                const { data, error } = await sbClient
+                    .from('orders')
+                    .select('*')
+                    .order('created_at', { ascending: false });
+
+                if (error) {
+                    console.error('Fetch error:', error);
+                    return;
+                }
+
+                MOCK_ORDERS = data.map(o => ({
+                    ...o,
+                    table: o.table_no, // Mapping DB naming to UI naming
+                    time: formatDbDate(o.created_at)
+                }));
+                updateStatsFromData();
+                renderOrders();
+                renderStats();
+            }
+
+            function setupRealtimeListener() {
+                sbClient
+                    .channel('orders_channel')
+                    .on('postgres_changes', { event: '*', schema: 'public', table: 'orders' }, (payload) => {
+                        console.log('Change received!', payload);
+
+                        if (payload.eventType === 'INSERT') {
+                            const newOrder = {
+                                ...payload.new,
+                                table: payload.new.table_no,
+                                time: 'Just now'
+                            };
+                            MOCK_ORDERS.unshift(newOrder);
+                            showLiveNotification(`New order from ${newOrder.customer}!`);
+                        } else if (payload.eventType === 'UPDATE') {
+                            const index = MOCK_ORDERS.findIndex(o => o.id === payload.new.id);
+                            if (index !== -1) {
+                                MOCK_ORDERS[index] = {
+                                    ...MOCK_ORDERS[index],
+                                    ...payload.new,
+                                    table: payload.new.table_no
+                                };
+                            }
+                        } else if (payload.eventType === 'DELETE') {
+                            MOCK_ORDERS = MOCK_ORDERS.filter(o => o.id !== payload.old.id);
+                        }
+
+                        updateStatsFromData();
+                        renderOrders();
+                        renderStats();
+                    })
+                    .subscribe();
+            }
+
+            function formatDbDate(dateString) {
+                const date = new Date(dateString);
+                const now = new Date();
+                const diffMs = now - date;
+                const diffMins = Math.floor(diffMs / 60000);
+
+                if (diffMins < 1) return 'Just now';
+                if (diffMins < 60) return `${diffMins} mins ago`;
+                const diffHours = Math.floor(diffMins / 60);
+                if (diffHours < 24) return `${diffHours} hours ago`;
+                return date.toLocaleDateString();
+            }
+
+            function updateStatsFromData() {
+                const today = new Date().toLocaleDateString();
+                const served = MOCK_ORDERS.filter(o => o.status === 'SERVED' || o.status === 'PAID').length;
+                const revenue = MOCK_ORDERS.reduce((sum, o) => sum + (o.status !== 'CANCELLED' ? o.total : 0), 0);
+
+                // Calculate today's revenue
+                const todayRevenue = MOCK_ORDERS
+                    .filter(o => {
+                        const orderDate = new Date(o.created_at).toLocaleDateString();
+                        return orderDate === today && o.status !== 'CANCELLED';
+                    })
+                    .reduce((sum, o) => sum + o.total, 0);
+
+                const cancelled = MOCK_ORDERS.filter(o => o.status === 'CANCELLED').length;
+
+                MOCK_STATS.ordersServed = served;
+                MOCK_STATS.revenue = `₹${revenue.toLocaleString('en-IN', { minimumFractionDigits: 2 })}`;
+                MOCK_STATS.todayRevenue = `₹${todayRevenue.toLocaleString('en-IN', { minimumFractionDigits: 2 })}`;
+                MOCK_STATS.cancelled = cancelled;
+            }
+
+            function showLiveNotification(msg) {
+                const connectedBadge = document.getElementById('live-connection');
+                const originalContent = connectedBadge.innerHTML;
+
+                connectedBadge.innerHTML = `<span class="w-2 h-2 bg-yellow-500 rounded-full mr-2 animate-ping"></span> ${msg}`;
+                connectedBadge.classList.replace('text-green-600', 'text-yellow-600');
+                connectedBadge.classList.replace('bg-green-50', 'bg-yellow-50');
+
+                // Play notification sound if possible (optional)
+
+                setTimeout(() => {
+                    connectedBadge.innerHTML = originalContent;
+                    connectedBadge.classList.replace('text-yellow-600', 'text-green-600');
+                    connectedBadge.classList.replace('bg-yellow-50', 'bg-green-50');
+                }, 5000);
+            }
+
+            fetchInitialOrders();
+            setupRealtimeListener();
+
+            // Filter Event Listeners
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    currentFilter = btn.dataset.status;
+                    renderOrders();
+                });
+            });
+
+            // Search Event Listener
+            const searchInput = document.getElementById('search-input');
+            const clearBtn = document.getElementById('clear-search');
+
+            searchInput.addEventListener('input', (e) => {
+                searchQuery = e.target.value;
+                clearBtn.classList.toggle('hidden', !searchQuery);
+                renderOrders();
+            });
+
+            clearBtn.addEventListener('click', () => {
+                searchQuery = '';
+                searchInput.value = '';
+                clearBtn.classList.add('hidden');
+                searchInput.focus();
+                renderOrders();
+            });
+
+            // Initial Render
+            renderOrders();
+            renderStats();
         });
 
-        // Search Functionality
-        function toggleSearch() {
-            const container = document.getElementById('search-container');
-            const input = document.getElementById('menu-search');
-            const nav = document.getElementById('category-nav');
-
-            container.classList.toggle('hidden');
-            if (!container.classList.contains('hidden')) {
-                input.focus();
-                nav.classList.add('hidden');
-            } else {
-                input.value = '';
-                filterMenu();
-                nav.classList.remove('hidden');
+        // Logout Function
+        function logoutAdmin() {
+            if (confirm('Are you sure you want to logout?')) {
+                sessionStorage.removeItem('donero_admin_auth');
+                sessionStorage.removeItem('donero_admin_name');
+                window.location.href = 'login.html';
             }
         }
 
-        function filterMenu() {
-            const query = document.getElementById('menu-search').value.toLowerCase().trim();
-            const items = document.querySelectorAll('.menu-item');
-            const sections = document.querySelectorAll('main section');
-            let totalMatch = 0;
-
-            items.forEach(item => {
-                const name = item.querySelector('h3').innerText.toLowerCase();
-                const desc = item.querySelector('p').innerText.toLowerCase();
-
-                if (name.includes(query) || desc.includes(query)) {
-                    item.style.display = 'flex';
-                    totalMatch++;
-                } else {
-                    item.style.display = 'none';
-                }
-            });
-
-            sections.forEach(section => {
-                const sectionItems = section.querySelectorAll('.menu-item');
-                const hasMatch = Array.from(sectionItems).some(item => item.style.display !== 'none');
-                section.style.display = hasMatch ? 'block' : 'none';
-            });
-
-            let noResults = document.getElementById('no-results');
-            if (totalMatch === 0 && query !== '') {
-                if (!noResults) {
-                    noResults = document.createElement('div');
-                    noResults.id = 'no-results';
-                    noResults.className = 'text-center py-12';
-                    noResults.innerHTML = `
-                        <span class="material-symbols-outlined text-6xl text-slate-300 mb-4">search_off</span>
-                        <p class="text-slate-500 font-medium">No items found matching "${query}"</p>
-                        <button onclick="resetSearch()" class="mt-4 text-primary font-bold">Clear search</button>
-                    `;
-                    document.querySelector('main').appendChild(noResults);
-                } else {
-                    noResults.querySelector('p').innerText = `No items found matching "${query}"`;
-                    noResults.classList.remove('hidden');
-                }
-            } else if (noResults) {
-                noResults.classList.add('hidden');
+        // Print Order Ticket Function
+        function printOrderTicket(orderId) {
+            const order = MOCK_ORDERS.find(o => o.id === orderId);
+            if (!order) {
+                alert('Order not found!');
+                return;
             }
+
+            const printFrame = document.getElementById('print-frame');
+            const doc = printFrame.contentWindow.document;
+
+            const itemsHtml = order.items.map(it => `
+                <div style="display: flex; justify-content: space-between; margin-bottom: 4px; font-size: 14px;">
+                    <span>${it.qty}x ${it.name}</span>
+                    <span>₹${(it.qty * it.price).toFixed(2)}</span>
+                </div>
+            `).join('');
+
+            const receiptHtml = `
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <title>Order Receipt - ${order.id}</title>
+                    <style>
+                        body { font-family: 'Courier New', Courier, monospace; width: 80mm; margin: 0; padding: 10mm; color: #000; }
+                        .header { text-align: center; border-bottom: 1px dashed #000; padding-bottom: 10px; margin-bottom: 15px; }
+                        .cafe-name { font-size: 22px; font-weight: bold; margin: 0; }
+                        .order-info { margin-bottom: 15px; font-size: 14px; }
+                        .items { border-bottom: 1px dashed #000; padding-bottom: 10px; margin-bottom: 10px; }
+                        .total { text-align: right; font-size: 18px; font-weight: bold; }
+                        .footer { text-align: center; margin-top: 20px; font-size: 12px; }
+                        @media print {
+                            body { margin: 0; padding: 5mm; }
+                        }
+                    </style>
+                </head>
+                <body>
+                    <div class="header">
+                        <p class="cafe-name">DONERO CAFE</p>
+                        <p style="margin: 5px 0 0 0; font-size: 12px;">Admin Console Receipt</p>
+                    </div>
+                    <div class="order-info">
+                        <div style="display: flex; justify-content: space-between;">
+                            <span><b>Order:</b> #${order.id}</span>
+                            <span><b>Date:</b> ${new Date().toLocaleDateString()}</span>
+                        </div>
+                        <div><b>Table:</b> ${order.table}</div>
+                        <div><b>Customer:</b> ${order.customer}</div>
+                    </div>
+                    <div class="items">
+                        ${itemsHtml}
+                    </div>
+                    <div class="total">
+                        Total: ₹${order.total.toFixed(2)}
+                    </div>
+                    <div class="footer">
+                        <p>Thank you for choosing Donero Cafe!<br>Visit again soon.</p>
+                        <p style="font-size: 10px; color: #666;">Manual Entry / System Generated</p>
+                    </div>
+                </body>
+                </html>
+            `;
+
+            doc.open();
+            doc.write(receiptHtml);
+            doc.close();
+
+            // Wait for resources to load if any, then print
+            setTimeout(() => {
+                printFrame.contentWindow.focus();
+                printFrame.contentWindow.print();
+            }, 250);
         }
-
-        function resetSearch() {
-            document.getElementById('menu-search').value = '';
-            filterMenu();
-            document.getElementById('menu-search').focus();
-        }
-
-        // Initialize first nav item
-        if (navLinks.length > 0) navLinks[0].classList.add('active-nav');
-
-        // Connection Status Monitoring
-        function updateConnectionStatus() {
-            const badge = document.getElementById('connection-badge');
-            if (!badge) return;
-
-            const dot = badge.querySelector('span');
-            const text = badge.querySelector('span:last-child');
-
-            if (typeof sbClient !== 'undefined' && sbClient) {
-                dot.className = 'w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse';
-                text.innerText = 'Connected';
-                badge.className = 'flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-green-50 text-[10px] font-bold text-green-600 transition-colors';
-            } else {
-                dot.className = 'w-1.5 h-1.5 rounded-full bg-red-500';
-                text.innerText = 'Disconnected';
-                badge.className = 'flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-red-50 text-[10px] font-bold text-red-600 transition-colors';
-            }
-        }
-
-        // Initial check and periodic updates
-        setTimeout(updateConnectionStatus, 1000);
-        setInterval(updateConnectionStatus, 5000);
-
-        // Toggle Table Visibility based on Packing
-        document.getElementById('packing-toggle').addEventListener('change', function () {
-            const tableContainer = document.getElementById('table-selection-container');
-            if (this.checked) {
-                tableContainer.classList.add('hidden');
-            } else {
-                tableContainer.classList.remove('hidden');
-            }
-        });
     </script>
+    </div>
 </body>
 
 </html>
