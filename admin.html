@@ -172,7 +172,7 @@
                     <button id="manual-entry-btn"
                         class="bg-primary shadow-lg shadow-primary/20 text-white px-4 py-2 rounded-lg text-sm font-bold flex items-center gap-2 hover:bg-primary/90 transition-all">
                         <span class="material-symbols-outlined text-sm">add</span>
-                        Manual Entry
+                        <span class="hidden sm:inline">Manual Entry</span>
                     </button>
                 </div>
             </div>
@@ -303,8 +303,8 @@
                             class="px-4 py-2.5 rounded-lg text-sm font-bold text-red-500 hover:bg-red-50 transition-colors border border-red-100">Reset</button>
                         <button type="button" onclick="closeManualEntryModal()"
                             class="px-6 py-2.5 rounded-lg text-sm font-bold text-slate-500 hover:bg-slate-200 transition-colors">Cancel</button>
-                        <button type="submit" form="manual-order-form"
-                            class="bg-primary shadow-lg shadow-primary/20 text-white px-8 py-2.5 rounded-lg text-sm font-bold hover:bg-primary/90 transition-all">Create
+                        <button type="submit" id="create-order-btn" form="manual-order-form"
+                            class="bg-primary shadow-lg shadow-primary/20 text-white px-8 py-2.5 rounded-lg text-sm font-bold hover:bg-primary/90 transition-all disabled:opacity-50 disabled:cursor-not-allowed">Create
                             Order</button>
                     </div>
                 </div>
@@ -353,6 +353,7 @@
             document.getElementById('manual-order-form').reset();
             formItems = [];
             addItemToForm(); // Start with one item
+            validateManualForm();
         }
 
         function editOrder(id) {
@@ -369,7 +370,11 @@
 
             // Populate form
             document.getElementById('modal-customer').value = order.customer;
-            document.getElementById('modal-table').value = order.table;
+
+            // Fix: Table value might be "Table 01" while option is "01"
+            const tableVal = order.table.replace('Table ', '').trim();
+            document.getElementById('modal-table').value = tableVal;
+
             document.getElementById('modal-notes').value = order.notes || '';
 
             formItems = order.items.map(item => ({
@@ -380,6 +385,8 @@
             }));
 
             renderFormItems();
+            console.log("DEBUG: editOrder called with id:", id);
+            validateManualForm();
         }
 
         function closeModal() {
@@ -399,6 +406,7 @@
                 formItems = [];
                 addItemToForm();
                 calculateFormTotal();
+                validateManualForm();
             }
         }
 
@@ -406,11 +414,13 @@
             const id = Date.now() + Math.random();
             formItems.push({ id, name: '', qty: 1, price: 0 });
             renderFormItems();
+            validateManualForm();
         }
 
         function removeItemFromForm(id) {
             formItems = formItems.filter(item => item.id !== id);
             renderFormItems();
+            validateManualForm();
         }
 
         function updateFormItem(id, field, value) {
@@ -422,6 +432,24 @@
                     item[field] = value;
                 }
                 calculateFormTotal();
+                validateManualForm();
+            }
+        }
+
+        function validateManualForm() {
+            const customer = document.getElementById('modal-customer').value.trim();
+            const table = document.getElementById('modal-table').value;
+            const hasItems = formItems.length > 0 && formItems.some(i => i.name && i.name.trim() !== '' && i.qty > 0);
+
+            const submitBtn = document.getElementById('create-order-btn');
+            if (submitBtn) {
+                submitBtn.disabled = !(customer && table && hasItems);
+
+                // Be explicit with text updates
+                const currentText = submitBtn.textContent.trim();
+                if (currentText !== 'Syncing...') {
+                    submitBtn.textContent = editingOrderId ? 'Update Order' : 'Create Order';
+                }
             }
         }
 
@@ -468,6 +496,7 @@
                 formItems.push({ id, name, qty: 1, price });
             }
             renderFormItems();
+            validateManualForm();
         }
 
         // --- Rendering Logic ---
@@ -718,34 +747,56 @@
             // Modal Hook
             document.getElementById('manual-entry-btn').addEventListener('click', openManualEntryModal);
 
+            // Validation Hooks
+            document.getElementById('modal-customer').addEventListener('input', validateManualForm);
+            document.getElementById('modal-table').addEventListener('change', validateManualForm);
+
             // Form Submission
             document.getElementById('manual-order-form').addEventListener('submit', async (e) => {
                 e.preventDefault();
 
+                // Filter out empty items
+                const validItems = formItems.filter(i => i.name && i.name.trim() !== '' && i.qty > 0);
+                if (validItems.length === 0) {
+                    alert('Please add at least one valid item to the order.');
+                    return;
+                }
+
                 const orderData = {
                     customer: document.getElementById('modal-customer').value,
                     table_no: document.getElementById('modal-table').value,
-                    items: formItems.map(i => ({ name: i.name, qty: i.qty, price: i.price })),
-                    total: formItems.reduce((sum, item) => sum + (item.qty * item.price), 0),
-                    notes: document.getElementById('modal-notes').value,
-                    status: 'NEW',
-                    payment: 'Cash (Unpaid)'
+                    items: validItems.map(i => ({ name: i.name, qty: i.qty, price: i.price })),
+                    total: validItems.reduce((sum, item) => sum + (item.qty * item.price), 0),
+                    notes: document.getElementById('modal-notes').value
                 };
 
-                const submitBtn = e.target.querySelector('button[type="submit"]');
-                submitBtn.disabled = true;
-                submitBtn.innerText = 'Syncing...';
+                // If not editing, it's a NEW order
+                if (!editingOrderId) {
+                    orderData.status = 'NEW';
+                    orderData.payment = 'Cash (Unpaid)';
+                }
+
+                const submitBtn = document.getElementById('create-order-btn');
+                if (submitBtn) {
+                    submitBtn.disabled = true;
+                    submitBtn.innerText = 'Syncing...';
+                }
 
                 try {
-                    console.log("Submitting order data:", orderData);
+                    console.log("Submitting. Mode:", editingOrderId ? "UPDATE" : "INSERT", "ID:", editingOrderId);
+                    console.log("Submission Data:", orderData);
+
                     if (editingOrderId) {
                         const { error } = await sbClient
                             .from('orders')
                             .update(orderData)
                             .eq('id', editingOrderId);
                         if (error) throw error;
+                        console.log("Update success for:", editingOrderId);
+                        closeManualEntryModal();
                         alert(`Order ${editingOrderId} updated successfully!`);
                     } else {
+                        // ... existing insert logic ...
                         const newOrder = {
                             id: `ORD-${Math.floor(1000 + Math.random() * 9000)}`,
                             ...orderData,
@@ -755,16 +806,20 @@
                             .from('orders')
                             .insert([newOrder]);
                         if (error) throw error;
+                        console.log("Insert success for:", newOrder.id);
+                        closeManualEntryModal();
                         alert(`Order ${newOrder.id} created successfully!`);
                     }
-                    closeManualEntryModal();
                 } catch (err) {
-                    console.error('Submission error details:', err);
+                    console.error('Submission CRITICAL error:', err);
                     const msg = err.message || err.details || "Check console for details";
                     alert(`Failed to sync with database: ${msg}`);
                 } finally {
-                    submitBtn.disabled = false;
-                    submitBtn.innerText = editingOrderId ? 'Update Order' : 'Create Order';
+                    const submitBtn = document.getElementById('create-order-btn');
+                    if (submitBtn) {
+                        submitBtn.disabled = false;
+                        submitBtn.textContent = editingOrderId ? 'Update Order' : 'Create Order';
+                    }
                 }
             });
 
@@ -1066,4 +1121,3 @@
 </body>
 
 </html>
-
