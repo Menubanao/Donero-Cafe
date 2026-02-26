@@ -912,8 +912,7 @@
         const SUPABASE_KEY = 'sb_publishable_-957Cp2j5PH0VkWJH9XdmQ_wf2WqLMN';
         const sbClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-        // Alias for easier use if needed, but we'll use sbClient consistently or rename properly
-        window.supabase = sbClient;
+        // Do not overwrite window.supabase as it's the library factory
 
         let cart = [];
         let isPlacingOrder = false;
@@ -1044,8 +1043,7 @@
 
             // Connection Check
             if (typeof sbClient === 'undefined' || !sbClient) {
-                showNotification("Connection error. Refreshing...");
-                location.reload();
+                showNotification("Database connection unavailable.");
                 return;
             }
 
@@ -1059,78 +1057,66 @@
                 items: cart.map(i => ({ name: i.name, qty: i.quantity, price: i.price })),
                 total: total,
                 status: 'NEW',
-                notes: '', // Can be extended later
-                payment: 'Cash'
+                notes: '',
+                payment: 'Cash',
+                created_at: new Date().toISOString()
             };
 
-            // Success animation on button
             const btn = event ? (event.currentTarget || event.target.closest('button')) : null;
             let originalText = "";
             if (btn) {
                 originalText = btn.innerText;
                 btn.disabled = true;
-                btn.innerHTML = `<span class="material-symbols-outlined animate-spin">sync</span> Placing Order...`;
+                btn.innerHTML = `<span class="material-symbols-outlined animate-spin text-sm">sync</span> Processing...`;
             }
 
             try {
                 isPlacingOrder = true;
 
-                // Create a 2-second minimum wait promise
-                const delay = new Promise(resolve => setTimeout(resolve, 2000));
+                // Execute database operation with a timeout
+                const { error } = await Promise.race([
+                    sbClient.from('orders').insert([orderData]),
+                    new Promise((_, reject) => setTimeout(() => reject(new Error('Request timed out after 15s')), 15000))
+                ]);
 
-                // Start database operation
-                const dbOp = sbClient
-                    .from('orders')
-                    .insert([orderData]);
+                if (error) throw error;
 
-                // Wait for both DB operation and the 5-second timer
-                const [dbResult] = await Promise.all([dbOp, delay]);
-
-                if (dbResult.error) throw dbResult.error;
-
-                // Success State on Button
+                // Success UI Updates
                 if (btn) {
                     btn.innerHTML = `<span class="material-symbols-outlined">check_circle</span> Order Placed!`;
-                    btn.className = btn.className.replace('bg-primary', 'bg-green-500');
-                    btn.style.backgroundColor = '#22c55e';
+                    btn.classList.add('bg-green-600');
+                    btn.style.backgroundColor = '#16a34a';
                 }
 
-                showNotification("Order Placed Successfully!");
+                showNotification("Order Successful!");
 
-                // Small additional delay to show "Order Placed!" before reset
-                await new Promise(resolve => setTimeout(resolve, 1000));
+                // Keep the success state visible for a moment
+                await new Promise(r => setTimeout(r, 1500));
 
                 alert(`Order Placed Successfully!\n\nOrder ID: ${orderId}\nTotal: ₹${total}`);
 
+                // Reset App State
                 cart = [];
-                // Reset fields
                 document.getElementById('order-table').value = '';
                 document.getElementById('order-name').value = '';
                 document.getElementById('packing-toggle').checked = false;
 
-                // Restore button for next time (even though modal closes)
-                if (btn) {
-                    btn.disabled = false;
-                    btn.innerText = originalText;
-                    btn.className = btn.className.replace('bg-green-500', 'bg-primary');
-                    btn.style.backgroundColor = '#EDA747';
-                }
-
                 updateCartUI();
                 toggleCartModal();
+
             } catch (err) {
-                console.error('Error placing order:', err);
-                const errorMsg = err.message || "Unknown error";
-                showNotification("Failed to place order.");
-                alert(`Error: ${errorMsg}\n\nPlease check your internet connection!`);
+                console.error('Checkout error:', err);
+                const msg = err.message || "Unknown error";
+                showNotification("Checkout failed.");
+                alert(`Error: ${msg}\n\nPlease check your internet and try again.`);
+            } finally {
+                isPlacingOrder = false;
                 if (btn) {
                     btn.disabled = false;
                     btn.innerText = originalText;
-                    btn.className = btn.className.replace('bg-green-500', 'bg-primary');
+                    btn.classList.remove('bg-green-600');
                     btn.style.backgroundColor = '#EDA747';
                 }
-            } finally {
-                isPlacingOrder = false;
             }
         }
 
@@ -1285,21 +1271,29 @@
         if (navLinks.length > 0) navLinks[0].classList.add('active-nav');
 
         // Connection Status Monitoring
-        function updateConnectionStatus() {
+        async function updateConnectionStatus() {
             const badge = document.getElementById('connection-badge');
             if (!badge) return;
 
             const dot = badge.querySelector('span');
             const text = badge.querySelector('span:last-child');
 
-            if (typeof sbClient !== 'undefined' && sbClient) {
-                dot.className = 'w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse';
-                text.innerText = 'Connected';
-                badge.className = 'flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-green-50 text-[10px] font-bold text-green-600 transition-colors';
-            } else {
+            try {
+                // Real health check - try to fetch count of public orders (cheap)
+                const { error } = await sbClient.from('orders').select('id', { count: 'exact', head: true }).limit(1);
+
+                if (!error) {
+                    dot.className = 'w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse';
+                    text.innerText = 'Online';
+                    badge.className = 'flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-green-100 text-[10px] font-bold text-green-700 transition-colors shadow-sm';
+                } else {
+                    throw error;
+                }
+            } catch (err) {
+                console.warn("Connection Status check failed:", err.message);
                 dot.className = 'w-1.5 h-1.5 rounded-full bg-red-500';
-                text.innerText = 'Disconnected';
-                badge.className = 'flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-red-50 text-[10px] font-bold text-red-600 transition-colors';
+                text.innerText = 'Offline';
+                badge.className = 'flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-red-100 text-[10px] font-bold text-red-700 transition-colors shadow-sm';
             }
         }
 
