@@ -1019,7 +1019,7 @@
             modal.classList.toggle('hidden');
         }
 
-        async function checkout(event) {
+        function checkout(event) {
             if (isPlacingOrder) return;
 
             const isPacking = document.getElementById('packing-toggle').checked;
@@ -1044,11 +1044,13 @@
             // Connection Check
             if (typeof sbClient === 'undefined' || !sbClient) {
                 showNotification("Database connection unavailable.");
+                alert("Critical: Supabase client not initialized. Please refresh the page.");
                 return;
             }
 
             const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-            const orderId = `ORD-${Math.floor(1000 + Math.random() * 9000)}`;
+            // More unique ID to prevent collisions
+            const orderId = `ORD-${Date.now().toString().slice(-4)}-${Math.floor(1000 + Math.random() * 9000)}`;
 
             const orderData = {
                 id: orderId,
@@ -1070,54 +1072,64 @@
                 btn.innerHTML = `<span class="material-symbols-outlined animate-spin text-sm">sync</span> Processing...`;
             }
 
-            try {
-                isPlacingOrder = true;
+            isPlacingOrder = true;
+            console.log("DEBUG: Sending Order Data:", orderData);
 
-                // Execute database operation with a timeout
-                const { error } = await Promise.race([
-                    sbClient.from('orders').insert([orderData]),
-                    new Promise((_, reject) => setTimeout(() => reject(new Error('Request timed out after 15s')), 15000))
-                ]);
+            // Using standard .then() for max compatibility with older mobile environments
+            sbClient.from('orders').insert(orderData) // Single object insert
+                .then(result => {
+                    const { error, status } = result;
+                    console.log("DEBUG: Supabase Response:", result);
 
-                if (error) throw error;
+                    if (error) throw error;
+                    if (status !== 201 && status !== 200) throw new Error("Server returned status " + status);
 
-                // Success UI Updates
-                if (btn) {
-                    btn.innerHTML = `<span class="material-symbols-outlined">check_circle</span> Order Placed!`;
-                    btn.classList.add('bg-green-600');
-                    btn.style.backgroundColor = '#16a34a';
-                }
+                    // Success UI Updates
+                    if (btn) {
+                        btn.innerHTML = `<span class="material-symbols-outlined">check_circle</span> Order Placed!`;
+                        btn.classList.add('bg-green-600');
+                        btn.style.backgroundColor = '#16a34a';
+                    }
 
-                showNotification("Order Successful!");
+                    showNotification("Order Successful!");
 
-                // Keep the success state visible for a moment
-                await new Promise(r => setTimeout(r, 1500));
+                    // Immediate reset to prevent double clicks even if alert is slow
+                    const finalTotal = total;
+                    const finalId = orderId;
 
-                alert(`Order Placed Successfully!\n\nOrder ID: ${orderId}\nTotal: ₹${total}`);
+                    cart = [];
+                    updateCartUI();
 
-                // Reset App State
-                cart = [];
-                document.getElementById('order-table').value = '';
-                document.getElementById('order-name').value = '';
-                document.getElementById('packing-toggle').checked = false;
+                    setTimeout(() => {
+                        alert(`Order Placed Successfully!\n\nOrder ID: ${finalId}\nTotal: ₹${finalTotal}`);
 
-                updateCartUI();
-                toggleCartModal();
+                        document.getElementById('order-table').value = '';
+                        document.getElementById('order-name').value = '';
+                        document.getElementById('packing-toggle').checked = false;
+                        toggleCartModal();
 
-            } catch (err) {
-                console.error('Checkout error:', err);
-                const msg = err.message || "Unknown error";
-                showNotification("Checkout failed.");
-                alert(`Error: ${msg}\n\nPlease check your internet and try again.`);
-            } finally {
-                isPlacingOrder = false;
-                if (btn) {
-                    btn.disabled = false;
-                    btn.innerText = originalText;
-                    btn.classList.remove('bg-green-600');
-                    btn.style.backgroundColor = '#EDA747';
-                }
-            }
+                        if (btn) {
+                            btn.disabled = false;
+                            btn.innerText = originalText;
+                            btn.classList.remove('bg-green-600');
+                            btn.style.backgroundColor = '#EDA747';
+                        }
+                        isPlacingOrder = false;
+                    }, 1000);
+                })
+                .catch(err => {
+                    console.error('Checkout error:', err);
+                    showNotification("Checkout failed.");
+                    alert(`Submission Failed!\n\nDetails: ${err.message || "Unknown error"}\n\nPlease try again or show this to staff.`);
+
+                    if (btn) {
+                        btn.disabled = false;
+                        btn.innerText = originalText;
+                        btn.classList.remove('bg-green-600');
+                        btn.style.backgroundColor = '#EDA747';
+                    }
+                    isPlacingOrder = false;
+                });
         }
 
         // Keyboard Focus Fix & Animation
