@@ -1283,35 +1283,41 @@
         if (navLinks.length > 0) navLinks[0].classList.add('active-nav');
 
         // Connection Status Monitoring
-        async function updateConnectionStatus() {
+        function updateConnectionStatus() {
             const badge = document.getElementById('connection-badge');
             if (!badge) return;
 
             const dot = badge.querySelector('span');
             const text = badge.querySelector('span:last-child');
 
-            try {
-                // Real health check - try to fetch count of public orders (cheap)
-                const { error } = await sbClient.from('orders').select('id', { count: 'exact', head: true }).limit(1);
+            // Defensive check for library/client
+            if (typeof sbClient === 'undefined' || !sbClient) {
+                dot.className = 'w-1.5 h-1.5 rounded-full bg-red-500';
+                text.innerText = 'Offline (Init Error)';
+                badge.className = 'flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-red-100 text-[10px] font-bold text-red-700 transition-colors shadow-sm';
+                return;
+            }
 
-                if (!error) {
+            // Real health check - Simplified for speed and compatibility
+            sbClient.from('orders').select('id').limit(1)
+                .then(result => {
+                    if (result.error) throw result.error;
+
                     dot.className = 'w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse';
                     text.innerText = 'Online';
                     badge.className = 'flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-green-100 text-[10px] font-bold text-green-700 transition-colors shadow-sm';
-                } else {
-                    throw error;
-                }
-            } catch (err) {
-                console.warn("Connection Status check failed:", err.message);
-                dot.className = 'w-1.5 h-1.5 rounded-full bg-red-500';
-                text.innerText = 'Offline';
-                badge.className = 'flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-red-100 text-[10px] font-bold text-red-700 transition-colors shadow-sm';
-            }
+                })
+                .catch(err => {
+                    console.warn("Connection Status check failed:", err.message);
+                    dot.className = 'w-1.5 h-1.5 rounded-full bg-red-500';
+                    text.innerText = 'Offline';
+                    badge.className = 'flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-red-100 text-[10px] font-bold text-red-700 transition-colors shadow-sm';
+                });
         }
 
-        // Initial check and periodic updates
-        setTimeout(updateConnectionStatus, 1000);
-        setInterval(updateConnectionStatus, 5000);
+        // Initial check and periodic updates - Slight delay for slow mobile loads
+        setTimeout(updateConnectionStatus, 2000);
+        setInterval(updateConnectionStatus, 10000); // Reduced frequency for mobile battery/data
 
         // Toggle Table Visibility based on Packing
         document.getElementById('packing-toggle').addEventListener('change', function () {
