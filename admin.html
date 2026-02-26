@@ -160,6 +160,11 @@
                         <span class="w-2 h-2 bg-green-500 rounded-full mr-2 animate-pulse"></span>
                         Live Connection Active
                     </div>
+                    <button onclick="testConnection()"
+                        class="bg-white border border-slate-200 text-slate-600 px-3 py-2 rounded-lg text-sm font-bold flex items-center gap-2 hover:bg-slate-50 transition-all shadow-sm"
+                        title="Test Database Connection">
+                        <span class="material-symbols-outlined text-sm">network_check</span>
+                    </button>
                     <button onclick="fetchInitialOrders()"
                         class="bg-white border border-slate-200 text-slate-600 px-3 py-2 rounded-lg text-sm font-bold flex items-center gap-2 hover:bg-slate-50 transition-all shadow-sm">
                         <span class="material-symbols-outlined text-sm">refresh</span>
@@ -929,6 +934,23 @@
                 connectedBadge.classList.replace('text-yellow-600', 'text-green-600');
                 connectedBadge.classList.replace('bg-yellow-50', 'bg-green-50');
             }, 5000);
+        }
+
+        async function testConnection() {
+            alert("Starting Connectivity Diagnostic...");
+            try {
+                const start = Date.now();
+                const { data, error, status } = await sbClient.from('orders').select('id').limit(1);
+                const end = Date.now();
+
+                if (error) {
+                    alert(`Connection Failed!\n\nError: ${error.message}\nCode: ${error.code}\nStatus: ${status}`);
+                } else {
+                    alert(`Connection Success!\n\nLatency: ${end - start}ms\nStatus: ${status}\nData Reachable: Yes`);
+                }
+            } catch (err) {
+                alert(`Critical Error during test: ${err.message}`);
+            }
         }
 
         // Logout Function
