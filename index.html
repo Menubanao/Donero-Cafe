@@ -261,10 +261,19 @@
                     style="color: #965223;">restaurant_menu</span>
                 <h1 class="font-handwritten text-2xl text-primary tracking-tight" style="color: #965223;">Donero Cafe
                 </h1>
-                <div id="connection-badge"
-                    class="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-slate-100 text-[10px] font-bold text-slate-400">
-                    <span class="w-1.5 h-1.5 rounded-full bg-slate-300"></span>
-                    <span>Checking...</span>
+                <div class="flex flex-col">
+                    <div id="connection-badge"
+                        class="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-slate-100 text-[10px] font-bold text-slate-400">
+                        <span class="w-1.5 h-1.5 rounded-full bg-slate-300"></span>
+                        <span>Checking...</span>
+                    </div>
+                    <div class="flex items-center gap-2 mt-1">
+                        <span class="text-[9px] text-white bg-primary px-1 rounded font-bold">LATEST: v2.2.0</span>
+                        <button onclick="localStorage.clear(); sessionStorage.clear(); window.location.reload(true);"
+                            class="text-[8px] text-primary underline font-bold uppercase hover:text-primary/80">
+                            Clear Cache & Reset
+                        </button>
+                    </div>
                 </div>
             </div>
             <div class="flex gap-3">
@@ -1082,12 +1091,18 @@
         let sbClient = null;
         let lastKnownOnline = navigator.onLine;
 
+        // Force reload check
+        console.log("Donero Cafe App Loaded - Version 2.1.0");
+
         function initSupabase() {
             if (sbClient) return sbClient;
             try {
                 if (typeof supabase !== 'undefined') {
                     sbClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
                     console.log("Database initialized.");
+                    if (SUPABASE_KEY.length < 50) {
+                        console.warn("WARNING: SUPABASE_KEY looks too short. Check your credentials.");
+                    }
                     updateConnectionStatus(); // Update UI immediately on success
                     return sbClient;
                 }
@@ -1275,8 +1290,14 @@
                     const { error, status } = result;
                     console.log("DEBUG: Supabase Response:", result);
 
-                    if (error) throw error;
-                    if (status !== 201 && status !== 200) throw new Error("Server returned status " + status);
+                    if (error) {
+                        console.error("Supabase Error Object:", error);
+                        throw error;
+                    }
+
+                    if (status !== 201 && status !== 200) {
+                        throw new Error(`Cloud Error: ${status}. This usually means your API Key is invalid.`);
+                    }
 
                     // Success UI Updates
                     if (btn) {
@@ -1314,7 +1335,13 @@
                 .catch(err => {
                     console.error('Checkout error:', err);
                     showNotification("Checkout failed.");
-                    alert(`Submission Failed!\n\nDetails: ${err.message || "Unknown error"}\n\nPlease try again or show this to staff.`);
+
+                    let errorMsg = err.message || "Unknown communication error";
+                    if (err.status === 401 || err.status === 403) {
+                        errorMsg = "Authentication Failed (401/403). Your Supabase API Key might be invalid or restricted.";
+                    }
+
+                    alert(`Submission Failed!\n\nDetails: ${errorMsg}\n\nStatus: ${err.status}\n\nPlease refresh the page or check your internet.`);
 
                     if (btn) {
                         btn.disabled = false;
@@ -1514,6 +1541,14 @@
         // Periodic light-weight check
         setInterval(updateConnectionStatus, 5000);
         updateConnectionStatus();
+
+        // EMERGENCY DEBUG: Check for Key Issues
+        window.addEventListener('load', () => {
+            console.log("System Health Check...");
+            if (SUPABASE_KEY.startsWith('sb_publishable')) {
+                console.warn("CRITICAL: Non-standard Supabase Key detected.");
+            }
+        });
         // Reduced frequency for mobile battery/data
 
         // Toggle Table Visibility based on Packing
