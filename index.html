@@ -268,7 +268,9 @@
                         <span>Checking...</span>
                     </div>
                     <div class="flex items-center gap-2 mt-1">
-                        <span class="text-[9px] text-white bg-green-600 px-1 rounded font-bold">READY: v2.4.0</span>
+                        <span id="version-tag" onclick="toggleDebugConsole()"
+                            class="text-[9px] text-white bg-green-600 px-1 rounded font-bold cursor-pointer hover:brightness-110 active:scale-95 transition-all">READY:
+                            v2.4.0</span>
                         <button onclick="localStorage.clear(); sessionStorage.clear(); window.location.reload(true);"
                             class="text-[8px] text-primary underline font-bold uppercase hover:text-primary/80">
                             Hard Reset App
@@ -1074,13 +1076,39 @@
     </div>
 
     <script>
-        // Global Error Handling for Mobile Debugging
+        // MOBILE DEBUG CONSOLE SYSTEM
+        const debugConsole = document.createElement('div');
+        debugConsole.id = 'mobile-debug-console';
+        debugConsole.className = 'fixed inset-0 z-[9999] bg-slate-950 text-green-400 p-4 font-mono text-[10px] overflow-y-auto hidden';
+        debugConsole.innerHTML = `
+            <div class="flex justify-between items-center mb-4 border-b border-green-900 pb-2">
+                <span class="font-bold uppercase tracking-widest text-green-500">System Logs (v2.4.0)</span>
+                <button onclick="toggleDebugConsole()" class="px-3 py-1 bg-red-900/30 text-red-500 rounded border border-red-900">CLOSE</button>
+            </div>
+            <div id="debug-log-entries" class="space-y-1"></div>
+        `;
+        document.body.appendChild(debugConsole);
+
+        function toggleDebugConsole() {
+            debugConsole.classList.toggle('hidden');
+        }
+
+        function logToDebug(msg, type = 'log') {
+            const entry = document.createElement('div');
+            const color = type === 'error' ? 'text-red-400' : (type === 'warn' ? 'text-amber-400' : 'text-green-400');
+            entry.className = `${color} border-b border-white/5 pb-1 mb-1`;
+            entry.textContent = `[${new Date().toLocaleTimeString()}] ${msg}`;
+            document.getElementById('debug-log-entries').prepend(entry);
+        }
+
+        // Intercept logs
+        const originalLog = console.log;
+        const originalError = console.error;
+        console.log = (...args) => { originalLog(...args); logToDebug(args.join(' ')); };
+        console.error = (...args) => { originalError(...args); logToDebug(args.join(' '), 'error'); };
+
         window.onerror = function (msg, url, line) {
-            console.error("DEBUG:", msg, "at", line);
-            // Only show alert for critical errors that block the app
-            if (msg.toLowerCase().includes("supabase") || msg.toLowerCase().includes("sbclient")) {
-                alert("Connection Error: " + msg + " (Line: " + line + ")");
-            }
+            console.error(`GLOBAL ERROR: ${msg} (Line: ${line})`);
             return false;
         };
 
@@ -1289,10 +1317,10 @@
             sbClient.from('orders').insert([orderData]) // Use array for consistent v2 behavior
                 .then(result => {
                     const { error, status } = result;
-                    console.log("DEBUG: Supabase Response:", result);
+                    console.log(`SUBMISSION DEBUG: Status=${status}, Error=${JSON.stringify(error)}`);
 
                     if (error) {
-                        console.error("Supabase Error Object:", error);
+                        console.error(`DATABASE REJECTED: ${error.message || error.details}`);
                         throw error;
                     }
 
