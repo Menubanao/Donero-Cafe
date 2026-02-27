@@ -1062,7 +1062,17 @@
         // Supabase Configuration
         const SUPABASE_URL = 'https://vuqvokufivgtevpvppcd.supabase.co';
         const SUPABASE_KEY = 'sb_publishable_-957Cp2j5PH0VkWJH9XdmQ_wf2WqLMN';
-        const sbClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        let sbClient = null;
+        try {
+            if (typeof supabase !== 'undefined') {
+                sbClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+            } else {
+                console.error("Supabase library not loaded yet.");
+            }
+        } catch (e) {
+            console.error("Supabase initialization failed:", e);
+        }
 
         // Do not overwrite window.supabase as it's the library factory
 
@@ -1228,7 +1238,7 @@
             console.log("DEBUG: Sending Order Data:", orderData);
 
             // Using standard .then() for max compatibility with older mobile environments
-            sbClient.from('orders').insert(orderData) // Single object insert
+            sbClient.from('orders').insert([orderData]) // Use array for consistent v2 behavior
                 .then(result => {
                     const { error, status } = result;
                     console.log("DEBUG: Supabase Response:", result);
@@ -1443,15 +1453,31 @@
             const text = badge.querySelector('span:last-child');
 
             // Defensive check for library/client
-            if (typeof sbClient === 'undefined' || !sbClient) {
-                dot.className = 'w-1.5 h-1.5 rounded-full bg-red-500';
-                text.innerText = 'Offline (Init Error)';
-                badge.className = 'flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-red-100 text-[10px] font-bold text-red-700 transition-colors shadow-sm';
-                return;
+            if (!sbClient) {
+                // Try to re-initialize if it failed before
+                try {
+                    if (typeof supabase !== 'undefined') {
+                        sbClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+                    }
+                } catch (e) { }
+
+                if (!sbClient) {
+                    dot.className = 'w-1.5 h-1.5 rounded-full bg-red-500';
+                    text.innerText = 'Offline (Init Error)';
+                    badge.className = 'flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-red-100 text-[10px] font-bold text-red-700 transition-colors shadow-sm';
+                    return;
+                }
             }
 
-            // Real health check - Simplified for speed and compatibility
-            sbClient.from('orders').select('id').limit(1)
+            // Real health check - Simplified with timeout handling
+            const timeoutPromise = new Promise((_, reject) =>
+                setTimeout(() => reject(new Error('Timeout')), 5000)
+            );
+
+            Promise.race([
+                sbClient.from('orders').select('id', { head: true, count: 'exact' }).limit(1),
+                timeoutPromise
+            ])
                 .then(result => {
                     if (result.error) throw result.error;
 
