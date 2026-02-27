@@ -44,24 +44,7 @@
     <link
         href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200"
         rel="stylesheet" />
-    <!-- Supabase Client with Triple Fallback -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script>
-        if (typeof supabase === 'undefined') {
-            console.warn("Admin: CDN 1 failed, trying unpkg...");
-            document.write('<script src="https://unpkg.com/@supabase/supabase-js@2"><\/script>');
-        }
-    </script>
-    <script>
-        setTimeout(() => {
-            if (typeof supabase === 'undefined') {
-                console.warn("Admin: CDN 2 failed, trying cdnjs...");
-                const s = document.createElement('script');
-                s.src = "https://cdnjs.cloudflare.com/ajax/libs/supabase/2.39.7/supabase.js";
-                document.head.appendChild(s);
-            }
-        }, 1000);
-    </script>
 </head>
 
 <body class="bg-background-light text-slate-900 antialiased font-display">
@@ -78,7 +61,7 @@
                         <h2 class="text-xl font-handwritten font-bold leading-tight tracking-tight text-primary">
                             Donero Cafe</h2>
                         <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none">Admin
-                            Console <span class="text-[8px] font-bold text-slate-600 ml-1">v2.4.0-FINAL</span></p>
+                            Console</p>
                     </div>
                 </div>
                 <div
@@ -336,28 +319,7 @@
         const SUPABASE_URL = 'https://vuqvokufivgtevpvppcd.supabase.co';
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ1cXZva3VmaXZndGV2cHZwcGNkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIwMTgyNzAsImV4cCI6MjA4NzU5NDI3MH0.VJ7m8CUBexVdJRinN82Bor3IEM4JEqadE0Rm1_IyvfE';
 
-        let sbClient = null;
-
-        function initSupabase() {
-            if (sbClient) return sbClient;
-            try {
-                if (typeof supabase !== 'undefined') {
-                    sbClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-                    console.log("Admin: Database initialized.");
-                    updateConnectionStatus();
-                    return sbClient;
-                }
-            } catch (e) {
-                console.error("Admin: Init error:", e);
-            }
-            return null;
-        }
-
-        // Robust initialization loop for slow mobile loads
-        const initInterval = setInterval(() => {
-            if (initSupabase()) clearInterval(initInterval);
-        }, 1000);
-        setTimeout(() => clearInterval(initInterval), 10000); // Stop after 10s
+        const sbClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
         // --- Data State ---
         let MOCK_ORDERS = []; // Will be populated from Supabase
@@ -850,11 +812,7 @@
                     }
                 } catch (err) {
                     console.error('Submission error:', err);
-                    let errorMsg = err.message || "Unknown communication error";
-                    if (err.status === 401 || err.status === 403) {
-                        errorMsg = "Authentication Failed (401/403). Your Supabase API Key might be invalid or restricted.";
-                    }
-                    alert(`Submission Failed!\n\nDetails: ${errorMsg}\n\nPlease refresh the page or check your credentials.`);
+                    alert(`Submission Failed: ${err.message || "Unknown error"}`);
                 } finally {
                     const submitBtn = document.getElementById('create-order-btn');
                     if (submitBtn) {
