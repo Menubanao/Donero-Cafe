@@ -319,7 +319,17 @@
         // Supabase Configuration
         const SUPABASE_URL = 'https://vuqvokufivgtevpvppcd.supabase.co';
         const SUPABASE_KEY = 'sb_publishable_-957Cp2j5PH0VkWJH9XdmQ_wf2WqLMN';
-        const sbClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        let sbClient = null;
+        try {
+            if (typeof supabase !== 'undefined') {
+                sbClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+            } else {
+                console.error("Admin: Supabase library not loaded yet.");
+            }
+        } catch (e) {
+            console.error("Admin: Supabase initialization failed:", e);
+        }
 
         // --- Data State ---
         let MOCK_ORDERS = []; // Will be populated from Supabase
@@ -960,20 +970,26 @@
             // Update Connection Badge (Real Health Check)
             const badge = document.getElementById('live-connection');
             if (badge) {
-                if (typeof sbClient === 'undefined' || !sbClient) {
+                if (!sbClient) {
                     badge.innerHTML = `<span class="w-2 h-2 bg-red-500 rounded-full mr-2"></span> Init Error`;
                     badge.className = 'flex items-center text-xs font-semibold text-red-600 bg-red-50 px-2.5 py-1 rounded-full border border-red-200';
                     return;
                 }
 
-                sbClient.from('orders').select('id').limit(1)
+                // Simplified check with timeout
+                const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout')), 5000));
+
+                Promise.race([
+                    sbClient.from('orders').select('id', { head: true, count: 'exact' }).limit(1),
+                    timeoutPromise
+                ])
                     .then(res => {
                         if (res.error) throw res.error;
                         badge.innerHTML = `<span class="w-2 h-2 bg-green-500 rounded-full mr-2 animate-pulse"></span> Live Connection Active`;
                         badge.className = 'flex items-center text-xs font-semibold text-green-600 bg-green-50 px-2.5 py-1 rounded-full border border-green-200';
                     })
                     .catch(err => {
-                        console.warn("Admin connection test failed:", err.message);
+                        console.warn("Admin connection check failed:", err.message);
                         badge.innerHTML = `<span class="w-2 h-2 bg-red-500 rounded-full mr-2"></span> Connection Lost`;
                         badge.className = 'flex items-center text-xs font-semibold text-red-600 bg-red-50 px-2.5 py-1 rounded-full border border-red-200';
                     });
