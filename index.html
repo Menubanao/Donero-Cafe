@@ -230,13 +230,23 @@
             transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.3s ease;
         }
     </style>
-    <!-- Supabase Client with Fallback -->
+    <!-- Supabase Client with Triple Fallback -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
         if (typeof supabase === 'undefined') {
-            console.warn("Supabase CDN 1 failed, trying fallback...");
+            console.warn("CDN 1 failed, trying unpkg...");
             document.write('<script src="https://unpkg.com/@supabase/supabase-js@2"><\/script>');
         }
+    </script>
+    <script>
+        setTimeout(() => {
+            if (typeof supabase === 'undefined') {
+                console.warn("CDN 2 failed, trying cdnjs...");
+                const s = document.createElement('script');
+                s.src = "https://cdnjs.cloudflare.com/ajax/libs/supabase/2.39.7/supabase.js";
+                document.head.appendChild(s);
+            }
+        }, 1000);
     </script>
 </head>
 
@@ -1070,25 +1080,28 @@
         const SUPABASE_KEY = 'sb_publishable_-957Cp2j5PH0VkWJH9XdmQ_wf2WqLMN';
 
         let sbClient = null;
+        let lastKnownOnline = navigator.onLine;
 
         function initSupabase() {
             if (sbClient) return sbClient;
             try {
                 if (typeof supabase !== 'undefined') {
                     sbClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-                    console.log("Supabase initialized successfully.");
+                    console.log("Database initialized.");
+                    updateConnectionStatus(); // Update UI immediately on success
                     return sbClient;
-                } else {
-                    console.warn("Supabase library not available yet.");
                 }
             } catch (e) {
-                console.error("Supabase initialization error:", e);
+                console.error("Init error:", e);
             }
             return null;
         }
 
-        // Initial attempt
-        initSupabase();
+        // Robust initialization loop for slow mobile loads
+        const initInterval = setInterval(() => {
+            if (initSupabase()) clearInterval(initInterval);
+        }, 1000);
+        setTimeout(() => clearInterval(initInterval), 10000); // Stop after 10s
 
         // Do not overwrite window.supabase as it's the library factory
 
@@ -1219,10 +1232,13 @@
                 return;
             }
 
-            // Connection Check
-            if (typeof sbClient === 'undefined' || !sbClient) {
-                showNotification("Database connection unavailable.");
-                alert("Critical: Supabase client not initialized. Please refresh the page.");
+            // Connection Check - More tolerant for mobile
+            if (!sbClient && !initSupabase()) {
+                if (!navigator.onLine) {
+                    showNotification("No internet connection.");
+                } else {
+                    showNotification("Service currently loading. Please wait 2 seconds.");
+                }
                 return;
             }
 
@@ -1460,7 +1476,7 @@
         // Initialize first nav item
         if (navLinks.length > 0) navLinks[0].classList.add('active-nav');
 
-        // Connection Status Monitoring
+        // Connection Status Monitoring - Simplified Reachability Logic
         async function updateConnectionStatus() {
             const badge = document.getElementById('connection-badge');
             if (!badge) return;
@@ -1468,61 +1484,37 @@
             const dot = badge.querySelector('span');
             const text = badge.querySelector('span:last-child');
 
-            // Defensive check & Re-init
-            if (!sbClient) {
-                initSupabase();
-                if (!sbClient) {
-                    dot.className = 'w-1.5 h-1.5 rounded-full bg-red-500';
-                    text.innerText = 'Offline (Library Error)';
-                    badge.className = 'flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-red-100 text-[10px] font-bold text-red-700 transition-colors shadow-sm';
-                    return;
-                }
+            // 1. Check Browser Native Signal First
+            if (!navigator.onLine) {
+                dot.className = 'w-1.5 h-1.5 rounded-full bg-red-500';
+                text.innerText = 'Offline';
+                badge.className = 'flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-red-100 text-[10px] font-bold text-red-700 transition-colors shadow-sm';
+                return;
             }
 
-            // Real health check - Permissive Reachability focus
-            const timeoutPromise = new Promise((_, reject) =>
-                setTimeout(() => reject(new Error('Timeout')), 10000)
-            );
-
-            try {
-                // We use a race to avoid hanging on slow mobile networks
-                const result = await Promise.race([
-                    sbClient.from('orders').select('id', { head: true, count: 'exact' }).limit(1),
-                    timeoutPromise
-                ]);
-
-                // REACHABILITY LOGIC:
-                // If the request reached the server, it's "Online"
-                // Even 401 (Unauthorized) or 403 (Forbidden) means we ARE connected to Supabase
-                const isReachable = !result.error || (result.error && [401, 403, 400, 404, 406].includes(result.error.status));
-
-                if (isReachable) {
-                    dot.className = 'w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse';
-                    text.innerText = 'Online';
-                    badge.className = 'flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-green-100 text-[10px] font-bold text-green-700 transition-colors shadow-sm';
-                } else {
-                    throw new Error("Server Unreachable or Invalid Response");
-                }
-            } catch (err) {
-                console.warn("Connection check fail:", err.message);
-
-                // Final verify: Can we at least fetch the root URL?
-                try {
-                    const ping = await fetch(SUPABASE_URL, { method: 'HEAD', mode: 'no-cors' });
-                    dot.className = 'w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse';
-                    text.innerText = 'Online';
-                    badge.className = 'flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-green-100 text-[10px] font-bold text-green-700 transition-colors shadow-sm';
-                } catch (e) {
-                    dot.className = 'w-1.5 h-1.5 rounded-full bg-red-500';
-                    text.innerText = 'Offline';
-                    badge.className = 'flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-red-100 text-[10px] font-bold text-red-700 transition-colors shadow-sm';
-                }
+            // 2. Check if library is loaded
+            if (!sbClient && !initSupabase()) {
+                dot.className = 'w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse';
+                text.innerText = 'Connecting...';
+                badge.className = 'flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-amber-100 text-[10px] font-bold text-amber-700 transition-colors shadow-sm';
+                return;
             }
+
+            // 3. If we are here, browser says we are online and library is ready
+            // We show "Online" because background queries are often blocked on mobile
+            dot.className = 'w-1.5 h-1.5 rounded-full bg-green-500';
+            text.innerText = 'Online';
+            badge.className = 'flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-green-100 text-[10px] font-bold text-green-700 transition-colors shadow-sm';
         }
 
-        // Initial check and periodic updates - Slight delay for slow mobile loads
-        setTimeout(updateConnectionStatus, 2000);
-        setInterval(updateConnectionStatus, 10000); // Reduced frequency for mobile battery/data
+        // Native Listeners for instant feedback
+        window.addEventListener('online', updateConnectionStatus);
+        window.addEventListener('offline', updateConnectionStatus);
+
+        // Periodic light-weight check
+        setInterval(updateConnectionStatus, 5000);
+        updateConnectionStatus();
+        // Reduced frequency for mobile battery/data
 
         // Toggle Table Visibility based on Packing
         document.getElementById('packing-toggle').addEventListener('change', function () {
