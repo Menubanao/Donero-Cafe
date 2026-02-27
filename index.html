@@ -268,10 +268,10 @@
                         <span>Checking...</span>
                     </div>
                     <div class="flex items-center gap-2 mt-1">
-                        <span class="text-[9px] text-white bg-primary px-1 rounded font-bold">DEPLOYED: v2.3.0</span>
+                        <span class="text-[9px] text-white bg-green-600 px-1 rounded font-bold">READY: v2.4.0</span>
                         <button onclick="localStorage.clear(); sessionStorage.clear(); window.location.reload(true);"
                             class="text-[8px] text-primary underline font-bold uppercase hover:text-primary/80">
-                            Clear Cache & Reset
+                            Hard Reset App
                         </button>
                     </div>
                 </div>
@@ -1086,14 +1086,14 @@
 
         // Supabase Configuration
         const SUPABASE_URL = 'https://vuqvokufivgtevpvppcd.supabase.co';
-        const SUPABASE_KEY = 'sb_publishable_-957Cp2j5PH0VkWJH9XdmQ_wf2WqLMN';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ1cXZva3VmaXZndGV2cHZwcGNkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIwMTgyNzAsImV4cCI6MjA4NzU5NDI3MH0.VJ7m8CUBexVdJRinN82Bor3IEM4JEqadE0Rm1_IyvfE';
         // const SECRET_KEY = 'sb_secret_hoXBKKeFzSx-9FYeUNZqJw_eJ_2fI27';
 
         let sbClient = null;
         let lastKnownOnline = navigator.onLine;
 
         // Force reload check
-        console.log("Donero Cafe App Loaded - Version 2.3.0");
+        console.log("Donero Cafe App Loaded - Version 2.4.0");
 
         function initSupabase() {
             if (sbClient) return sbClient;
