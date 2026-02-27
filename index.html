@@ -267,15 +267,6 @@
                         <span class="w-1.5 h-1.5 rounded-full bg-slate-300"></span>
                         <span>Checking...</span>
                     </div>
-                    <div class="flex items-center gap-2 mt-1">
-                        <span id="version-tag" onclick="toggleDebugConsole()"
-                            class="text-[9px] text-white bg-green-600 px-1 rounded font-bold cursor-pointer hover:brightness-110 active:scale-95 transition-all">READY:
-                            v2.4.0</span>
-                        <button onclick="localStorage.clear(); sessionStorage.clear(); window.location.reload(true);"
-                            class="text-[8px] text-primary underline font-bold uppercase hover:text-primary/80">
-                            Hard Reset App
-                        </button>
-                    </div>
                 </div>
             </div>
             <div class="flex gap-3">
@@ -1076,39 +1067,9 @@
     </div>
 
     <script>
-        // MOBILE DEBUG CONSOLE SYSTEM
-        const debugConsole = document.createElement('div');
-        debugConsole.id = 'mobile-debug-console';
-        debugConsole.className = 'fixed inset-0 z-[9999] bg-slate-950 text-green-400 p-4 font-mono text-[10px] overflow-y-auto hidden';
-        debugConsole.innerHTML = `
-            <div class="flex justify-between items-center mb-4 border-b border-green-900 pb-2">
-                <span class="font-bold uppercase tracking-widest text-green-500">System Logs (v2.4.0)</span>
-                <button onclick="toggleDebugConsole()" class="px-3 py-1 bg-red-900/30 text-red-500 rounded border border-red-900">CLOSE</button>
-            </div>
-            <div id="debug-log-entries" class="space-y-1"></div>
-        `;
-        document.body.appendChild(debugConsole);
-
-        function toggleDebugConsole() {
-            debugConsole.classList.toggle('hidden');
-        }
-
-        function logToDebug(msg, type = 'log') {
-            const entry = document.createElement('div');
-            const color = type === 'error' ? 'text-red-400' : (type === 'warn' ? 'text-amber-400' : 'text-green-400');
-            entry.className = `${color} border-b border-white/5 pb-1 mb-1`;
-            entry.textContent = `[${new Date().toLocaleTimeString()}] ${msg}`;
-            document.getElementById('debug-log-entries').prepend(entry);
-        }
-
-        // Intercept logs
-        const originalLog = console.log;
-        const originalError = console.error;
-        console.log = (...args) => { originalLog(...args); logToDebug(args.join(' ')); };
-        console.error = (...args) => { originalError(...args); logToDebug(args.join(' '), 'error'); };
-
+        // Global Error Handling
         window.onerror = function (msg, url, line) {
-            console.error(`GLOBAL ERROR: ${msg} (Line: ${line})`);
+            console.error("Error:", msg, "at", line);
             return false;
         };
 
@@ -1117,37 +1078,7 @@
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ1cXZva3VmaXZndGV2cHZwcGNkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIwMTgyNzAsImV4cCI6MjA4NzU5NDI3MH0.VJ7m8CUBexVdJRinN82Bor3IEM4JEqadE0Rm1_IyvfE';
         // const SECRET_KEY = 'sb_secret_hoXBKKeFzSx-9FYeUNZqJw_eJ_2fI27';
 
-        let sbClient = null;
-        let lastKnownOnline = navigator.onLine;
-
-        // Force reload check
-        console.log("Donero Cafe App Loaded - Version 2.4.0");
-
-        function initSupabase() {
-            if (sbClient) return sbClient;
-            try {
-                if (typeof supabase !== 'undefined') {
-                    sbClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-                    console.log("Database initialized.");
-                    if (SUPABASE_KEY.length < 50) {
-                        console.warn("WARNING: SUPABASE_KEY looks too short. Check your credentials.");
-                    }
-                    updateConnectionStatus(); // Update UI immediately on success
-                    return sbClient;
-                }
-            } catch (e) {
-                console.error("Init error:", e);
-            }
-            return null;
-        }
-
-        // Robust initialization loop for slow mobile loads
-        const initInterval = setInterval(() => {
-            if (initSupabase()) clearInterval(initInterval);
-        }, 1000);
-        setTimeout(() => clearInterval(initInterval), 10000); // Stop after 10s
-
-        // Do not overwrite window.supabase as it's the library factory
+        const sbClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
         let cart = [];
         let isPlacingOrder = false;
@@ -1276,13 +1207,9 @@
                 return;
             }
 
-            // Connection Check - More tolerant for mobile
-            if (!sbClient && !initSupabase()) {
-                if (!navigator.onLine) {
-                    showNotification("No internet connection.");
-                } else {
-                    showNotification("Service currently loading. Please wait 2 seconds.");
-                }
+            // Connection Check
+            if (typeof supabase === 'undefined' || !sbClient) {
+                showNotification("Service not ready. Please refresh.");
                 return;
             }
 
@@ -1316,17 +1243,7 @@
             // Using standard .then() for max compatibility with older mobile environments
             sbClient.from('orders').insert([orderData]) // Use array for consistent v2 behavior
                 .then(result => {
-                    const { error, status } = result;
-                    console.log(`SUBMISSION DEBUG: Status=${status}, Error=${JSON.stringify(error)}`);
-
-                    if (error) {
-                        console.error(`DATABASE REJECTED: ${error.message || error.details}`);
-                        throw error;
-                    }
-
-                    if (status !== 201 && status !== 200) {
-                        throw new Error(`Cloud Error: ${status}. This usually means your API Key is invalid.`);
-                    }
+                    if (result.error) throw result.error;
 
                     // Success UI Updates
                     if (btn) {
