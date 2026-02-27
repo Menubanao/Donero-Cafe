@@ -230,8 +230,14 @@
             transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.3s ease;
         }
     </style>
-    <!-- Supabase Client -->
+    <!-- Supabase Client with Fallback -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        if (typeof supabase === 'undefined') {
+            console.warn("Supabase CDN 1 failed, trying fallback...");
+            document.write('<script src="https://unpkg.com/@supabase/supabase-js@2"><\/script>');
+        }
+    </script>
 </head>
 
 <body
@@ -1064,15 +1070,25 @@
         const SUPABASE_KEY = 'sb_publishable_-957Cp2j5PH0VkWJH9XdmQ_wf2WqLMN';
 
         let sbClient = null;
-        try {
-            if (typeof supabase !== 'undefined') {
-                sbClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-            } else {
-                console.error("Supabase library not loaded yet.");
+
+        function initSupabase() {
+            if (sbClient) return sbClient;
+            try {
+                if (typeof supabase !== 'undefined') {
+                    sbClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+                    console.log("Supabase initialized successfully.");
+                    return sbClient;
+                } else {
+                    console.warn("Supabase library not available yet.");
+                }
+            } catch (e) {
+                console.error("Supabase initialization error:", e);
             }
-        } catch (e) {
-            console.error("Supabase initialization failed:", e);
+            return null;
         }
+
+        // Initial attempt
+        initSupabase();
 
         // Do not overwrite window.supabase as it's the library factory
 
@@ -1445,52 +1461,63 @@
         if (navLinks.length > 0) navLinks[0].classList.add('active-nav');
 
         // Connection Status Monitoring
-        function updateConnectionStatus() {
+        async function updateConnectionStatus() {
             const badge = document.getElementById('connection-badge');
             if (!badge) return;
 
             const dot = badge.querySelector('span');
             const text = badge.querySelector('span:last-child');
 
-            // Defensive check for library/client
+            // Defensive check & Re-init
             if (!sbClient) {
-                // Try to re-initialize if it failed before
-                try {
-                    if (typeof supabase !== 'undefined') {
-                        sbClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-                    }
-                } catch (e) { }
-
+                initSupabase();
                 if (!sbClient) {
                     dot.className = 'w-1.5 h-1.5 rounded-full bg-red-500';
-                    text.innerText = 'Offline (Init Error)';
+                    text.innerText = 'Offline (Library Error)';
                     badge.className = 'flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-red-100 text-[10px] font-bold text-red-700 transition-colors shadow-sm';
                     return;
                 }
             }
 
-            // Real health check - Simplified with timeout handling
+            // Real health check - Permissive Reachability focus
             const timeoutPromise = new Promise((_, reject) =>
-                setTimeout(() => reject(new Error('Timeout')), 5000)
+                setTimeout(() => reject(new Error('Timeout')), 10000)
             );
 
-            Promise.race([
-                sbClient.from('orders').select('id', { head: true, count: 'exact' }).limit(1),
-                timeoutPromise
-            ])
-                .then(result => {
-                    if (result.error) throw result.error;
+            try {
+                // We use a race to avoid hanging on slow mobile networks
+                const result = await Promise.race([
+                    sbClient.from('orders').select('id', { head: true, count: 'exact' }).limit(1),
+                    timeoutPromise
+                ]);
 
+                // REACHABILITY LOGIC:
+                // If the request reached the server, it's "Online"
+                // Even 401 (Unauthorized) or 403 (Forbidden) means we ARE connected to Supabase
+                const isReachable = !result.error || (result.error && [401, 403, 400, 404, 406].includes(result.error.status));
+
+                if (isReachable) {
                     dot.className = 'w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse';
                     text.innerText = 'Online';
                     badge.className = 'flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-green-100 text-[10px] font-bold text-green-700 transition-colors shadow-sm';
-                })
-                .catch(err => {
-                    console.warn("Connection Status check failed:", err.message);
+                } else {
+                    throw new Error("Server Unreachable or Invalid Response");
+                }
+            } catch (err) {
+                console.warn("Connection check fail:", err.message);
+
+                // Final verify: Can we at least fetch the root URL?
+                try {
+                    const ping = await fetch(SUPABASE_URL, { method: 'HEAD', mode: 'no-cors' });
+                    dot.className = 'w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse';
+                    text.innerText = 'Online';
+                    badge.className = 'flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-green-100 text-[10px] font-bold text-green-700 transition-colors shadow-sm';
+                } catch (e) {
                     dot.className = 'w-1.5 h-1.5 rounded-full bg-red-500';
                     text.innerText = 'Offline';
                     badge.className = 'flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-red-100 text-[10px] font-bold text-red-700 transition-colors shadow-sm';
-                });
+                }
+            }
         }
 
         // Initial check and periodic updates - Slight delay for slow mobile loads
