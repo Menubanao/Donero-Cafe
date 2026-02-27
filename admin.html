@@ -78,7 +78,7 @@
                         <h2 class="text-xl font-handwritten font-bold leading-tight tracking-tight text-primary">
                             Donero Cafe</h2>
                         <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none">Admin
-                            Console</p>
+                            Console <span class="text-[8px] font-bold text-slate-300 ml-1">v2.1.0-STABLE</span></p>
                     </div>
                 </div>
                 <div
@@ -849,9 +849,12 @@
                         alert(`Order ${newOrder.id} created successfully!`);
                     }
                 } catch (err) {
-                    console.error('Submission CRITICAL error:', err);
-                    const msg = err.message || err.details || "Check console for details";
-                    alert(`Failed to sync with database: ${msg}`);
+                    console.error('Submission error:', err);
+                    let errorMsg = err.message || "Unknown communication error";
+                    if (err.status === 401 || err.status === 403) {
+                        errorMsg = "Authentication Failed (401/403). Your Supabase API Key might be invalid or restricted.";
+                    }
+                    alert(`Submission Failed!\n\nDetails: ${errorMsg}\n\nPlease refresh the page or check your credentials.`);
                 } finally {
                     const submitBtn = document.getElementById('create-order-btn');
                     if (submitBtn) {
