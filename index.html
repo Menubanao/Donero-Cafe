@@ -290,24 +290,8 @@
             z-index: 10;
         }
     </style>
-    <!-- Supabase Client with Triple Fallback -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script>
-        if (typeof supabase === 'undefined') {
-            console.warn("CDN 1 failed, trying unpkg...");
-            document.write('<script src="https://unpkg.com/@supabase/supabase-js@2"><\/script>');
-        }
-    </script>
-    <script>
-        setTimeout(() => {
-            if (typeof supabase === 'undefined') {
-                console.warn("CDN 2 failed, trying cdnjs...");
-                const s = document.createElement('script');
-                s.src = "https://cdnjs.cloudflare.com/ajax/libs/supabase/2.39.7/supabase.js";
-                document.head.appendChild(s);
-            }
-        }, 1000);
-    </script>
+    <!-- Removed Supabase SDK Scripts -->
+
 </head>
 
 <body
@@ -1167,12 +1151,23 @@
                 return false;
             };
 
-            // Supabase Configuration
-            const SUPABASE_URL = 'https://vuqvokufivgtevpvppcd.supabase.co';
-            const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ1cXZva3VmaXZndGV2cHZwcGNkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIwMTgyNzAsImV4cCI6MjA4NzU5NDI3MH0.VJ7m8CUBexVdJRinN82Bor3IEM4JEqadE0Rm1_IyvfE';
-            // const SECRET_KEY = 'sb_secret_hoXBKKeFzSx-9FYeUNZqJw_eJ_2fI27';
+            // Local Storage Persistence (Instead of Supabase)
+            function getLocalOrders() {
+                try {
+                    return JSON.parse(localStorage.getItem('donero_orders')) || [];
+                } catch (e) {
+                    console.error("Error reading localStorage", e);
+                    return [];
+                }
+            }
 
-            const sbClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+            function saveOrderToLocal(order) {
+                const orders = getLocalOrders();
+                orders.unshift(order); // New orders at the top
+                localStorage.setItem('donero_orders', JSON.stringify(orders));
+                // Dispatch event for other tabs (admin) to know there's a new order
+                window.dispatchEvent(new Event('storage'));
+            }
 
             let cart = [];
             let isPlacingOrder = false;
@@ -1301,14 +1296,7 @@
                     return;
                 }
 
-                // Connection Check
-                if (typeof supabase === 'undefined' || !sbClient) {
-                    showNotification("Service not ready. Please refresh.");
-                    return;
-                }
-
                 const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-                // More unique ID to prevent collisions
                 const orderId = `ORD-${Date.now().toString().slice(-4)}-${Math.floor(1000 + Math.random() * 9000)}`;
 
                 const orderData = {
@@ -1332,14 +1320,13 @@
                 }
 
                 isPlacingOrder = true;
-                console.log("DEBUG: Sending Order Data:", orderData);
+                console.log("DEBUG: Saving Order locally:", orderData);
 
-                // Using standard .then() for max compatibility with older mobile environments
-                sbClient.from('orders').insert([orderData]) // Use array for consistent v2 behavior
-                    .then(result => {
-                        if (result.error) throw result.error;
+                // Simulate brief delay for feedback
+                setTimeout(() => {
+                    try {
+                        saveOrderToLocal(orderData);
 
-                        // Success UI Updates
                         if (btn) {
                             btn.innerHTML = `<span class="material-symbols-outlined">check_circle</span> Order Placed!`;
                             btn.classList.add('bg-green-600');
@@ -1348,7 +1335,6 @@
 
                         showNotification("Order Successful!");
 
-                        // Immediate reset to prevent double clicks even if alert is slow
                         const finalTotal = total;
                         const finalId = orderId;
 
@@ -1371,26 +1357,17 @@
                             }
                             isPlacingOrder = false;
                         }, 1000);
-                    })
-                    .catch(err => {
-                        console.error('Checkout error:', err);
-                        showNotification("Checkout failed.");
-
-                        let errorMsg = err.message || "Unknown communication error";
-                        if (err.status === 401 || err.status === 403) {
-                            errorMsg = "Authentication Failed (401/403). Your Supabase API Key might be invalid or restricted.";
-                        }
-
-                        alert(`Submission Failed!\n\nDetails: ${errorMsg}\n\nStatus: ${err.status}\n\nPlease refresh the page or check your internet.`);
-
+                    } catch (err) {
+                        console.error('Local checkout error:', err);
+                        showNotification("Storage error.");
+                        alert(`Submission Failed!\n\nDetails: ${err.message || "Could not write to local storage."}`);
                         if (btn) {
                             btn.disabled = false;
                             btn.innerText = originalText;
-                            btn.classList.remove('bg-green-600');
-                            btn.style.backgroundColor = '#EDA747';
                         }
                         isPlacingOrder = false;
-                    });
+                    }
+                }, 500);
             }
 
             // Keyboard Focus Fix & Animation
@@ -1552,27 +1529,10 @@
                 const dot = badge.querySelector('span');
                 const text = badge.querySelector('span:last-child');
 
-                // 1. Check Browser Native Signal First
-                if (!navigator.onLine) {
-                    dot.className = 'w-1.5 h-1.5 rounded-full bg-red-500';
-                    text.innerText = 'Offline';
-                    badge.className = 'flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-red-100 text-[10px] font-bold text-red-700 transition-colors shadow-sm';
-                    return;
-                }
-
-                // 2. Check if library is loaded
-                if (!sbClient && !initSupabase()) {
-                    dot.className = 'w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse';
-                    text.innerText = 'Connecting...';
-                    badge.className = 'flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-amber-100 text-[10px] font-bold text-amber-700 transition-colors shadow-sm';
-                    return;
-                }
-
-                // 3. If we are here, browser says we are online and library is ready
-                // We show "Online" because background queries are often blocked on mobile
-                dot.className = 'w-1.5 h-1.5 rounded-full bg-green-500';
-                text.innerText = 'Online';
-                badge.className = 'flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-green-100 text-[10px] font-bold text-green-700 transition-colors shadow-sm';
+                // In Local Mode, we just show that storage is active
+                dot.className = 'w-1.5 h-1.5 rounded-full bg-blue-500';
+                text.innerText = 'Local Mode';
+                badge.className = 'flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-blue-100 text-[10px] font-bold text-blue-700 transition-colors shadow-sm';
             }
 
             // Native Listeners for instant feedback
@@ -1585,10 +1545,7 @@
 
             // EMERGENCY DEBUG: Check for Key Issues
             window.addEventListener('load', () => {
-                console.log("System Health Check...");
-                if (SUPABASE_KEY.startsWith('sb_publishable')) {
-                    console.warn("CRITICAL: Non-standard Supabase Key detected.");
-                }
+                console.log("System Health Check... (Local Mode Active)");
             });
             // Reduced frequency for mobile battery/data
 

@@ -4,8 +4,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Donero Cafe - Admin Login</title>
+    <title>Donero Cafe - Admin Access</title>
+    <!-- Tailwind CSS (v4) -->
     <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
+    <!-- Supabase SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="config.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Epilogue:wght@100..900&family=Gloria+Hallelujah&display=swap"
         rel="stylesheet" />
     <link
@@ -40,119 +44,181 @@
         <!-- Logo Section -->
         <div class="text-center mb-8">
             <div
-                class="inline-flex items-center justify-center w-16 h-16 bg-primary rounded-2xl shadow-2xl shadow-primary/20 mb-4 animate-bounce">
+                class="inline-flex items-center justify-center w-16 h-16 bg-primary rounded-2xl shadow-2xl shadow-primary/20 mb-4">
                 <span class="material-symbols-outlined text-4xl text-white">coffee</span>
             </div>
             <h1 class="text-3xl font-handwritten font-bold text-primary mb-1">Donero Cafe</h1>
-            <p class="text-slate-400 text-sm font-medium uppercase tracking-[0.2em]">For Staff Use Only</p>
+            <p class="text-slate-400 text-sm font-medium uppercase tracking-[0.2em]">Partner Access Portal</p>
         </div>
 
         <!-- Login Card -->
-        <div class="glass p-8 rounded-3xl shadow-2xl relative overflow-hidden group">
-            <div
-                class="absolute inset-0 bg-primary/5 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+        <div class="glass p-8 rounded-3xl shadow-2xl relative overflow-hidden">
+            <div id="login-header" class="mb-6">
+                <h2 class="text-xl font-bold text-white">Admin Login</h2>
+                <p class="text-slate-400 text-xs">Access your cafe management dashboard</p>
             </div>
 
-            <form id="login-form" class="space-y-6 relative">
+            <form id="auth-form" class="space-y-5">
                 <div>
-                    <label for="admin-id"
-                        class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2 ml-1">Admin
-                        Identity</label>
+                    <label
+                        class="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1.5 ml-1">Email
+                        Address</label>
                     <div class="relative">
                         <span
-                            class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 text-xl">badge</span>
-                        <input type="text" id="admin-id" required
-                            class="w-full bg-slate-900/50 border border-slate-800 rounded-xl py-3 pl-12 pr-4 focus:ring-2 focus:ring-primary focus:border-primary transition-all outline-none text-white"
-                            placeholder="Enter your ID">
+                            class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 text-lg">mail</span>
+                        <input type="email" id="email" required
+                            class="w-full bg-slate-900/50 border border-slate-800 rounded-xl py-3 pl-11 pr-4 focus:ring-2 focus:ring-primary outline-none transition-all text-sm"
+                            placeholder="owner@cafe.com">
                     </div>
                 </div>
 
                 <div>
-                    <label for="admin-password"
-                        class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2 ml-1">Security
-                        Key</label>
+                    <div class="flex justify-between items-center mb-1.5 ml-1">
+                        <label
+                            class="block text-[10px] font-bold text-slate-500 uppercase tracking-widest">Password</label>
+                        <button type="button" onclick="handleForgotPassword()"
+                            class="text-[10px] font-bold text-primary hover:underline">Forgot?</button>
+                    </div>
                     <div class="relative">
                         <span
-                            class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 text-xl">key</span>
-                        <input type="password" id="admin-password" required
-                            class="w-full bg-slate-900/50 border border-slate-800 rounded-xl py-3 pl-12 pr-4 focus:ring-2 focus:ring-primary focus:border-primary transition-all outline-none text-white"
+                            class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 text-lg">lock</span>
+                        <input type="password" id="password" required
+                            class="w-full bg-slate-900/50 border border-slate-800 rounded-xl py-3 pl-11 pr-4 focus:ring-2 focus:ring-primary outline-none transition-all text-sm"
                             placeholder="••••••••">
                     </div>
                 </div>
 
-                <div id="error-message" class="hidden animate-shake">
+                <div class="flex items-center justify-between">
+                    <label class="flex items-center gap-2 cursor-pointer group">
+                        <div class="relative flex items-center">
+                            <input type="checkbox" id="remember-me" checked class="peer sr-only">
+                            <div
+                                class="w-4 h-4 border border-slate-700 rounded bg-slate-900/50 peer-checked:bg-primary peer-checked:border-primary transition-all">
+                            </div>
+                            <span
+                                class="material-symbols-outlined absolute text-[12px] text-white opacity-0 peer-checked:opacity-100 transition-opacity">check</span>
+                        </div>
+                        <span class="text-xs text-slate-400 group-hover:text-slate-300 transition-colors">Keep me signed
+                            in</span>
+                    </label>
+                </div>
+
+                <div id="error-message" class="hidden">
                     <div
                         class="bg-red-500/10 border border-red-500/20 text-red-500 text-xs font-bold p-3 rounded-lg flex items-center gap-2">
                         <span class="material-symbols-outlined text-lg">error</span>
-                        Invalid credentials. Access denied.
+                        <span id="error-text">Authentication failed.</span>
                     </div>
                 </div>
 
-                <button type="submit"
-                    class="w-full bg-primary hover:bg-primary/90 text-white font-black py-4 rounded-xl shadow-xl shadow-primary/20 transition-all active:scale-95 flex items-center justify-center gap-2 group/btn">
-                    <span>Unlock Console</span>
+                <button type="submit" id="submit-btn"
+                    class="w-full bg-primary hover:bg-primary/90 text-white font-black py-4 rounded-xl shadow-xl shadow-primary/20 transition-all active:scale-95 flex items-center justify-center gap-2 group">
+                    <span>Unlock Dashboard</span>
                     <span
-                        class="material-symbols-outlined group-hover/btn:translate-x-1 transition-transform">login</span>
+                        class="material-symbols-outlined group-hover:translate-x-1 transition-transform">arrow_forward</span>
                 </button>
             </form>
+
+            <div class="mt-8 pt-6 border-t border-white/5 text-center">
+                <p class="text-xs text-slate-400 mb-4">New here? Start your journey</p>
+                <a href="https://menubanao.com/onboarding" target="_blank"
+                    class="inline-flex items-center gap-2 bg-white/5 border border-white/10 hover:bg-white/10 text-white text-xs font-bold px-6 py-3 rounded-xl transition-all">
+                    Register on MenuBanao
+                    <span class="material-symbols-outlined text-sm">open_in_new</span>
+                </a>
+            </div>
         </div>
 
-        <!-- Footer Info -->
         <p class="text-center mt-8 text-slate-600 text-[10px] font-bold uppercase tracking-widest">
-            &copy; 2026 Donero Cafe • Secure Environment
+            &copy; 2026 Donero Cafe • Secure Portal
         </p>
     </div>
 
     <script>
-        // HARDCODED CREDENTIALS - CHANGE ONLY VIA CODE BY THE CODER
-        const CREDENTIALS = {
-            id: 'admin',
-            password: 'harharmahadev'
-        };
+        // Use existing global SUPABASE_CONFIG
+        const sbClient = supabase.createClient(SUPABASE_CONFIG.URL, SUPABASE_CONFIG.KEY);
 
-        const loginForm = document.getElementById('login-form');
+        const authForm = document.getElementById('auth-form');
         const errorDiv = document.getElementById('error-message');
+        const errorText = document.getElementById('error-text');
+        const submitBtn = document.getElementById('submit-btn');
 
-        loginForm.addEventListener('submit', (e) => {
-            e.preventDefault();
-
-            const idInput = document.getElementById('admin-id').value;
-            const passInput = document.getElementById('admin-password').value;
-
-            if (idInput === CREDENTIALS.id && passInput === CREDENTIALS.password) {
-                // Save authentication state
-                sessionStorage.setItem('donero_admin_auth', 'true');
-                sessionStorage.setItem('donero_admin_name', 'Kunal sir'); // Default as per admin.html
-
-                // Success animation before redirect
-                const btn = e.target.querySelector('button');
-                btn.innerHTML = '<span>Authorized!</span><span class="material-symbols-outlined animate-spin">sync</span>';
-                btn.classList.replace('bg-primary', 'bg-green-600');
-
-                setTimeout(() => {
-                    window.location.href = 'admin.html';
-                }, 800);
-            } else {
-                // Shake animation and error message
-                errorDiv.classList.remove('hidden');
-                loginForm.classList.add('animate-shake');
-                setTimeout(() => loginForm.classList.remove('animate-shake'), 500);
+        // Check for existing session on load
+        window.addEventListener('load', async () => {
+            const { data: { session } } = await sbClient.auth.getSession();
+            if (session) {
+                syncAuthState(session);
+                setTimeout(() => window.location.href = 'admin.html', 500);
             }
         });
 
-        // Add shake animation style
-        const style = document.createElement('style');
-        style.textContent = `
-            @keyframes shake {
-                0%, 100% { transform: translateX(0); }
-                25% { transform: translateX(-8px); }
-                75% { transform: translateX(8px); }
+        authForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const rememberMe = document.getElementById('remember-me').checked;
+
+            setLoading(true);
+            errorDiv.classList.add('hidden');
+
+            try {
+                const { data, error } = await sbClient.auth.signInWithPassword({
+                    email: email,
+                    password: password,
+                });
+
+                if (error) throw error;
+
+                if (data.session) {
+                    syncAuthState(data.session);
+                    submitBtn.classList.replace('bg-primary', 'bg-green-600');
+                    submitBtn.innerHTML = '<span>Authenticated!</span><span class="material-symbols-outlined animate-bounce">check_circle</span>';
+
+                    setTimeout(() => {
+                        window.location.href = 'admin.html';
+                    }, 800);
+                }
+            } catch (error) {
+                errorText.innerText = error.message;
+                errorDiv.classList.remove('hidden');
+                setLoading(false);
             }
-            .animate-shake {
-                animation: shake 0.2s ease-in-out 0s 2;
+        });
+
+        function syncAuthState(session) {
+            // Keep legacy auth for admin.html logic while adding JWT support
+            sessionStorage.setItem('donero_admin_auth', 'true');
+            sessionStorage.setItem('donero_admin_email', session.user.email);
+
+            // Note: Supabase automatically handles local storage persistence 
+            // of the JWT based on the 'persistSession' default (true).
+        }
+
+        function setLoading(isLoading) {
+            if (isLoading) {
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<span>Verifying...</span><span class="material-symbols-outlined animate-spin">sync</span>';
+            } else {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<span>Unlock Dashboard</span><span class="material-symbols-outlined group-hover:translate-x-1 transition-transform">arrow_forward</span>';
             }
-        `;
-        document.head.appendChild(style);
+        }
+
+        async function handleForgotPassword() {
+            const email = document.getElementById('email').value;
+            if (!email) {
+                alert("Please enter your email first to reset password.");
+                return;
+            }
+
+            const { error } = await sbClient.auth.resetPasswordForEmail(email);
+            if (error) {
+                alert("Error: " + error.message);
+            } else {
+                alert("Password reset link sent to your email!");
+            }
+        }
     </script>
 </body>
 

@@ -3,11 +3,21 @@
 <html class="light" lang="en">
 
 <head>
+    <!-- Supabase SDK & Config -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="config.js"></script>
     <script>
-        // Authentication Check - MUST RUN BEFORE ANYTHING ELSE
-        if (sessionStorage.getItem('donero_admin_auth') !== 'true') {
-            window.location.href = 'login.html';
+        // Authentication Check
+        async function checkAuth() {
+            const sbClient = supabase.createClient(SUPABASE_CONFIG.URL, SUPABASE_CONFIG.KEY);
+            const { data: { session } } = await sbClient.auth.getSession();
+
+            // Redirect if no session and no legacy auth
+            if (!session && sessionStorage.getItem('donero_admin_auth') !== 'true') {
+                window.location.href = 'login.html';
+            }
         }
+        checkAuth();
     </script>
     <meta charset="utf-8" />
     <meta content="width=device-width, initial-scale=1.0" name="viewport" />
@@ -44,7 +54,7 @@
     <link
         href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200"
         rel="stylesheet" />
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
 </head>
 
 <body class="bg-background-light text-slate-900 antialiased font-display">
@@ -315,11 +325,20 @@
     <iframe id="print-frame" style="display:none;"></iframe>
 
     <script>
-        // Supabase Configuration
-        const SUPABASE_URL = 'https://vuqvokufivgtevpvppcd.supabase.co';
-        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ1cXZva3VmaXZndGV2cHZwcGNkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIwMTgyNzAsImV4cCI6MjA4NzU5NDI3MH0.VJ7m8CUBexVdJRinN82Bor3IEM4JEqadE0Rm1_IyvfE';
-
-        const sbClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        // --- localStorage Helper Functions ---
+        function getLocalOrders() {
+            try {
+                return JSON.parse(localStorage.getItem('donero_orders')) || [];
+            } catch (e) {
+                console.error("Error reading storage", e);
+                return [];
+            }
+        }
+        function saveLocalOrders(orders) {
+            localStorage.setItem('donero_orders', JSON.stringify(orders));
+            // Trigger storage event for other windows/tabs to synchronize
+            window.dispatchEvent(new Event('storage'));
+        }
 
         // --- Data State ---
         let MOCK_ORDERS = []; // Will be populated from Supabase
@@ -711,35 +730,27 @@
         `).join('');
         }
 
-        async function handleAction(id, action) {
+        function handleAction(id, action) {
+            let orders = getLocalOrders();
+            const index = orders.findIndex(o => o.id === id);
+
+            if (index === -1) return;
+
             if (action === 'CANCEL') {
                 if (confirm('Are you sure you want to cancel this order?')) {
-                    const { error } = await sbClient
-                        .from('orders')
-                        .update({ status: 'CANCELLED' })
-                        .eq('id', id);
-
-                    if (error) {
-                        console.error('Error cancelling order:', error);
-                        alert('Failed to cancel order.');
-                    }
+                    orders[index].status = 'CANCELLED';
+                    saveLocalOrders(orders);
+                    fetchInitialOrders();
                 }
                 return;
             }
 
-            // Update status in Supabase
-            const updates = { status: action };
-            if (action === 'PREPARING') updates.progress = 0;
+            // Update status in local storage
+            orders[index].status = action;
+            if (action === 'PREPARING') orders[index].progress = 0;
 
-            const { error } = await sbClient
-                .from('orders')
-                .update(updates)
-                .eq('id', id);
-
-            if (error) {
-                console.error('Error updating order:', error);
-                alert('Failed to update status.');
-            }
+            saveLocalOrders(orders);
+            fetchInitialOrders();
         }
 
         // --- Initialization ---
@@ -786,30 +797,27 @@
                     console.log("Submitting. Mode:", editingOrderId ? "UPDATE" : "INSERT", "ID:", editingOrderId);
                     console.log("Submission Data:", orderData);
 
+                    let orders = getLocalOrders();
                     if (editingOrderId) {
-                        const { error } = await sbClient
-                            .from('orders')
-                            .update(orderData)
-                            .eq('id', editingOrderId);
-                        if (error) throw error;
+                        const index = orders.findIndex(o => o.id === editingOrderId);
+                        if (index !== -1) {
+                            orders[index] = { ...orders[index], ...orderData };
+                        }
                         console.log("Update success for:", editingOrderId);
-                        closeManualEntryModal();
-                        alert(`Order ${editingOrderId} updated successfully!`);
                     } else {
-                        // ... existing insert logic ...
                         const newOrder = {
                             id: `ORD-${Math.floor(1000 + Math.random() * 9000)}`,
                             ...orderData,
                             created_at: new Date().toISOString()
                         };
-                        const { error } = await sbClient
-                            .from('orders')
-                            .insert([newOrder]);
-                        if (error) throw error;
+                        orders.unshift(newOrder);
                         console.log("Insert success for:", newOrder.id);
-                        closeManualEntryModal();
-                        alert(`Order ${newOrder.id} created successfully!`);
                     }
+                    saveLocalOrders(orders);
+                    closeManualEntryModal();
+                    fetchInitialOrders();
+                    if (editingOrderId) alert(`Order ${editingOrderId} updated successfully!`);
+                    else alert(`Order created successfully!`);
                 } catch (err) {
                     console.error('Submission error:', err);
                     alert(`Submission Failed: ${err.message || "Unknown error"}`);
@@ -858,20 +866,12 @@
         });
 
         // --- Realtime and Initial Fetch ---
-        async function fetchInitialOrders() {
+        function fetchInitialOrders() {
             const refreshBtn = document.querySelector('button[onclick="fetchInitialOrders()"]');
             if (refreshBtn) refreshBtn.querySelector('span').classList.add('animate-spin');
 
             try {
-                const { data, error } = await sbClient
-                    .from('orders')
-                    .select('*')
-                    .order('created_at', { ascending: false });
-
-                if (error) {
-                    console.error('Fetch error:', error);
-                    return;
-                }
+                const data = getLocalOrders();
 
                 MOCK_ORDERS = data.map(o => ({
                     ...o,
@@ -889,37 +889,11 @@
         }
 
         function setupRealtimeListener() {
-            sbClient
-                .channel('orders_channel')
-                .on('postgres_changes', { event: '*', schema: 'public', table: 'orders' }, (payload) => {
-                    console.log('Change received!', payload);
-
-                    if (payload.eventType === 'INSERT') {
-                        const newOrder = {
-                            ...payload.new,
-                            table: payload.new.table_no,
-                            time: 'Just now'
-                        };
-                        MOCK_ORDERS.unshift(newOrder);
-                        showLiveNotification(`New order from ${newOrder.customer}!`);
-                    } else if (payload.eventType === 'UPDATE') {
-                        const index = MOCK_ORDERS.findIndex(o => o.id === payload.new.id);
-                        if (index !== -1) {
-                            MOCK_ORDERS[index] = {
-                                ...MOCK_ORDERS[index],
-                                ...payload.new,
-                                table: payload.new.table_no
-                            };
-                        }
-                    } else if (payload.eventType === 'DELETE') {
-                        MOCK_ORDERS = MOCK_ORDERS.filter(o => o.id !== payload.old.id);
-                    }
-
-                    updateStatsFromData();
-                    renderOrders();
-                    renderStats();
-                })
-                .subscribe();
+            // Listen for changes from other tabs/windows
+            window.addEventListener('storage', () => {
+                console.log('Storage change detected, refreshing dashboard...');
+                fetchInitialOrders();
+            });
         }
 
         function formatDbDate(dateString) {
@@ -939,23 +913,16 @@
             const badge = document.getElementById('live-connection');
             if (!badge) return;
 
-            // 1. Browser Native Signal
-            if (!navigator.onLine) {
-                badge.innerHTML = `<span class="w-2 h-2 bg-red-500 rounded-full mr-2"></span> Offline`;
+            // In local mode, we just check if storage is available
+            try {
+                localStorage.setItem('test', 'test');
+                localStorage.removeItem('test');
+                badge.innerHTML = `<span class="w-2 h-2 bg-blue-500 rounded-full mr-2"></span> Local Database Active`;
+                badge.className = 'flex items-center text-xs font-semibold text-blue-600 bg-blue-50 px-2.5 py-1 rounded-full border border-blue-200';
+            } catch (e) {
+                badge.innerHTML = `<span class="w-2 h-2 bg-red-500 rounded-full mr-2"></span> Storage Error`;
                 badge.className = 'flex items-center text-xs font-semibold text-red-600 bg-red-50 px-2.5 py-1 rounded-full border border-red-200';
-                return;
             }
-
-            // 2. Library Check
-            if (!sbClient) {
-                badge.innerHTML = `<span class="w-2 h-2 bg-amber-500 rounded-full mr-2 animate-pulse"></span> Connecting...`;
-                badge.className = 'flex items-center text-xs font-semibold text-amber-600 bg-amber-50 px-2.5 py-1 rounded-full border border-amber-200';
-                return;
-            }
-
-            // 3. Online and Supabase client initialized
-            badge.innerHTML = `<span class="w-2 h-2 bg-green-500 rounded-full mr-2 animate-pulse"></span> Live Connection Active`;
-            badge.className = 'flex items-center text-xs font-semibold text-green-600 bg-green-50 px-2.5 py-1 rounded-full border border-green-200';
         }
 
         async function updateStatsFromData() {
@@ -1006,28 +973,16 @@
             }, 5000);
         }
 
-        async function testConnection() {
-            alert("Starting Connectivity Diagnostic...");
-            try {
-                const start = Date.now();
-                const { data, error, status } = await sbClient.from('orders').select('id').limit(1);
-                const end = Date.now();
-
-                if (error) {
-                    alert(`Connection Failed!\n\nError: ${error.message}\nCode: ${error.code}\nStatus: ${status}`);
-                } else {
-                    alert(`Connection Success!\n\nLatency: ${end - start}ms\nStatus: ${status}\nData Reachable: Yes`);
-                }
-            } catch (err) {
-                alert(`Critical Error during test: ${err.message}`);
-            }
+        function testConnection() {
+            alert("Local Mode Diagnostic: Browser LocalStorage is active and healthy.");
         }
 
         // Logout Function
-        function logoutAdmin() {
+        async function logoutAdmin() {
             if (confirm('Are you sure you want to logout?')) {
-                sessionStorage.removeItem('donero_admin_auth');
-                sessionStorage.removeItem('donero_admin_name');
+                const sbClient = supabase.createClient(SUPABASE_CONFIG.URL, SUPABASE_CONFIG.KEY);
+                await sbClient.auth.signOut();
+                sessionStorage.clear();
                 window.location.href = 'login.html';
             }
         }
