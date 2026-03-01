@@ -240,30 +240,28 @@
             position: fixed;
             top: 0;
             left: 0;
-            width: 100%;
+            width: 100vw;
             height: 100vh;
-            /* Fixed height to 100% of the viewport */
             z-index: 0;
             overflow: hidden;
             pointer-events: none;
             display: flex;
             justify-content: center;
             align-items: center;
-            /* Removed red background */
         }
 
         .hero-banner-img {
-            width: 100%;
-            /* Responsive width for mobile and tab */
-            height: 100%;
-            /* Fills the container height */
-            object-fit: cover;
-            /* Ensures aspect ratio for mobile/tab is handled correctly */
-            opacity: 0.12;
-            /* Subtle blend with the theme */
+            width: 140%;
+            /* Scaled up to make the pattern "bigger" */
+            height: 140%;
+            object-fit: contain;
+            /* Keeps the line art clean while scaling */
+            opacity: 0.08;
+            /* More subtle since it covers the whole screen */
             mix-blend-mode: multiply;
-            /* Re-enabled for seamless color matching */
-            filter: contrast(1.1);
+            filter: contrast(1.1) brightness(1.05);
+            transform: rotate(-5deg);
+            /* Slight tilt for a more organic feel */
         }
 
         .dark .hero-banner-img {
