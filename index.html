@@ -204,17 +204,22 @@
             margin-top: 1rem;
         }
 
-        .details-block input {
+        .details-block input,
+        .details-block select {
             background: white;
             border: 1px solid rgba(0, 0, 0, 0.1);
             border-radius: 0.5rem;
-            padding: 0.5rem 0.75rem;
+            padding: 0.625rem 0.75rem;
             width: 100%;
             font-size: 0.875rem;
             margin-top: 0.25rem;
+            height: 42px;
+            /* Fixed height for perfect alignment */
+            line-height: normal;
         }
 
-        .dark .details-block input {
+        .dark .details-block input,
+        .dark .details-block select {
             background: #1e293b;
             border-color: rgba(255, 255, 255, 0.1);
             color: white;
@@ -1024,7 +1029,7 @@
                         <div id="table-selection-container">
                             <label class="text-[10px] font-bold text-slate-500 uppercase ml-1">Table Number</label>
                             <select id="order-table"
-                                class="w-full bg-white dark:bg-[#1e293b] border border-black/10 dark:border-white/10 rounded-lg p-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary shadow-sm hover:shadow-md transition-shadow">
+                                class="focus:outline-none focus:ring-2 focus:ring-primary/50 shadow-sm transition-all appearance-none cursor-pointer">
                                 <option value="">Select Table</option>
                                 <option value="Table 1">Table 1</option>
                                 <option value="Table 2">Table 2</option>
@@ -1046,7 +1051,7 @@
                         <div>
                             <label class="text-[10px] font-bold text-slate-500 uppercase ml-1">Customer Name</label>
                             <input type="text" id="order-name" placeholder="Your Name"
-                                class="focus:outline-none focus:ring-1 focus:ring-primary shadow-sm hover:shadow-md transition-shadow">
+                                class="focus:outline-none focus:ring-2 focus:ring-primary/50 shadow-sm transition-all">
                         </div>
                     </div>
                 </div>
@@ -1403,9 +1408,10 @@
 
             items.forEach(item => {
                 const name = item.querySelector('h3').innerText.toLowerCase();
-                const desc = item.querySelector('p').innerText.toLowerCase();
+                const price = item.querySelector('.text-primary').innerText.toLowerCase();
+                const category = item.closest('section').querySelector('h2').innerText.toLowerCase();
 
-                if (name.includes(query) || desc.includes(query)) {
+                if (name.includes(query) || price.includes(query) || category.includes(query)) {
                     item.style.display = 'flex';
                     totalMatch++;
                 } else {
