@@ -241,23 +241,27 @@
             top: 0;
             left: 0;
             width: 100%;
-            height: 380px;
-            z-index: 0;
+            height: 450px;
+            z-index: 1;
+            /* Above body background */
             overflow: hidden;
             pointer-events: none;
             display: flex;
             justify-content: center;
             align-items: center;
+            background: rgba(255, 0, 0, 0.2);
+            /* Temporary debug background */
         }
 
         .hero-banner-img {
-            width: 110%;
-            /* Slight zoom for better coverage */
-            height: 110%;
-            object-fit: cover;
-            opacity: 0.15;
-            mix-blend-mode: multiply;
-            filter: contrast(1.1);
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            opacity: 1;
+            /* Increased for visibility check */
+            /* mix-blend-mode: multiply; Temporarily removed */
+            /* Keep as requested, but we'll see if it works */
+            /* filter: contrast(1.2); Temporarily removed */
         }
 
         .dark .hero-banner-img {
