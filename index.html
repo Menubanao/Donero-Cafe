@@ -241,27 +241,29 @@
             top: 0;
             left: 0;
             width: 100%;
-            height: 450px;
-            z-index: 1;
-            /* Above body background */
+            height: 100vh;
+            /* Fixed height to 100% of the viewport */
+            z-index: 0;
             overflow: hidden;
             pointer-events: none;
             display: flex;
             justify-content: center;
             align-items: center;
-            background: rgba(255, 0, 0, 0.2);
-            /* Temporary debug background */
+            /* Removed red background */
         }
 
         .hero-banner-img {
             width: 100%;
+            /* Responsive width for mobile and tab */
             height: 100%;
-            object-fit: contain;
-            opacity: 1;
-            /* Increased for visibility check */
-            /* mix-blend-mode: multiply; Temporarily removed */
-            /* Keep as requested, but we'll see if it works */
-            /* filter: contrast(1.2); Temporarily removed */
+            /* Fills the container height */
+            object-fit: cover;
+            /* Ensures aspect ratio for mobile/tab is handled correctly */
+            opacity: 0.12;
+            /* Subtle blend with the theme */
+            mix-blend-mode: multiply;
+            /* Re-enabled for seamless color matching */
+            filter: contrast(1.1);
         }
 
         .dark .hero-banner-img {
